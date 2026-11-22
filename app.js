@@ -7,7 +7,10 @@ if (tg) {
 function loadState() {
   const name = localStorage.getItem('player_name') || '';
   const uname = localStorage.getItem('player_username') || '';
-  const gems = localStorage.getItem('gems_bal') || '750';
+  if (localStorage.getItem('gems_bal') === null) {
+    localStorage.setItem('gems_bal', '0');
+  }
+  const gems = localStorage.getItem('gems_bal') || '0';
   const wins = localStorage.getItem('stats_wins') || '0';
   const losses = localStorage.getItem('stats_losses') || '0';
 
@@ -27,12 +30,19 @@ function loadState() {
   }
 }
 
+function selectCat(cat, btn) {
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.games-grid').forEach(g => g.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('cat-' + cat)?.classList.add('active');
+}
+
 function saveUserProfile() {
   const name = document.getElementById('inp-name').value.trim();
   const uname = document.getElementById('inp-username').value.trim().replace(/^@/, '');
 
   if (name.length < 2 || uname.length < 3) {
-    alert('لطفاً نام (حداقل ۲ حرف) و یوزرنیم معتبر (حداقل ۳ حرف) وارد کنید!');
+    alert('لطفاً نام و یوزرنیم معتبر وارد کنید!');
     return;
   }
 
@@ -41,35 +51,22 @@ function saveUserProfile() {
   loadState();
 
   if (tg) {
-    try {
-      tg.sendData(JSON.stringify({ action: 'save_profile', name, username: uname }));
-    } catch (e) {}
+    try { tg.sendData(JSON.stringify({ action: 'save_profile', name, username: uname })); } catch (e) {}
   }
 
-  alert('✅ پروفایل شما ثبت شد! حالا می‌توانید وارد بخش بازی‌ها شوید.');
+  alert('✅ پروفایل ثبت شد!');
   switchTab('home', document.querySelector('[data-t=home]'));
 }
 
-function isProfileReady() {
+function launchGame(file) {
   const name = localStorage.getItem('player_name');
   const uname = localStorage.getItem('player_username');
-  return Boolean(name && uname);
-}
-
-function enterCategory(cat) {
-  if (!isProfileReady()) {
-    alert('🔒 برای شروع بازی ابتدا باید در بخش پروفایل، نام و یوزرنیم خود را انتخاب کنید!');
+  if (!name || !uname) {
+    alert('🔒 برای شروع بازی ابتدا نام و یوزرنیم خود را در پروفایل ثبت کنید!');
     switchTab('profile', document.querySelector('[data-t=profile]'));
     return;
   }
-
-  if (cat === 'board') {
-    alert('🎲 بخش بازی‌های تخته‌ای باز شد (آماده اتصال فایل بازی تخته‌ای).');
-  } else if (cat === 'cards') {
-    alert('🃏 بخش بازی‌های ورق یا پاسور باز شد (آماده اتصال فایل حکم).');
-  } else if (cat === 'slots') {
-    alert('🎰 بخش بازی‌های اسلاتی باز شد (آماده اتصال فایل اسلات).');
-  }
+  window.location.href = file;
 }
 
 function switchTab(id, el) {
@@ -96,7 +93,7 @@ function sendWalletAction(type) {
 function submitWithdraw() {
   const amt = parseInt(document.getElementById('withdraw-amount').value, 10);
   const dest = document.getElementById('withdraw-dest').value.trim();
-  const bal = parseInt(localStorage.getItem('gems_bal') || '750', 10);
+  const bal = parseInt(localStorage.getItem('gems_bal') || '0', 10);
 
   if (!amt || amt < 100) { alert('حداقل مقدار برداشت ۱۰۰ الماس است.'); return; }
   if (amt > bal) { alert('موجودی الماس شما کافی نیست.'); return; }
@@ -105,7 +102,7 @@ function submitWithdraw() {
   if (tg) {
     try { tg.sendData(JSON.stringify({ action: 'withdraw', amount: amt, destination: dest })); } catch (e) {}
   }
-  alert('✅ درخواست برداشت شما ثبت شد.');
+  alert('✅ درخواست برداشت ثبت شد.');
 }
 
 loadState();
