@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بازی دوز</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #18222d);
+            --secondary-bg: var(--tg-theme-secondary-bg-color, #212e3c);
+            --text-color: var(--tg-theme-text-color, #ffffff);
+            --hint-color: var(--tg-theme-hint-color, #8b9bb4);
+            --button-color: var(--tg-theme-button-color, #3390ec);
+            --button-text: var(--tg-theme-button-text-color, #ffffff);
+            --accent-x: #ff4757;
+            --accent-o: #2ed573;
+            --gem-color: #00d2d3;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: var(--secondary-bg);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--button-color), #70a1ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .username {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .gem-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 210, 211, 0.15);
+            border: 1px solid rgba(0, 210, 211, 0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--gem-color);
+        }
+
+        /* Main Content */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tab-section {
+            display: none;
+            width: 100%;
+            max-width: 400px;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tab-section.active {
+            display: flex;
+        }
+
+        /* Game Area */
+        .status-bar {
+            background-color: var(--secondary-bg);
+            padding: 12px 20px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            max-width: 320px;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            background-color: var(--secondary-bg);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .cell:active {
+            transform: scale(0.95);
+        }
+
+        .cell.x { color: var(--accent-x); }
+        .cell.o { color: var(--accent-o); }
+
+        .btn {
+            background-color: var(--button-color);
+            color: var(--button-text);
+            border: none;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active { opacity: 0.8; }
+
+        /* Shop & Leaderboard Cards */
+        .card {
+            background-color: var(--secondary-bg);
+            border-radius: 14px;
+            padding: 14px 16px;
+            width: 100%;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title { font-weight: 600; font-size: 15px; }
+        .card-sub { font-size: 12px; color: var(--hint-color); margin-top: 3px; }
+
+        .buy-btn {
+            background-color: var(--button-color);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            display: flex;
+            background-color: var(--secondary-bg);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 8px 0;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--hint-color);
+            font-size: 12px;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+
+        .nav-item.active {
+            color: var(--button-color);
+            font-weight: 600;
+        }
+
+        .nav-icon { font-size: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="user-info">
+            <div class="avatar" id="avatar">U</div>
+            <div class="username" id="username">بازیکن</div>
+        </div>
+        <div class="gem-badge">
+            <span>💎</span>
+            <span id="gem-count">750</span>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- Play Tab -->
+        <div id="tab-play" class="tab-section active">
+            <div class="status-bar" id="status">نوبت شماست (X)</div>
+            <div class="board" id="board">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
+            <button class="btn" onclick="resetGame()">شروع مجدد بازی</button>
+        </div>
+
+        <!-- Shop Tab -->
+        <div id="tab-shop" class="tab-section">
+            <h3 style="margin-bottom: 14px; width: 100%;">فروشگاه الماس 💎</h3>
+            <div class="card">
+                <div>
+                    <div class="card-title">بسته ۱۰۰ الماس</div>
+                    <div class="card-sub">مناسب برای بازی‌های سریع</div>
+                </div>
+                <button class="buy-btn" onclick="buyGems(100, 50)">50 ⭐</button>
+            </div>
+            <div class="card">
+                <div>
+                    <div class="card-title">بسته ۳۰۰ الماس</div>
+                    <div class="card-sub">محبوب‌ترین بسته</div>
+                </div>
+                <button class="buy-btn" onclick="buyGems(300, 120)">120 ⭐</button>
+            </div>
+            <div class="card">
+                <div>
+                    <div class="card-title">بسته ۱۰۰۰ الماس</div>
+                    <div class="card-sub">حرفه‌ای + جایزه ویژه</div>
+                </div>
+                <button class="buy-btn" onclick="buyGems(1000, 350)">350 ⭐</button>
+            </div>
+        </div>
+
+        <!-- Leaderboard Tab -->
+        <div id="tab-leaderboard" class="tab-section">
+            <h3 style="margin-bottom: 14px; width: 100%;">برترین بازیکنان 🏆</h3>
+            <div class="card">
+                <div>
+                    <div class="card-title">🥇 امیرحسین</div>
+                    <div class="card-sub">۴۸ برد متوالی</div>
+                </div>
+                <div style="color: var(--gem-color); font-weight: bold;">12,400 💎</div>
+            </div>
+            <div class="card">
+                <div>
+                    <div class="card-title">🥈 سارا</div>
+                    <div class="card-sub">۳۵ برد</div>
+                </div>
+                <div style="color: var(--gem-color); font-weight: bold;">8,950 💎</div>
+            </div>
+            <div class="card">
+                <div>
+                    <div class="card-title">🥉 رضا</div>
+                    <div class="card-sub">۲۹ برد</div>
+                </div>
+                <div style="color: var(--gem-color); font-weight: bold;">6,200 💎</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('play', this)">
+            <span class="nav-icon">🎮</span>
+            <span>بازی</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('shop', this)">
+            <span class="nav-icon">💎</span>
+            <span>فروشگاه</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('leaderboard', this)">
+            <span class="nav-icon">🏆</span>
+            <span>برترین‌ها</span>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        // User info from Telegram
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            const user = tg.initDataUnsafe.user;
+            document.getElementById('username').innerText = user.first_name;
+            document.getElementById('avatar').innerText = user.first_name.charAt(0).toUpperCase();
+        }
+
+        let gems = 750;
+        let boardState = ["", "", "", "", "", "", "", "", ""];
+        let gameActive = true;
+        const winConditions = [
+            [0,1,2], [3,4,5], [6,7,8],
+            [0,3,6], [1,4,7], [2,5,8],
+            [0,4,8], [2,4,6]
+        ];
+
+        const cells = document.querySelectorAll('.cell');
+        const statusText = document.getElementById('status');
+
+        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+
+        function haptic(type = 'light') {
+            if (tg.HapticFeedback) {
+                if (type === 'win') tg.HapticFeedback.notificationOccurred('success');
+                else if (type === 'lose') tg.HapticFeedback.notificationOccurred('error');
+                else tg.HapticFeedback.impactOccurred(type);
+            }
+        }
+
+        function handleCellClick(e) {
+            const idx = e.target.getAttribute('data-index');
+            if (boardState[idx] !== "" || !gameActive) return;
+
+            makeMove(idx, "X");
+            haptic('medium');
+
+            if (checkResult()) return;
+
+            statusText.innerText = "ربات در حال فکر کردن...";
+            setTimeout(() => {
+                botMove();
+                checkResult();
+            }, 400);
+        }
+
+        function makeMove(idx, player) {
+            boardState[idx] = player;
+            const cell = cells[idx];
+            cell.innerText = player;
+            cell.classList.add(player.toLowerCase());
+        }
+
+        function botMove() {
+            if (!gameActive) return;
+            // Smart check: Win or Block
+            let move = findBestMove("O") ?? findBestMove("X");
+            if (move === null) {
+                const empty = boardState.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+                move = empty[Math.floor(Math.random() * empty.length)];
+            }
+            if (move !== undefined) {
+                makeMove(move, "O");
+                haptic('light');
+                if (gameActive) statusText.innerText = "نوبت شماست (X)";
+            }
+        }
+
+        function findBestMove(player) {
+            for (let cond of winConditions) {
+                const [a, b, c] = cond;
+                const vals = [boardState[a], boardState[b], boardState[c]];
+                if (vals.filter(v => v === player).length === 2 && vals.includes("")) {
+                    return cond[vals.indexOf("")];
+                }
+            }
+            return null;
+        }
+
+        function checkResult() {
+            for (let cond of winConditions) {
+                const [a, b, c] = cond;
+                if (boardState[a] && boardState[a] === boardState[b] && boardState[a] === boardState[c]) {
+                    gameActive = false;
+                    if (boardState[a] === "X") {
+                        gems += 50;
+                        document.getElementById('gem-count').innerText = gems;
+                        statusText.innerText = "🎉 برنده شدی! (+50 الماس)";
+                        haptic('win');
+                    } else {
+                        statusText.innerText = "😔 باختی! دوباره تلاش کن";
+                        haptic('lose');
+                    }
+                    return true;
+                }
+            }
+            if (!boardState.includes("")) {
+                gameActive = false;
+                statusText.innerText = "🤝 بازی مساوی شد!";
+                return true;
+            }
+            return false;
+        }
+
+        function resetGame() {
+            boardState = ["", "", "", "", "", "", "", "", ""];
+            gameActive = true;
+            statusText.innerText = "نوبت شماست (X)";
+            cells.forEach(c => {
+                c.innerText = "";
+                c.classList.remove('x', 'o');
+            });
+            haptic('light');
+        }
+
+        function switchTab(tabName, el) {
+            document.querySelectorAll('.tab-section').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+            haptic('light');
+        }
+
+        function buyGems(amount, stars) {
+            haptic('medium');
+            tg.sendData(JSON.stringify({ action: "buy_gems", amount: amount, stars: stars }));
+            tg.showAlert(`درخواست خرید ${amount} الماس (${stars} استارز) به ربات ارسال شد!`);
+        }
+    </script>
+</body>
+  </html>
+                      
