@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>@Starsgameir_bot</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js?v=v1795389799"></script>
   <style>
     :root {
       --bg: #08070d;
@@ -166,7 +166,7 @@
         <div id="top-username" dir="ltr" style="font-size:11px; color:var(--muted); text-align:right;">@username</div>
       </div>
     </div>
-    <div class="gem-pill" onclick="switchTab('shop', document.querySelector('[data-t=shop]'))">
+    <div class="gem-pill" onclick="location.href='wallet.html?v=v1795389799'">
       💎 <span id="top-gems">0</span>
     </div>
   </header>
@@ -238,35 +238,6 @@
       </div>
     </section>
 
-    <!-- ۲. تب فروشگاه -->
-    <section id="tab-shop" class="tab-sec">
-      <div class="box-panel">
-        <div class="panel-title">🛒 فروشگاه الماس (Telegram Stars)</div>
-        <div class="grid-2">
-          <div class="shop-item" onclick="requestBuy(200, '50 Stars')">
-            <div style="font-size:22px;">💎</div>
-            <div style="font-weight:bold; margin:4px 0;">200 الماس</div>
-            <div style="font-size:12px; color:#f472b6;">⭐ 50 Stars</div>
-          </div>
-          <div class="shop-item" onclick="requestBuy(450, '100 Stars')">
-            <div style="font-size:22px;">💎</div>
-            <div style="font-weight:bold; margin:4px 0;">450 الماس</div>
-            <div style="font-size:12px; color:#f472b6;">⭐ 100 Stars</div>
-          </div>
-          <div class="shop-item" onclick="requestBuy(950, '200 Stars')">
-            <div style="font-size:22px;">💎</div>
-            <div style="font-weight:bold; margin:4px 0;">950 الماس</div>
-            <div style="font-size:12px; color:#f472b6;">⭐ 200 Stars</div>
-          </div>
-          <div class="shop-item" onclick="requestBuy(2500, '500 Stars')">
-            <div style="font-size:22px;">💎</div>
-            <div style="font-weight:bold; margin:4px 0;">2,500 الماس</div>
-            <div style="font-size:12px; color:#f472b6;">⭐ 500 Stars</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ۳. تب واریز و برداشت -->
     <section id="tab-wallet" class="tab-sec">
       <div class="box-panel">
@@ -311,11 +282,10 @@
 
   <nav class="bnav">
     <button class="bnav-btn active" data-t="home" onclick="switchTab('home', this)">🎮<span>بازی‌ها</span></button>
-    <button class="bnav-btn" data-t="shop" onclick="switchTab('shop', this)">🛒<span>فروشگاه</span></button>
-    <button class="bnav-btn" data-t="wallet" onclick="switchTab('wallet', this)">💳<span>واریز و برداشت</span></button>
+    <button class="bnav-btn" data-t="wallet" onclick="location.href='wallet.html?v=v1795389799'">💳<span>واریز و برداشت</span></button>
     <button class="bnav-btn" data-t="profile" onclick="switchTab('profile', this)">👤<span>پروفایل</span></button>
   </nav>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=v1795389799"></script>
 </body>
 </html>
