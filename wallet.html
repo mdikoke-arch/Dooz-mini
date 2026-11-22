@@ -178,13 +178,22 @@
         holder: CARD_HOLDER,
         username: uname
       });
-      let sent = false;
+
       if (tg) {
-        try { tg.sendData(payload); sent = true; } catch (e) {}
-      }
-      if (!sent) {
-        if (tg && tg.openTelegramLink) tg.openTelegramLink(BOT_URL);
-        else window.open(BOT_URL, '_blank');
+        try { tg.sendData(payload); } catch (e) {}
+        setTimeout(() => {
+          try {
+            if (tg.openTelegramLink) {
+              tg.openTelegramLink(BOT_URL);
+            } else {
+              window.location.href = BOT_URL;
+            }
+          } catch (e) {
+            window.location.href = BOT_URL;
+          }
+        }, 120);
+      } else {
+        window.location.href = BOT_URL;
       }
     }
 
