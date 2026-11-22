@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Stars Game Hub</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+<style>
+:root{--bg:#0b0e17;--card:#141927;--border:#232b42;--accent:#38bdf8;--gold:#fbbf24;--x:#ff4d6d;--o:#00f59b;--text:#f8fafc;--muted:#94a3b8}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Vazirmatn,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
+body{background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:85px}
+.header{position:sticky;top:0;z-index:50;background:rgba(11,14,23,.95);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.gem-badge{background:rgba(0,245,155,.15);border:1px solid rgba(0,245,155,.35);padding:6px 14px;border-radius:999px;display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;color:#6ee7b7}
+.user-info{display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:flex;align-items:center;justify-content:center;font-weight:700;overflow:hidden;border:1.5px solid var(--accent)}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.container{padding:16px;max-width:480px;margin:0 auto}
+.view{display:none}.view.active{display:block}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.section-title{font-size:17px;font-weight:800}
+.games-list{display:flex;flex-direction:column;gap:12px}
+.game-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.game-card.playable{background:linear-gradient(135deg,#162038,#141927);border-color:rgba(56,189,248,.5);cursor:pointer}
+.game-card.locked{opacity:.72;cursor:pointer}
+.game-left{display:flex;align-items:center;gap:14px}
+.game-icon{width:48px;height:48px;border-radius:14px;background:#1e263d;display:flex;align-items:center;justify-content:center;font-size:24px;border:1px solid var(--border)}
+.game-meta h3{font-size:15px;font-weight:700;margin-bottom:3px}
+.game-meta p{font-size:12px;color:var(--muted)}
+.badge-play{background:linear-gradient(135deg,#0ea5e9,#2563eb);color:#fff;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer}
+.badge-soon{background:rgba(148,163,184,.12);color:var(--muted);border:1px solid rgba(148,163,184,.2);padding:5px 10px;border-radius:8px;font-size:11px}
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;align-items:flex-end;justify-content:center}
+.modal-backdrop.open{display:flex}
+.modal-sheet{background:#141927;border-top:1px solid var(--border);border-radius:24px 24px 0 0;padding:20px 16px 28px;width:100%;max-width:480px}
+.mode-btn{width:100%;background:#1b2236;border:1px solid var(--border);color:var(--text);padding:14px 16px;border-radius:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700;cursor:pointer}
+.top-bar-game{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.back-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:12px;font-size:13px;cursor:pointer}
+.stake-pill{background:rgba(251,191,36,.14);border:1px solid rgba(251,191,36,.35);color:var(--gold);padding:6px 12px;border-radius:10px;font-size:12px;font-weight:700}
+.status-banner{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px;text-align:center;font-size:15px;font-weight:700;margin-bottom:18px}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;aspect-ratio:1/1;margin-bottom:18px}
+.cell{background:#121726;border:1px solid #222b45;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:900;cursor:pointer}
+.cell.x{color:var(--x)}.cell.o{color:var(--o)}.cell.win{background:rgba(56,189,248,.18);border-color:var(--accent)}
+.primary-btn{width:100%;background:linear-gradient(135deg,#0ea5e9,#2563eb);border:none;color:#fff;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer}
+.shop-card,.rank-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.buy-btn{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;padding:9px 16px;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,20,34,.96);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0 14px;z-index:60}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;width:33.3%}
+.nav-item.active{color:var(--accent)}
+.toast{position:fixed;top:72px;left:50%;transform:translateX(-50%);background:#1e293b;border:1px solid var(--accent);color:#fff;padding:9px 18px;border-radius:999px;font-size:13px;z-index:200;display:none;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="gem-badge"><span>💎</span><span id="gemCount">800</span></div>
+  <div class="user-info"><span id="userName">بازیکن</span><div class="avatar" id="userAvatar">S</div></div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="container">
+  <div id="view-lobby" class="view active">
+    <div class="section-header"><div class="section-title">🎮 لیست بازی‌های آنلاین</div><span style="font-size:12px;color:var(--muted)">۷ بازی</span></div>
+    <div class="games-list">
+      <div class="game-card playable" id="btnDoozCard">
+        <div class="game-left"><div class="game-icon">❌</div><div class="game-meta"><h3>۱. دوز کلاسیک (Dooz)</h3><p>رقابت سریع ۲ نفره • رایگان و الماسی</p></div></div>
+        <button type="button" class="badge-play" id="btnDoozStart">شروع بازی</button>
+      </div>
+      <div class="game-card locked" data-msg="⏳ بازی دوز چهارتایی به‌زودی فعال می‌شود!"><div class="game-left"><div class="game-icon">🔴</div><div class="game-meta"><h3>۲. دوز چهارتایی (Connect 4)</h3><p>چینش ۴ مهره هم‌رنگ</p></div></div><span class="badge-soon">به‌زودی</span></div>
+      <div class="game-card locked" data-msg="⏳ بازی چهار برگ به‌زودی فعال می‌شود!"><div class="game-left"><div class="game-icon">🂡</div><div class="game-meta"><h3>۳. چهار برگ (پاسور)</h3><p>سور زدن و جمع کردن امتیاز</p></div></div><span class="badge-soon">به‌زودی</span></div>
+      <div class="game-card locked" data-msg="⏳ بازی حکم به‌زودی فعال می‌شود!"><div class="game-left"><div class="game-icon">🃏</div><div class="game-meta"><h3>۴. حکم (Hokm)</h3><p>حکم ۲ نفره و ۴ نفره آنلاین</p></div></div><span class="badge-soon">به‌زودی</span></div>
+      <div class="game-card locked" data-msg="⏳ بازی منچ به‌زودی فعال می‌شود!"><div class="game-left"><div class="game-icon">🎲</div><div class="game-meta"><h3>۵. منچ آنلاین (Ludo)</h3><p>رقابت ۲ تا ۴ نفره با تاس</p></div></div><span class="badge-soon">به‌زودی</span></div>
+      <div class="game-card locked" data-msg="⏳ بازی مارپله به‌زودی فعال می‌شود!"><div class="game-left"><div class="game-icon">🐍</div><div class="game-meta"><h3>۶. مار و پله (Snakes & Ladders)</h3><p>صعود سریع تا خانه ۱۰۰</p></div></div><span class="badge-soon">به‌زودی</span></div>
+      <div class="game-card locked" data-msg="⏳ بازی تخته نرد به‌زودی فعال می‌شود!"><div class="game-left"><div class="game-icon">♟️</div><div class="game-meta"><h3>۷. تخته نرد (Backgammon)</h3><p>رقابت حرفه‌ای و شرطی</p></div></div><span class="badge-soon">به‌زودی</span></div>
+    </div>
+  </div>
+  <div id="view-dooz" class="view">
+    <div class="top-bar-game"><button type="button" class="back-btn" id="btnBack">⬅ بازگشت</button><div class="stake-pill" id="stakeBadge">حالت تمرینی</div></div>
+    <div class="status-banner" id="gameStatus">نوبت شماست (X)</div>
+    <div class="board" id="board">
+      <div class="cell" data-i="0"></div><div class="cell" data-i="1"></div><div class="cell" data-i="2"></div>
+      <div class="cell" data-i="3"></div><div class="cell" data-i="4"></div><div class="cell" data-i="5"></div>
+      <div class="cell" data-i="6"></div><div class="cell" data-i="7"></div><div class="cell" data-i="8"></div>
+    </div>
+    <button type="button" class="primary-btn" id="btnReset">شروع مجدد بازی</button>
+  </div>
+  <div id="view-shop" class="view">
+    <div class="section-header"><div class="section-title">💎 فروشگاه الماس</div></div>
+    <div class="shop-card"><div><h3>💎 ۲۰۰ الماس</h3><p style="font-size:12px;color:var(--muted)">ورود به میزهای ۵۰ الماسی</p></div><button type="button" class="buy-btn" data-g="200" data-s="50">۵۰ ⭐</button></div>
+    <div class="shop-card"><div><h3>💎 ۴۲۰ الماس</h3><p style="font-size:12px;color:var(--muted)">پکیج اقتصادی</p></div><button type="button" class="buy-btn" data-g="420" data-s="100">۱۰۰ ⭐</button></div>
+    <div class="shop-card"><div><h3>💎 ۹۰۰ الماس</h3><p style="font-size:12px;color:var(--muted)">پکیج VIP</p></div><button type="button" class="buy-btn" data-g="900" data-s="200">۲۰۰ ⭐</button></div>
+  </div>
+  <div id="view-rank" class="view">
+    <div class="section-header"><div class="section-title">🏆 برترین بازیکنان</div></div>
+    <div class="rank-item"><div>🥇 <strong>Amir_King</strong></div><div style="color:#6ee7b7;font-weight:700">۴,۲۵۰ 💎</div></div>
+    <div class="rank-item"><div>🥈 <strong>Reza_Pro</strong></div><div style="color:#6ee7b7;font-weight:700">۳,۱۰۰ 💎</div></div>
+    <div class="rank-item" style="border-color:var(--accent)"><div>👤 <strong id="myRankName">شما</strong></div><div style="color:var(--gold);font-weight:700" id="myRankGems">800 💎</div></div>
+  </div>
+</div>
+<div class="modal-backdrop" id="modeModal">
+  <div class="modal-sheet">
+    <h3 style="font-size:16px;margin-bottom:14px;text-align:center">انتخاب نوع بازی دوز</h3>
+    <button type="button" class="mode-btn" data-stake="0"><span>🆓 بازی تمرینی (رایگان)</span><span style="color:var(--muted);font-size:12px">بدون شرط</span></button>
+    <button type="button" class="mode-btn" data-stake="50"><span>💎 میز رقابتی ۵۰ الماسی</span><span style="color:#6ee7b7">جایزه: ۱۰۰ 💎</span></button>
+    <button type="button" class="mode-btn" data-stake="100"><span>🔥 میز حرفه‌ای ۱۰۰ الماسی</span><span style="color:#6ee7b7">جایزه: ۲۰۰ 💎</span></button>
+  </div>
+</div>
+<div class="bottom-nav">
+  <div class="nav-item active" data-tab="view-lobby"><span>🎮</span><span>بازی‌ها</span></div>
+  <div class="nav-item" data-tab="view-shop"><span>💎</span><span>فروشگاه</span></div>
+  <div class="nav-item" data-tab="view-rank"><span>🏆</span><span>برترین‌ها</span></div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  var tg = window.Telegram && window.Telegram.WebApp;
+  if (tg) { tg.ready(); tg.expand(); }
+  var gems = parseInt(localStorage.getItem("dooz_gems") || "800", 10);
+  var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  if (user && user.first_name) {
+    document.getElementById("userName").textContent = user.first_name;
+    document.getElementById("myRankName").textContent = user.first_name;
+    document.getElementById("userAvatar").textContent = user.first_name.charAt(0).toUpperCase();
+  }
+  function updateGems() {
+    document.getElementById("gemCount").textContent = gems;
+    document.getElementById("myRankGems").textContent = gems + " 💎";
+    localStorage.setItem("dooz_gems", String(gems));
+  }
+  updateGems();
+  function toast(msg) {
+    var t = document.getElementById("toast");
+    t.textContent = msg; t.style.display = "block";
+    clearTimeout(window._tt);
+    window._tt = setTimeout(function(){ t.style.display = "none"; }, 2200);
+  }
+  function showView(id) {
+    document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
+    document.getElementById(id).classList.add("active");
+  }
+  document.querySelectorAll(".nav-item").forEach(function(item){
+    item.addEventListener("click", function(){
+      document.querySelectorAll(".nav-item").forEach(function(n){ n.classList.remove("active"); });
+      item.classList.add("active");
+      showView(item.getAttribute("data-tab"));
+    });
+  });
+  document.querySelectorAll(".game-card.locked").forEach(function(card){
+    card.addEventListener("click", function(){ toast(card.getAttribute("data-msg")); });
+  });
+  var modal = document.getElementById("modeModal");
+  function openModal() { modal.classList.add("open"); }
+  document.getElementById("btnDoozCard").addEventListener("click", openModal);
+  document.getElementById("btnDoozStart").addEventListener("click", function(e){ e.stopPropagation(); openModal(); });
+  modal.addEventListener("click", function(e){ if (e.target === modal) modal.classList.remove("open"); });
+
+  var board = ["","","","","","","","",""], stake = 0, active = false, turn = true;
+  var wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+  document.querySelectorAll(".mode-btn").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var s = parseInt(btn.getAttribute("data-stake"), 10);
+      if (s > 0 && gems < s) { toast("❌ موجودی الماس کافی نیست!"); return; }
+      if (s > 0) { gems -= s; updateGems(); }
+      stake = s;
+      modal.classList.remove("open");
+      document.getElementById("stakeBadge").textContent = s === 0 ? "حالت تمرینی (رایگان)" : "شرط میز: " + s + " 💎";
+      showView("view-dooz");
+      initBoard();
+    });
+  });
+
+  function initBoard() {
+    board = ["","","","","","","","",""];
+    active = true; turn = true;
+    document.getElementById("gameStatus").textContent = "نوبت شماست (X)";
+    document.querySelectorAll(".cell").forEach(function(c){ c.textContent = ""; c.className = "cell"; });
+  }
+  document.getElementById("btnBack").addEventListener("click", function(){ showView("view-lobby"); });
+  document.getElementById("btnReset").addEventListener("click", function(){
+    if (stake > 0) {
+      if (gems < stake) { toast("❌ موجودی الماس کافی نیست!"); return; }
+      gems -= stake; updateGems();
+    }
+    initBoard();
+  });
+
+  function mark(i, p) {
+    board[i] = p;
+    var c = document.querySelectorAll(".cell")[i];
+    c.textContent = p;
+    c.classList.add(p.toLowerCase());
+  }
+  function bestMove(p) {
+    for (var k = 0; k < wins.length; k++) {
+      var a = wins[k][0], b = wins[k][1], c = wins[k][2];
+      var line = [board[a], board[b], board[c]];
+      if (line.filter(function(x){ return x === p; }).length === 2 && line.indexOf("") !== -1) {
+        if (board[a] === "") return a;
+        if (board[b] === "") return b;
+        if (board[c] === "") return c;
+      }
+    }
+    return -1;
+  }
+  function checkEnd(p) {
+    var cells = document.querySelectorAll(".cell");
+    for (var k = 0; k < wins.length; k++) {
+      var a = wins[k][0], b = wins[k][1], c = wins[k][2];
+      if (board[a] === p && board[b] === p && board[c] === p) {
+        active = false;
+        cells[a].classList.add("win"); cells[b].classList.add("win"); cells[c].classList.add("win");
+        if (p === "X") {
+          var rw = stake * 2;
+          if (rw > 0) { gems += rw; updateGems(); document.getElementById("gameStatus").textContent = "🎉 بردید! +" + rw + " 💎"; }
+          else { document.getElementById("gameStatus").textContent = "🎉 تبریک! شما برنده شدید"; }
+        } else {
+          document.getElementById("gameStatus").textContent = "😢 ربات برنده شد!";
+        }
+        return true;
+      }
+    }
+    if (board.indexOf("") === -1) {
+      active = false;
+      if (stake > 0) { gems += stake; updateGems(); document.getElementById("gameStatus").textContent = "🤝 مساوی! الماس برگشت"; }
+      else { document.getElementById("gameStatus").textContent = "🤝 بازی مساوی شد!"; }
+      return true;
+    }
+    return false;
+  }
+  function botPlay() {
+    if (!active) return;
+    var m = bestMove("O");
+    if (m === -1) m = bestMove("X");
+    if (m === -1 && board[4] === "") m = 4;
+    if (m === -1) {
+      var emp = [];
+      for (var i = 0; i < 9; i++) if (board[i] === "") emp.push(i);
+      if (emp.length) m = emp[Math.floor(Math.random() * emp.length)];
+    }
+    if (m !== -1) { mark(m, "O"); if (checkEnd("O")) return; }
+    turn = true;
+    document.getElementById("gameStatus").textContent = "نوبت شماست (X)";
+  }
+  document.querySelectorAll(".cell").forEach(function(cell){
+    cell.addEventListener("click", function(){
+      var idx = parseInt(cell.getAttribute("data-i"), 10);
+      if (!active || !turn || board[idx] !== "") return;
+      mark(idx, "X");
+      if (checkEnd("X")) return;
+      turn = false;
+      document.getElementById("gameStatus").textContent = "نوبت ربات (O)...";
+      setTimeout(botPlay, 400);
+    });
+  });
+  document.querySelectorAll(".buy-btn").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var g = parseInt(btn.getAttribute("data-g"), 10);
+      var s = parseInt(btn.getAttribute("data-s"), 10);
+      if (tg) { tg.sendData(JSON.stringify({action:"buy_gems",gems:g,stars:s})); toast("⭐ درخواست خرید " + g + " الماس ارسال شد"); }
+      else { gems += g; updateGems(); toast("✅ " + g + " الماس اضافه شد"); }
+    });
+  });
+});
+</script>
+</body>
+</html>
