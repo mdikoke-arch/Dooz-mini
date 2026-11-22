@@ -1,1 +1,777 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Stars Game Hub</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+<style>
+:root{--bg:#0b0e17;--card:#141927;--border:#232b42;--accent:#38bdf8;--ton:#0098ea;--gold:#fbbf24;--x:#ff4d6d;--o:#00f59b;--text:#f8fafc;--muted:#94a3b8}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Vazirmatn,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
+body{background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:85px}
+.header{position:sticky;top:0;z-index:50;background:rgba(11,14,23,.95);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.gem-badge{background:rgba(0,245,155,.15);border:1px solid rgba(0,245,155,.35);padding:6px 12px;border-radius:999px;display:flex;align-items:center;gap:5px;font-weight:700;font-size:13px;color:#6ee7b7;white-space:nowrap}
+.wallet-btn{background:linear-gradient(135deg,#0098ea,#0077b6);border:1px solid rgba(255,255,255,.18);color:#fff;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.wallet-btn.connected{background:rgba(0,152,234,.16);border-color:#0098ea;color:#7dd3fc}
+.user-info{display:flex;align-items:center;gap:8px}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;border:1.5px solid var(--accent)}
+.container{padding:16px;max-width:480px;margin:0 auto}
+.view{display:none}.view.active{display:block}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.section-title{font-size:17px;font-weight:800}
+.games-list{display:flex;flex-direction:column;gap:12px}
+.game-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.game-card.playable{background:linear-gradient(135deg,#162038,#141927);border-color:rgba(56,189,248,.5);cursor:pointer}
+.game-card.locked{opacity:.72;cursor:pointer}
+.game-left{display:flex;align-items:center;gap:14px}
+.game-icon{width:48px;height:48px;border-radius:14px;background:#1e263d;display:flex;align-items:center;justify-content:center;font-size:24px;border:1px solid var(--border)}
+.game-meta h3{font-size:15px;font-weight:700;margin-bottom:3px}
+.game-meta p{font-size:12px;color:var(--muted)}
+.badge-play{background:linear-gradient(135deg,#0ea5e9,#2563eb);color:#fff;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer}
+.badge-soon{background:rgba(148,163,184,.12);color:var(--muted);border:1px solid rgba(148,163,184,.2);padding:5px 10px;border-radius:8px;font-size:11px}
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;align-items:flex-end;justify-content:center}
+.modal-backdrop.open{display:flex}
+.modal-sheet{background:#141927;border-top:1px solid var(--border);border-radius:24px 24px 0 0;padding:20px 16px 28px;width:100%;max-width:480px}
+.mode-btn{width:100%;background:#1b2236;border:1px solid var(--border);color:var(--text);padding:14px 16px;border-radius:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700;cursor:pointer}
+.top-bar-game{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.back-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:12px;font-size:13px;cursor:pointer}
+.stake-pill{background:rgba(251,191,36,.14);border:1px solid rgba(251,191,36,.35);color:var(--gold);padding:6px 12px;border-radius:10px;font-size:12px;font-weight:700}
+.status-banner{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;font-size:14px;font-weight:700;margin-bottom:14px}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;aspect-ratio:1/1;margin-bottom:18px}
+.cell{background:#121726;border:1px solid #222b45;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:900;cursor:pointer}
+.cell.x{color:var(--x)}.cell.o{color:var(--o)}.cell.win{background:rgba(56,189,248,.18);border-color:var(--accent)}
+.c4-board{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;background:#16223b;border:2px solid #283a63;padding:10px;border-radius:18px;margin-bottom:18px}
+.c4-slot{aspect-ratio:1/1;background:#0b0e17;border-radius:50%;border:1px solid #1e293b;cursor:pointer}
+.c4-slot.p1{background:radial-gradient(circle at 30% 30%,#ff758f,#e11d48);border-color:#fda4af}
+.c4-slot.p2{background:radial-gradient(circle at 30% 30%,#fde047,#eab308);border-color:#fef08a}
+.c4-slot.win{outline:3px solid #38bdf8}
+.pasur-scores{display:flex;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 12px;margin-bottom:10px;font-size:12px;font-weight:700}
+.pasur-table{background:radial-gradient(circle,#14532d,#052e16);border:2px solid #166534;border-radius:18px;padding:14px;min-height:135px;margin-bottom:12px}
+.pasur-label{font-size:11px;color:#86efac;margin-bottom:8px;text-align:center}
+.cards-row{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;min-height:78px}
+.p-card{width:54px;height:78px;background:#fff;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;font-size:16px;box-shadow:0 4px 10px rgba(0,0,0,.45);cursor:pointer;border:2px solid #e2e8f0;transition:.15s}
+.p-card.red{color:#e11d48}.p-card.black{color:#0f172a}
+.p-card.selected{transform:translateY(-8px);border-color:#38bdf8;box-shadow:0 0 14px #38bdf8}
+.p-card.bot-back{background:linear-gradient(135deg,#1d4ed8,#1e3a8a);border-color:#60a5fa;color:#93c5fd;font-size:18px;width:40px;height:56px}
+.primary-btn{width:100%;background:linear-gradient(135deg,#0ea5e9,#2563eb);border:none;color:#fff;padding:13px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer}
+.pay-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.pay-tab{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:10px 6px;border-radius:12px;font-size:12px;font-weight:700;text-align:center;cursor:pointer}
+.pay-tab.active{background:rgba(56,189,248,.16);border-color:var(--accent);color:#fff}
+.pay-panel{display:none}.pay-panel.active{display:block}
+.shop-card,.rank-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.buy-btn{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;padding:9px 14px;border-radius:12px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap}
+.buy-ton{background:linear-gradient(135deg,#0098ea,#0284c7)}
+.buy-card{background:linear-gradient(135deg,#10b981,#059669)}
+.card-info-box{background:linear-gradient(135deg,#132a24,#141927);border:1px solid rgba(16,185,129,.45);border-radius:16px;padding:14px;margin-bottom:14px}
+.card-num{background:#0b0e17;border:1px dashed #10b981;padding:10px;border-radius:10px;text-align:center;font-size:16px;font-weight:800;letter-spacing:1.5px;color:#6ee7b7;margin:8px 0;cursor:pointer}
+.ton-box{background:linear-gradient(135deg,rgba(0,152,234,.14),rgba(20,25,39,.9));border:1px solid rgba(0,152,234,.4);border-radius:16px;padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,20,34,.96);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0 14px;z-index:60}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;width:25%}
+.nav-item.active{color:var(--accent)}
+.toast{position:fixed;top:72px;left:50%;transform:translateX(-50%);background:#1e293b;border:1px solid var(--accent);color:#fff;padding:9px 18px;border-radius:999px;font-size:13px;z-index:200;display:none;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="gem-badge"><span>💎</span><span id="gemCount">0</span></div>
+  <button type="button" class="wallet-btn" id="btnTonConnect"><span>💠</span><span id="walletLabel">اتصال Tonkeeper</span></button>
+  <div class="user-info"><span id="userName" style="font-size:13px;font-weight:600">بازیکن</span><div class="avatar" id="userAvatar">S</div></div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="container">
+  <div id="view-lobby" class="view active">
+    <div class="section-header"><div class="section-title">🎮 لیست بازی‌های آنلاین</div><span style="font-size:12px;color:var(--muted)">۷ بازی</span></div>
+    <div class="games-list">
+      <div class="game-card playable" data-game="dooz">
+        <div class="game-left"><div class="game-icon">❌</div><div class="game-meta"><h3>۱. دوز کلاسیک (Dooz)</h3><p>رقابت سریع ۲ نفره • رایگان و الماسی</p></div></div>
+        <button type="button" class="badge-play">شروع بازی</button>
+      </div>
+      <div class="game-card playable" data-game="c4">
+        <div class="game-left"><div class="game-icon">🔴</div><div class="game-meta"><h3>۲. دوز چهارتایی (Connect 4)</h3><p>چینش ۴ مهره هم‌رنگ • رایگان و الماسی</p></div></div>
+        <button type="button" class="badge-play">شروع بازی</button>
+      </div>
+      <div class="game-card playable" data-game="pasur">
+        <div class="game-left"><div class="game-icon">🂡</div><div class="game-meta"><h3>۳. چهار برگ (پاسور)</h3><p>سور زدن و جمع ۱۱ • رایگان و الماسی</p></div></div>
+        <button type="button" class="badge-play">شروع بازی</button>
+      </div>
+      <div class="game-card locked" data-msg="⏳ بازی حکم به‌زودی فعال می‌شود!"><div class="game-left"><div class="game-icon">🃏</div><div class="game-meta"><h3>۴. حکم (Hokm)</h3><p>حکم ۲ نفره و ۴ نفره آنلاین</p></div></div><span class="badge-soon">به‌زودی</span></div>
+      <div class="game-card locked" data-msg="⏳ بازی منچ به‌زودی فعال می‌شود!"><div class="game-left"><div class="game-icon">🎲</div><div class="game-meta"><h3>۵. منچ آنلاین (Ludo)</h3><p>رقابت ۲ تا ۴ نفره با تاس</p></div></div><span class="badge-soon">به‌زودی</span></div>
+      <div class="game-card locked" data-msg="⏳ بازی مارپله به‌زودی فعال می‌شود!"><div class="game-left"><div class="game-icon">🐍</div><div class="game-meta"><h3>۶. مار و پله (Snakes & Ladders)</h3><p>صعود سریع تا خانه ۱۰۰</p></div></div><span class="badge-soon">به‌زودی</span></div>
+      <div class="game-card locked" data-msg="⏳ بازی تخته نرد به‌زودی فعال می‌شود!"><div class="game-left"><div class="game-icon">♟️</div><div class="game-meta"><h3>۷. تخته نرد (Backgammon)</h3><p>رقابت حرفه‌ای و شرطی</p></div></div><span class="badge-soon">به‌زودی</span></div>
+    </div>
+  </div>
+  <div id="view-dooz" class="view">
+    <div class="top-bar-game"><button type="button" class="back-btn" id="btnBack">⬅ بازگشت</button><div class="stake-pill" id="stakeBadge">حالت تمرینی</div></div>
+    <div class="status-banner" id="gameStatus">نوبت شماست (X)</div>
+    <div class="board" id="board">
+      <div class="cell" data-i="0"></div><div class="cell" data-i="1"></div><div class="cell" data-i="2"></div>
+      <div class="cell" data-i="3"></div><div class="cell" data-i="4"></div><div class="cell" data-i="5"></div>
+      <div class="cell" data-i="6"></div><div class="cell" data-i="7"></div><div class="cell" data-i="8"></div>
+    </div>
+    <button type="button" class="primary-btn" id="btnReset">شروع مجدد بازی</button>
+  </div>
+  <div id="view-c4" class="view">
+    <div class="top-bar-game"><button type="button" class="back-btn" id="btnBackC4">⬅ بازگشت</button><div class="stake-pill" id="stakeBadgeC4">حالت تمرینی</div></div>
+    <div class="status-banner" id="c4Status">نوبت شماست (مهره قرمز 🔴)</div>
+    <div class="c4-board" id="c4Board"></div>
+    <button type="button" class="primary-btn" id="btnResetC4">شروع مجدد دوز چهارتایی</button>
+  </div>
+  <div id="view-pasur" class="view">
+    <div class="top-bar-game"><button type="button" class="back-btn" id="btnBackPasur">⬅ بازگشت</button><div class="stake-pill" id="stakeBadgePasur">حالت تمرینی</div></div>
+    <div class="pasur-scores">
+      <span>👤 امتیاز شما: <strong id="pMyScore" style="color:#6ee7b7">0</strong> (سور: <span id="pMySur">0</span>)</span>
+      <span>🤖 امتیاز حریف: <strong id="pBotScore" style="color:#fda4af">0</strong></span>
+      <span>🂠 باقیمانده: <strong id="pDeckCount">40</strong></span>
+    </div>
+    <div class="status-banner" id="pasurStatus">کارت خود را انتخاب کنید</div>
+    <div class="cards-row" id="botHand" style="min-height:60px;margin-bottom:10px"></div>
+    <div class="pasur-table">
+      <div class="pasur-label">کارت‌های روی زمین (برای جمع کردن لمس کنید یا مستقیم کارت بیندازید)</div>
+      <div class="cards-row" id="tableCards"></div>
+    </div>
+    <div style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:6px">دست شما (ابتدا یک کارت را لمس کنید):</div>
+    <div class="cards-row" id="playerHand" style="margin-bottom:12px"></div>
+    <div style="display:flex;gap:8px">
+      <button type="button" class="primary-btn" id="btnPasurAction" style="background:linear-gradient(135deg,#10b981,#059669)">انداختن / جمع کردن کارت</button>
+      <button type="button" class="back-btn" id="btnResetPasur" style="white-space:nowrap">دور جدید</button>
+    </div>
+  </div>
+  <div id="view-shop" class="view">
+    <div class="section-header"><div class="section-title">💎 خرید الماس (۳ روش پرداخت)</div></div>
+    <div class="pay-tabs">
+      <div class="pay-tab active" data-panel="panel-stars">⭐ استارز</div>
+      <div class="pay-tab" data-panel="panel-ton">💠 ارز TON</div>
+      <div class="pay-tab" data-panel="panel-card">💳 کارت‌به‌کارت</div>
+    </div>
+    <div id="panel-stars" class="pay-panel active">
+      <div class="shop-card"><div><h3>💎 ۲۰۰ الماس</h3><p style="font-size:12px;color:var(--muted)">شارژ آنی با Telegram Stars</p></div><button type="button" class="buy-btn buy-stars" data-g="200" data-s="50">۵۰ ⭐</button></div>
+      <div class="shop-card"><div><h3>💎 ۴۲۰ الماس</h3><p style="font-size:12px;color:var(--muted)">پکیج اقتصادی + ۲۰ الماس هدیه</p></div><button type="button" class="buy-btn buy-stars" data-g="420" data-s="100">۱۰۰ ⭐</button></div>
+      <div class="shop-card"><div><h3>💎 ۹۰۰ الماس</h3><p style="font-size:12px;color:var(--muted)">پکیج حرفه‌ای VIP</p></div><button type="button" class="buy-btn buy-stars" data-g="900" data-s="200">۲۰۰ ⭐</button></div>
+    </div>
+    <div id="panel-ton" class="pay-panel">
+      <div class="ton-box">
+        <div><h4 style="font-size:13px;color:#7dd3fc">💠 کیف پول Tonkeeper</h4><p id="walletFullStatus" style="font-size:11px;color:var(--muted);margin-top:2px">متصل نشده</p></div>
+        <button type="button" class="wallet-btn" id="btnTonShop">اتصال ولت</button>
+      </div>
+      <div class="shop-card"><div><h3>💎 ۲۰۰ الماس</h3><p style="font-size:12px;color:var(--muted)">پرداخت مستقیم با TON</p></div><button type="button" class="buy-btn buy-ton" data-g="200" data-ton="0.2">0.2 TON</button></div>
+      <div class="shop-card"><div><h3>💎 ۴۲۰ الماس</h3><p style="font-size:12px;color:var(--muted)">پکیج اقتصادی + ۲۰ هدیه</p></div><button type="button" class="buy-btn buy-ton" data-g="420" data-ton="0.4">0.4 TON</button></div>
+      <div class="shop-card"><div><h3>💎 ۹۰۰ الماس</h3><p style="font-size:12px;color:var(--muted)">پکیج حرفه‌ای VIP</p></div><button type="button" class="buy-btn buy-ton" data-g="900" data-ton="0.75">0.75 TON</button></div>
+    </div>
+    <div id="panel-card" class="pay-panel">
+      <div class="card-info-box">
+        <div style="font-size:12px;color:#a7f3d0">شماره کارت جهت واریز ریالی (برای کپی لمس کنید):</div>
+        <div class="card-num" id="copyCardBtn">6277-6014-2080-7065</div>
+        <div style="font-size:12px;color:#fff;text-align:center">به نام: <strong>مهدی لایقی</strong></div>
+      </div>
+      <div class="shop-card"><div><h3>💎 ۲۰۰ الماس</h3><p style="font-size:12px;color:var(--muted)">۸۵,۰۰۰ تومان</p></div><button type="button" class="buy-btn buy-card" data-g="200" data-toman="85,000">خرید ریالی</button></div>
+      <div class="shop-card"><div><h3>💎 ۴۲۰ الماس</h3><p style="font-size:12px;color:var(--muted)">۱۶۵,۰۰۰ تومان</p></div><button type="button" class="buy-btn buy-card" data-g="420" data-toman="165,000">خرید ریالی</button></div>
+      <div class="shop-card"><div><h3>💎 ۹۰۰ الماس</h3><p style="font-size:12px;color:var(--muted)">۳۲۰,۰۰۰ تومان</p></div><button type="button" class="buy-btn buy-card" data-g="900" data-toman="320,000">خرید ریالی</button></div>
+    </div>
+  </div>
+  <div id="view-withdraw" class="view">
+    <div class="section-header"><div class="section-title">💸 برداشت جوایز (تبدیل الماس به پول)</div></div>
+    <div class="card-info-box" style="margin-bottom:14px">
+      <div style="font-size:13px;color:#a7f3d0;margin-bottom:4px">موجودی قابل برداشت شما: <strong id="wdBalDisplay" style="color:#fff">0 💎</strong></div>
+      <div style="font-size:11px;color:var(--muted)">حداقل موجودی برای ثبت درخواست برداشت: ۴۰۰ الماس</div>
+    </div>
+    <div class="shop-card"><div><h3>💠 برداشت به Tonkeeper</h3><p style="font-size:12px;color:var(--muted)">۴۰۰ الماس = 0.35 TON</p></div><button type="button" class="buy-btn buy-ton wd-btn" data-m="ton" data-g="400">برداشت TON</button></div>
+    <div class="shop-card"><div><h3>💳 برداشت به کارت بانکی</h3><p style="font-size:12px;color:var(--muted)">۴۰۰ الماس = ۱۵۰,۰۰۰ تومان</p></div><button type="button" class="buy-btn buy-card wd-btn" data-m="card" data-g="400">برداشت ریالی</button></div>
+    <div class="shop-card"><div><h3>💠 برداشت VIP به Tonkeeper</h3><p style="font-size:12px;color:var(--muted)">۱۰۰۰ الماس = 0.9 TON</p></div><button type="button" class="buy-btn buy-ton wd-btn" data-m="ton" data-g="1000">برداشت TON</button></div>
+  </div>
+  <div id="view-rank" class="view">
+    <div class="section-header"><div class="section-title">🏆 برترین بازیکنان</div></div>
+    <div class="rank-item"><div>🥇 <strong>Amir_King</strong></div><div style="color:#6ee7b7;font-weight:700">۴,۲۵۰ 💎</div></div>
+    <div class="rank-item"><div>🥈 <strong>Reza_Pro</strong></div><div style="color:#6ee7b7;font-weight:700">۳,۱۰۰ 💎</div></div>
+    <div class="rank-item" style="border-color:var(--accent)"><div>👤 <strong id="myRankName">شما</strong></div><div style="color:var(--gold);font-weight:700" id="myRankGems">0 💎</div></div>
+  </div>
+</div>
+<div class="modal-backdrop" id="modeModal">
+  <div class="modal-sheet">
+    <h3 id="modalTitle" style="font-size:16px;margin-bottom:14px;text-align:center">انتخاب نوع بازی</h3>
+    <button type="button" class="mode-btn" data-stake="0"><span>🆓 بازی تمرینی (رایگان)</span><span style="color:var(--muted);font-size:12px">بدون شرط</span></button>
+    <button type="button" class="mode-btn" data-stake="50"><span>💎 میز رقابتی ۵۰ الماسی</span><span style="color:#6ee7b7">جایزه: ۹۰ 💎</span></button>
+    <button type="button" class="mode-btn" data-stake="100"><span>🔥 میز حرفه‌ای ۱۰۰ الماسی</span><span style="color:#6ee7b7">جایزه: ۱۸۰ 💎</span></button>
+  </div>
+</div>
+<div class="bottom-nav">
+  <div class="nav-item active" data-tab="view-lobby"><span>🎮</span><span>بازی‌ها</span></div>
+  <div class="nav-item" data-tab="view-shop"><span>💎</span><span>فروشگاه</span></div>
+  <div class="nav-item" data-tab="view-withdraw"><span>💸</span><span>برداشت</span></div>
+  <div class="nav-item" data-tab="view-rank"><span>🏆</span><span>برترین‌ها</span></div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  var tg = window.Telegram && window.Telegram.WebApp;
+  if (tg) { tg.ready(); tg.expand(); }
+  var DEST_TON = "UQDx4mQO5loJJgm8nN4MMVnIxp4-gLIjWdiT4ummpxIHRdEc";
+  var selectedGame = "dooz";
+  var tonConnectUI = null;
+  try {
+    if (window.TON_CONNECT_UI) {
+      tonConnectUI = new window.TON_CONNECT_UI.TonConnectUI({ manifestUrl: "https://mdikoke-arch.github.io/Dooz-mini/tonconnect-manifest.json" });
+      tonConnectUI.onStatusChange(function(wallet) {
+        var btnH = document.getElementById("btnTonConnect"), lblH = document.getElementById("walletLabel"), btnS = document.getElementById("btnTonShop"), stS = document.getElementById("walletFullStatus");
+        if (wallet && wallet.account) {
+          var raw = wallet.account.address, shortAddr = raw.slice(0, 4) + "..." + raw.slice(-4);
+          btnH.classList.add("connected"); lblH.textContent = shortAddr; btnS.textContent = "قطع اتصال"; stS.textContent = "✅ متصل شد: " + shortAddr;
+        } else {
+          btnH.classList.remove("connected"); lblH.textContent = "اتصال Tonkeeper"; btnS.textContent = "اتصال ولت"; stS.textContent = "متصل نشده";
+        }
+      });
+    }
+  } catch (e) {}
+  function handleWalletClick() {
+    if (!tonConnectUI) { toast("⚠️ در حال بارگذاری Tonkeeper..."); return; }
+    if (tonConnectUI.connected) { tonConnectUI.disconnect(); } else { tonConnectUI.openModal(); }
+  }
+  document.getElementById("btnTonConnect").addEventListener("click", handleWalletClick);
+  document.getElementById("btnTonShop").addEventListener("click", handleWalletClick);
 
+  var qs = new URLSearchParams(window.location.search);
+  var invLinks = { "50": qs.get("inv50") || "", "100": qs.get("inv100") || "", "200": qs.get("inv200") || "" };
+  var serverBal = qs.get("bal");
+  var gems = serverBal !== null ? parseInt(serverBal, 10) : parseInt(localStorage.getItem("dooz_gems") || "0", 10);
+  var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  if (user && user.first_name) {
+    document.getElementById("userName").textContent = user.first_name;
+    document.getElementById("myRankName").textContent = user.first_name;
+    document.getElementById("userAvatar").textContent = user.first_name.charAt(0).toUpperCase();
+  }
+  function updateGems() {
+    document.getElementById("gemCount").textContent = gems;
+    document.getElementById("myRankGems").textContent = gems + " 💎";
+    document.getElementById("wdBalDisplay").textContent = gems + " 💎";
+    localStorage.setItem("dooz_gems", String(gems));
+  }
+  updateGems();
+  function toast(msg) {
+    var t = document.getElementById("toast"); t.textContent = msg; t.style.display = "block";
+    clearTimeout(window._tt); window._tt = setTimeout(function(){ t.style.display = "none"; }, 2500);
+  }
+  function showView(id) {
+    document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
+    document.getElementById(id).classList.add("active");
+  }
+  document.querySelectorAll(".nav-item").forEach(function(item){
+    item.addEventListener("click", function(){
+      document.querySelectorAll(".nav-item").forEach(function(n){ n.classList.remove("active"); });
+      item.classList.add("active"); showView(item.getAttribute("data-tab"));
+    });
+  });
+  document.querySelectorAll(".pay-tab").forEach(function(tab){
+    tab.addEventListener("click", function(){
+      document.querySelectorAll(".pay-tab").forEach(function(t){ t.classList.remove("active"); });
+      document.querySelectorAll(".pay-panel").forEach(function(p){ p.classList.remove("active"); });
+      tab.classList.add("active"); document.getElementById(tab.getAttribute("data-panel")).classList.add("active");
+    });
+  });
+  document.getElementById("copyCardBtn").addEventListener("click", function(){
+    if (navigator.clipboard) navigator.clipboard.writeText("6277601420807065");
+    toast("✅ شماره کارت 6277601420807065 کپی شد!");
+  });
+  document.querySelectorAll(".game-card.locked").forEach(function(card){
+    card.addEventListener("click", function(){ toast(card.getAttribute("data-msg")); });
+  });
+  var modal = document.getElementById("modeModal");
+  document.querySelectorAll(".game-card.playable").forEach(function(card){
+    card.addEventListener("click", function(){
+      selectedGame = card.getAttribute("data-game");
+      var titles = { dooz: "انتخاب میز دوز کلاسیک", c4: "انتخاب میز دوز چهارتایی", pasur: "انتخاب میز چهار برگ (پاسور)" };
+      document.getElementById("modalTitle").textContent = titles[selectedGame] || "انتخاب میز";
+      modal.classList.add("open");
+    });
+  });
+  modal.addEventListener("click", function(e){ if (e.target === modal) modal.classList.remove("open"); });
+
+  var board = ["","","","","","","","",""], stake = 0, active = false, turn = true;
+  var wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  document.querySelectorAll(".mode-btn").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var s = parseInt(btn.getAttribute("data-stake"), 10);
+      if (s > 0 && gems < s) { toast("❌ موجودی الماس کافی نیست! از فروشگاه شارژ کنید"); return; }
+      if (s > 0) { gems -= s; updateGems(); }
+      stake = s; modal.classList.remove("open");
+      var label = s === 0 ? "حالت تمرینی (رایگان)" : "شرط میز: " + s + " 💎";
+      if (selectedGame === "dooz") { document.getElementById("stakeBadge").textContent = label; showView("view-dooz"); initBoard(); }
+      else if (selectedGame === "c4") { document.getElementById("stakeBadgeC4").textContent = label; showView("view-c4"); initC4(); }
+      else if (selectedGame === "pasur") { document.getElementById("stakeBadgePasur").textContent = label; showView("view-pasur"); initPasur(); }
+    });
+  });
+  function initBoard() {
+    board = ["","","","","","","","",""]; active = true; turn = true;
+    document.getElementById("gameStatus").textContent = "نوبت شماست (X)";
+    document.querySelectorAll(".cell").forEach(function(c){ c.textContent = ""; c.className = "cell"; });
+  }
+  document.getElementById("btnBack").addEventListener("click", function(){ showView("view-lobby"); });
+  document.getElementById("btnReset").addEventListener("click", function(){
+    if (stake > 0) { if (gems < stake) { toast("❌ موجودی الماس کافی نیست!"); return; } gems -= stake; updateGems(); }
+    initBoard();
+  });
+  function mark(i, p) { board[i] = p; var c = document.querySelectorAll(".cell")[i]; c.textContent = p; c.classList.add(p.toLowerCase()); }
+  function bestMove(p) {
+    for (var k = 0; k < wins.length; k++) {
+      var a = wins[k][0], b = wins[k][1], c = wins[k][2], line = [board[a], board[b], board[c]];
+      if (line.filter(function(x){ return x === p; }).length === 2 && line.indexOf("") !== -1) {
+        if (board[a] === "") return a; if (board[b] === "") return b; if (board[c] === "") return c;
+      }
+    }
+    return -1;
+  }
+  function checkEnd(p) {
+    var cells = document.querySelectorAll(".cell");
+    for (var k = 0; k < wins.length; k++) {
+      var a = wins[k][0], b = wins[k][1], c = wins[k][2];
+      if (board[a] === p && board[b] === p && board[c] === p) {
+        active = false; cells[a].classList.add("win"); cells[b].classList.add("win"); cells[c].classList.add("win");
+        if (p === "X") {
+          var rw = Math.round(stake * 1.8);
+          if (rw > 0) { gems += rw; updateGems(); document.getElementById("gameStatus").textContent = "🎉 بردید! +" + rw + " 💎"; }
+          else { document.getElementById("gameStatus").textContent = "🎉 تبریک! شما برنده شدید"; }
+        } else { document.getElementById("gameStatus").textContent = "😢 ربات برنده شد!"; }
+        return true;
+      }
+    }
+    if (board.indexOf("") === -1) {
+      active = false;
+      if (stake > 0) { gems += stake; updateGems(); document.getElementById("gameStatus").textContent = "🤝 مساوی! الماس برگشت"; }
+      else { document.getElementById("gameStatus").textContent = "🤝 بازی مساوی شد!"; }
+      return true;
+    }
+    return false;
+  }
+  function botPlay() {
+    if (!active) return;
+    var m = bestMove("O"); if (m === -1) m = bestMove("X"); if (m === -1 && board[4] === "") m = 4;
+    if (m === -1) { var emp = []; for (var i = 0; i < 9; i++) if (board[i] === "") emp.push(i); if (emp.length) m = emp[Math.floor(Math.random() * emp.length)]; }
+    if (m !== -1) { mark(m, "O"); if (checkEnd("O")) return; }
+    turn = true; document.getElementById("gameStatus").textContent = "نوبت شماست (X)";
+  }
+  document.querySelectorAll(".cell").forEach(function(cell){
+    cell.addEventListener("click", function(){
+      var idx = parseInt(cell.getAttribute("data-i"), 10);
+      if (!active || !turn || board[idx] !== "") return;
+      mark(idx, "X"); if (checkEnd("X")) return; turn = false;
+      document.getElementById("gameStatus").textContent = "نوبت ربات (O)...";
+      setTimeout(botPlay, 400);
+    });
+  });
+
+  var c4Grid = [], c4Active = false, c4Turn = true;
+  function initC4() { c4Grid = Array.from({length: 6}, function(){ return Array(7).fill(0); }); c4Active = true; c4Turn = true; document.getElementById("c4Status").textContent = "نوبت شماست (مهره قرمز 🔴)"; renderC4([]); }
+  function renderC4(winCells) {
+    var box = document.getElementById("c4Board"); box.innerHTML = "";
+    for (var r = 0; r < 6; r++) for (var c = 0; c < 7; c++) {
+      var slot = document.createElement("div");
+      slot.className = "c4-slot" + (c4Grid[r][c] === 1 ? " p1" : c4Grid[r][c] === 2 ? " p2" : "");
+      if (winCells.some(function(w){ return w[0] === r && w[1] === c; })) slot.classList.add("win");
+      slot.setAttribute("data-col", c); slot.addEventListener("click", onC4Click); box.appendChild(slot);
+    }
+  }
+  function dropC4(col, p) { for (var r = 5; r >= 0; r--) if (c4Grid[r][col] === 0) { c4Grid[r][col] = p; return r; } return -1; }
+  function checkC4Win(p) {
+    var dirs = [[0,1],[1,0],[1,1],[1,-1]];
+    for (var r = 0; r < 6; r++) for (var c = 0; c < 7; c++) {
+      if (c4Grid[r][c] !== p) continue;
+      for (var d = 0; d < 4; d++) {
+        var line = [[r,c]];
+        for (var s = 1; s < 4; s++) { var nr = r + dirs[d][0]*s, nc = c + dirs[d][1]*s; if (nr >= 0 && nr < 6 && nc >= 0 && nc < 7 && c4Grid[nr][nc] === p) line.push([nr,nc]); else break; }
+        if (line.length === 4) return line;
+      }
+    }
+    return null;
+  }
+  function findC4Threat(p) { for (var c = 0; c < 7; c++) { var r = dropC4(c, p); if (r !== -1) { var w = checkC4Win(p); c4Grid[r][c] = 0; if (w) return c; } } return -1; }
+  function onC4Click(e) {
+    if (!c4Active || !c4Turn) return;
+    var col = parseInt(e.target.getAttribute("data-col"), 10);
+    if (dropC4(col, 1) === -1) return;
+    var w = checkC4Win(1);
+    if (w) {
+      c4Active = false; renderC4(w); var rw = Math.round(stake * 1.8);
+      if (rw > 0) { gems += rw; updateGems(); document.getElementById("c4Status").textContent = "🎉 بردید! +" + rw + " 💎"; }
+      else { document.getElementById("c4Status").textContent = "🎉 تبریک! شما برنده شدید"; }
+      return;
+    }
+    if (c4Grid[0].indexOf(0) === -1) { c4Active = false; renderC4([]); if (stake > 0) { gems += stake; updateGems(); } document.getElementById("c4Status").textContent = "🤝 بازی مساوی شد!"; return; }
+    renderC4([]); c4Turn = false; document.getElementById("c4Status").textContent = "نوبت حریف (مهره زرد 🟡)...";
+    setTimeout(botC4, 420);
+  }
+  function botC4() {
+    if (!c4Active) return;
+    var col = findC4Threat(2); if (col === -1) col = findC4Threat(1);
+    if (col === -1 && c4Grid[0][3] === 0 && Math.random() < 0.6) col = 3;
+    if (col === -1) { var valid = []; for (var c = 0; c < 7; c++) if (c4Grid[0][c] === 0) valid.push(c); if (valid.length) col = valid[Math.floor(Math.random() * valid.length)]; }
+    if (col !== -1) { dropC4(col, 2); var w = checkC4Win(2); if (w) { c4Active = false; renderC4(w); document.getElementById("c4Status").textContent = "😢 حریف برنده شد!"; return; } }
+    renderC4([]); c4Turn = true; document.getElementById("c4Status").textContent = "نوبت شماست (مهره قرمز 🔴)";
+  }
+  document.getElementById("btnBackC4").addEventListener("click", function(){ showView("view-lobby"); });
+  document.getElementById("btnResetC4").addEventListener("click", function(){
+    if (stake > 0) { if (gems < stake) { toast("❌ موجودی الماس کافی نیست!"); return; } gems -= stake; updateGems(); }
+    initC4();
+  });
+  var pDeck = [], pHand = [], bHand = [], tCards = [], myPile = [], botPile = [];
+  var mySur = 0, botSur = 0, selHandIdx = -1, selTableIdxs = [], pTurn = true, pActive = false, lastCollector = "player";
+  function buildDeck() {
+    var suits = ["♠","♣","♥","♦"], vals = [1,2,3,4,5,6,7,8,9,10,11,12,13], d = [];
+    for (var s = 0; s < 4; s++) for (var v = 0; v < 13; v++) d.push({s: suits[s], v: vals[v]});
+    for (var i = d.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var tmp = d[i]; d[i] = d[j]; d[j] = tmp; }
+    return d;
+  }
+  function cardLabel(v) { return v === 1 ? "A" : v === 11 ? "J" : v === 12 ? "Q" : v === 13 ? "K" : String(v); }
+  function initPasur() {
+    pDeck = buildDeck(); pHand = []; bHand = []; tCards = []; myPile = []; botPile = [];
+    mySur = 0; botSur = 0; selHandIdx = -1; selTableIdxs = []; pTurn = true; pActive = true; lastCollector = "player";
+    while (tCards.length < 4) { var c = pDeck.pop(); if (c.v === 11) { pDeck.unshift(c); } else { tCards.push(c); } }
+    dealPasur();
+  }
+  function dealPasur() {
+    if (pDeck.length === 0) { finishPasur(); return; }
+    for (var i = 0; i < 4; i++) { if (pDeck.length) pHand.push(pDeck.pop()); if (pDeck.length) bHand.push(pDeck.pop()); }
+    selHandIdx = -1; selTableIdxs = []; pTurn = true;
+    document.getElementById("pasurStatus").textContent = "نوبت شماست: یک کارت انتخاب کنید";
+    renderPasur();
+  }
+  function calcPasurPoints(pile, surCount) {
+    var pts = surCount * 5, clubs = 0;
+    pile.forEach(function(c){ if (c.s === "♣") clubs++; if (c.v === 1 || c.v === 11) pts += 1; if (c.s === "♣" && c.v === 2) pts += 2; if (c.s === "♦" && c.v === 10) pts += 3; });
+    if (clubs >= 7) pts += 7;
+    return pts;
+  }
+  function renderPasur() {
+    document.getElementById("pMyScore").textContent = calcPasurPoints(myPile, mySur);
+    document.getElementById("pBotScore").textContent = calcPasurPoints(botPile, botSur);
+    document.getElementById("pMySur").textContent = mySur;
+    document.getElementById("pDeckCount").textContent = pDeck.length;
+    var bh = document.getElementById("botHand"); bh.innerHTML = "";
+    bHand.forEach(function(){ var d = document.createElement("div"); d.className = "p-card bot-back"; d.textContent = "🂠"; bh.appendChild(d); });
+    var tc = document.getElementById("tableCards"); tc.innerHTML = "";
+    tCards.forEach(function(c, idx){
+      var d = document.createElement("div"), isRed = (c.s === "♥" || c.s === "♦");
+      d.className = "p-card " + (isRed ? "red" : "black") + (selTableIdxs.indexOf(idx) !== -1 ? " selected" : "");
+      d.innerHTML = "<span>" + cardLabel(c.v) + "</span><span>" + c.s + "</span>";
+      d.addEventListener("click", function(){ if (!pTurn || !pActive) return; var pos = selTableIdxs.indexOf(idx); if (pos === -1) selTableIdxs.push(idx); else selTableIdxs.splice(pos, 1); renderPasur(); });
+      tc.appendChild(d);
+    });
+    var ph = document.getElementById("playerHand"); ph.innerHTML = "";
+    pHand.forEach(function(c, idx){
+      var d = document.createElement("div"), isRed = (c.s === "♥" || c.s === "♦");
+      d.className = "p-card " + (isRed ? "red" : "black") + (selHandIdx === idx ? " selected" : "");
+      d.innerHTML = "<span>" + cardLabel(c.v) + "</span><span>" + c.s + "</span>";
+      d.addEventListener("click", function(){ if (!pTurn || !pActive) return; selHandIdx = (selHandIdx === idx) ? -1 : idx; renderPasur(); });
+      ph.appendChild(d);
+    });
+  }
+  function canCapture(handCard, pickedCards) {
+    if (!pickedCards.length) return false;
+    if (handCard.v === 11) return pickedCards.every(function(c){ return c.v <= 11; });
+    if (handCard.v === 12) return pickedCards.length === 1 && pickedCards[0].v === 12;
+    if (handCard.v === 13) return pickedCards.length === 1 && pickedCards[0].v === 13;
+    if (pickedCards.some(function(c){ return c.v >= 11; })) return false;
+    return pickedCards.reduce(function(acc, c){ return acc + c.v; }, handCard.v) === 11;
+  }
+  document.getElementById("btnPasurAction").addEventListener("click", function(){
+    if (!pTurn || !pActive) return;
+    if (selHandIdx === -1) { toast("اول یک کارت از دست خود انتخاب کنید"); return; }
+    var card = pHand[selHandIdx], picked = selTableIdxs.map(function(i){ return tCards[i]; });
+    if (picked.length > 0) {
+      if (!canCapture(card, picked)) { toast("❌ این ترکیب مجاز نیست (جمع باید ۱۱ شود)"); return; }
+      pHand.splice(selHandIdx, 1); myPile.push(card);
+      selTableIdxs.sort(function(a,b){ return b - a; }).forEach(function(i){ myPile.push(tCards.splice(i, 1)[0]); });
+      lastCollector = "player";
+      var isLastRound = (pDeck.length === 0 && pHand.length === 0 && bHand.length === 0);
+      if (tCards.length === 0 && card.v !== 11 && !isLastRound) { mySur++; toast("🔥 سور زدید! +۵ امتیاز"); }
+    } else {
+      if (card.v === 11 && tCards.some(function(c){ return c.v <= 11; })) {
+        var jPicked = tCards.filter(function(c){ return c.v <= 11; });
+        tCards = tCards.filter(function(c){ return c.v > 11; });
+        pHand.splice(selHandIdx, 1); myPile.push(card); jPicked.forEach(function(c){ myPile.push(c); });
+        lastCollector = "player";
+      } else { pHand.splice(selHandIdx, 1); tCards.push(card); }
+    }
+    selHandIdx = -1; selTableIdxs = []; pTurn = false; renderPasur();
+    document.getElementById("pasurStatus").textContent = "نوبت حریف...";
+    setTimeout(botPasurPlay, 550);
+  });
+  function botPasurPlay() {
+    if (!pActive) return;
+    var played = false;
+    for (var i = 0; i < bHand.length; i++) {
+      var hc = bHand[i];
+      if (hc.v === 11 && tCards.some(function(c){ return c.v <= 11; })) {
+        var cap = tCards.filter(function(c){ return c.v <= 11; }); tCards = tCards.filter(function(c){ return c.v > 11; });
+        bHand.splice(i, 1); botPile.push(hc); cap.forEach(function(c){ botPile.push(c); });
+        lastCollector = "bot"; played = true; break;
+      }
+      for (var t = 0; t < tCards.length; t++) {
+        if (canCapture(hc, [tCards[t]])) {
+          bHand.splice(i, 1); botPile.push(hc); botPile.push(tCards.splice(t, 1)[0]);
+          lastCollector = "bot";
+          var isLast = (pDeck.length === 0 && pHand.length === 0 && bHand.length === 0);
+          if (tCards.length === 0 && hc.v !== 11 && !isLast) { botSur++; toast("😱 حریف سور زد!"); }
+          played = true; break;
+        }
+      }
+      if (played) break;
+    }
+    if (!played && bHand.length > 0) {
+      var dropIdx = 0;
+      for (var k = 0; k < bHand.length; k++) if (bHand[k].v !== 11 && bHand[k].v !== 1) { dropIdx = k; break; }
+      tCards.push(bHand.splice(dropIdx, 1)[0]);
+    }
+    renderPasur();
+    if (pHand.length === 0 && bHand.length === 0) {
+      if (pDeck.length > 0) { setTimeout(dealPasur, 500); } else { finishPasur(); }
+    } else { pTurn = true; document.getElementById("pasurStatus").textContent = "نوبت شماست: یک کارت انتخاب کنید"; }
+  }
+  function finishPasur() {
+    pActive = false;
+    if (tCards.length > 0) {
+      if (lastCollector === "player") { while (tCards.length) myPile.push(tCards.pop()); }
+      else { while (tCards.length) botPile.push(tCards.pop()); }
+    }
+    renderPasur();
+    var myPts = calcPasurPoints(myPile, mySur), botPts = calcPasurPoints(botPile, botSur);
+    if (myPts > botPts) {
+      var rw = Math.round(stake * 1.8);
+      if (rw > 0) { gems += rw; updateGems(); document.getElementById("pasurStatus").textContent = "🎉 بردید (" + myPts + " به " + botPts + ")! +" + rw + " 💎"; }
+      else { document.getElementById("pasurStatus").textContent = "🎉 تبریک! بردید (" + myPts + " به " + botPts + ")"; }
+    } else if (botPts > myPts) { document.getElementById("pasurStatus").textContent = "😢 حریف برد (" + botPts + " به " + myPts + ")"; }
+    else { if (stake > 0) { gems += stake; updateGems(); } document.getElementById("pasurStatus").textContent = "🤝 بازی مساوی شد (" + myPts + " به " + botPts + ")"; }
+  }
+  document.getElementById("btnBackPasur").addEventListener("click", function(){ showView("view-lobby"); });
+  document.getElementById("btnResetPasur").addEventListener("click", function(){
+    if (stake > 0) { if (gems < stake) { toast("❌ موجودی الماس کافی نیست!"); return; } gems -= stake; updateGems(); }
+    initPasur();
+  });
+
+  document.querySelectorAll(".buy-stars").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var g = parseInt(btn.getAttribute("data-g"), 10), s = btn.getAttribute("data-s"), url = invLinks[s];
+      if (tg && tg.openInvoice && url) { tg.openInvoice(url, function(status) { if (status === "paid") { gems += g; updateGems(); toast("🎉 پرداخت موفق! +" + g + " الماس اضافه شد"); } else if (status === "cancelled") { toast("❌ پرداخت لغو شد"); } }); }
+      else { toast("⚠️ ابتدا در ربات /start را بزنید"); }
+    });
+  });
+  document.querySelectorAll(".buy-ton").forEach(function(btn){
+    btn.addEventListener("click", async function(){
+      if (!tonConnectUI || !tonConnectUI.connected) { toast("💠 ابتدا کیف پول Tonkeeper را متصل کنید"); if (tonConnectUI) tonConnectUI.openModal(); return; }
+      var g = parseInt(btn.getAttribute("data-g"), 10), tonAmt = parseFloat(btn.getAttribute("data-ton")), nano = String(Math.round(tonAmt * 1000000000));
+      try { await tonConnectUI.sendTransaction({ validUntil: Math.floor(Date.now() / 1000) + 300, messages: [{ address: DEST_TON, amount: nano }] }); gems += g; updateGems(); toast("🎉 تراکنش TON انجام شد! +" + g + " الماس اضافه شد"); }
+      catch (err) { toast("❌ تراکنش TON لغو شد"); }
+    });
+  });
+  document.querySelectorAll(".buy-card").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var g = btn.getAttribute("data-g"), toman = btn.getAttribute("data-toman").replace(",", "");
+      var botLink = "https://t.me/Starsgameir_bot?start=card_" + g + "_" + toman;
+      if (tg && tg.openTelegramLink) { tg.openTelegramLink(botLink); } else { window.open(botLink, "_blank"); }
+    });
+  });
+  document.querySelectorAll(".wd-btn").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var reqG = parseInt(btn.getAttribute("data-g"), 10), mType = btn.getAttribute("data-m");
+      if (gems < reqG) { toast("❌ حداقل " + reqG + " الماس برای این برداشت لازم است"); return; }
+      var botLink = "https://t.me/Starsgameir_bot?start=wd_" + mType + "_" + reqG;
+      if (tg && tg.openTelegramLink) { tg.openTelegramLink(botLink); } else { window.open(botLink, "_blank"); }
+    });
+  });
+});
+</script>
+</body>
+</html>
+<body>
+<div class="header">
+  <div class="gem-badge"><span>💎</span><span id="gemCount">0</span></div>
+  <button type="button" class="wallet-btn" id="btnTonConnect"><span>💠</span><span id="walletLabel">اتصال Tonkeeper</span></button>
+  <div class="user-info"><span id="userName" style="font-size:13px;font-weight:600">بازیکن</span><div class="avatar" id="userAvatar">S</div></div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="container">
+  <div id="view-lobby" class="view active">
+    <div class="section-header"><div class="section-title">🎮 لیست بازی‌های آنلاین</div><span style="font-size:12px;color:#6ee7b7;font-weight:700">۷ بازی فعال</span></div>
+    <div class="games-list">
+      <div class="game-card" data-game="dooz"><div class="game-left"><div class="game-icon">❌</div><div class="game-meta"><h3>۱. دوز کلاسیک (Dooz)</h3><p>رقابت سریع ۲ نفره • رایگان و الماسی</p></div></div><button type="button" class="badge-play">شروع بازی</button></div>
+      <div class="game-card" data-game="c4"><div class="game-left"><div class="game-icon">🔴</div><div class="game-meta"><h3>۲. دوز چهارتایی (Connect 4)</h3><p>چینش ۴ مهره هم‌رنگ • رایگان و الماسی</p></div></div><button type="button" class="badge-play">شروع بازی</button></div>
+      <div class="game-card" data-game="pasur"><div class="game-left"><div class="game-icon">🂡</div><div class="game-meta"><h3>۳. چهار برگ (پاسور)</h3><p>سور زدن و جمع ۱۱ • رایگان و الماسی</p></div></div><button type="button" class="badge-play">شروع بازی</button></div>
+      <div class="game-card" data-game="hokm"><div class="game-left"><div class="game-icon">🃏</div><div class="game-meta"><h3>۴. حکم (Hokm)</h3><p>حکم ۲ نفره سریع • تا ۷ دست</p></div></div><button type="button" class="badge-play">شروع بازی</button></div>
+      <div class="game-card" data-game="ludo"><div class="game-left"><div class="game-icon">🎲</div><div class="game-meta"><h3>۵. منچ آنلاین (Ludo)</h3><p>تاس و رقابت سرعتی تا خانه پایان</p></div></div><button type="button" class="badge-play">شروع بازی</button></div>
+      <div class="game-card" data-game="snl"><div class="game-left"><div class="game-icon">🐍</div><div class="game-meta"><h3>۶. مار و پله (Snakes & Ladders)</h3><p>صعود سریع تا خانه ۱۰۰</p></div></div><button type="button" class="badge-play">شروع بازی</button></div>
+      <div class="game-card" data-game="bg"><div class="game-left"><div class="game-icon">♟️</div><div class="game-meta"><h3>۷. تخته نرد (Backgammon)</h3><p>تاس و مهره‌چینی حرفه‌ای</p></div></div><button type="button" class="badge-play">شروع بازی</button></div>
+    </div>
+  </div>
+  <div id="view-dooz" class="view">
+    <div class="top-bar-game"><button type="button" class="back-btn" data-back="1">⬅ بازگشت</button><div class="stake-pill" id="stake-dooz">تمرینی</div></div>
+    <div class="status-banner" id="gameStatus">نوبت شماست (X)</div>
+    <div class="board" id="board"><div class="cell" data-i="0"></div><div class="cell" data-i="1"></div><div class="cell" data-i="2"></div><div class="cell" data-i="3"></div><div class="cell" data-i="4"></div><div class="cell" data-i="5"></div><div class="cell" data-i="6"></div><div class="cell" data-i="7"></div><div class="cell" data-i="8"></div></div>
+    <button type="button" class="primary-btn" id="btnReset">شروع مجدد بازی</button>
+  </div>
+  <div id="view-c4" class="view">
+    <div class="top-bar-game"><button type="button" class="back-btn" data-back="1">⬅ بازگشت</button><div class="stake-pill" id="stake-c4">تمرینی</div></div>
+    <div class="status-banner" id="c4Status">نوبت شماست (مهره قرمز 🔴)</div>
+    <div class="c4-board" id="c4Board"></div>
+    <button type="button" class="primary-btn" id="btnResetC4">شروع مجدد دوز چهارتایی</button>
+  </div>
+  <div id="view-pasur" class="view">
+    <div class="top-bar-game"><button type="button" class="back-btn" data-back="1">⬅ بازگشت</button><div class="stake-pill" id="stake-pasur">تمرینی</div></div>
+    <div class="pasur-scores"><span>👤 شما: <strong id="pMyScore" style="color:#6ee7b7">0</strong> (سور:<span id="pMySur">0</span>)</span><span>🤖 حریف: <strong id="pBotScore" style="color:#fda4af">0</strong></span><span>🂠 <strong id="pDeckCount">40</strong></span></div>
+    <div class="status-banner" id="pasurStatus">کارت خود را انتخاب کنید</div>
+    <div class="cards-row" id="botHand" style="min-height:54px;margin-bottom:8px"></div>
+    <div class="pasur-table"><div style="font-size:11px;color:#86efac;text-align:center;margin-bottom:6px">کارت‌های روی زمین</div><div class="cards-row" id="tableCards"></div></div>
+    <div class="cards-row" id="playerHand" style="margin-bottom:10px"></div>
+    <div style="display:flex;gap:8px"><button type="button" class="primary-btn" id="btnPasurAction" style="background:linear-gradient(135deg,#10b981,#059669)">انداختن / جمع کردن</button><button type="button" class="back-btn" id="btnResetPasur">دور جدید</button></div>
+  </div>
+  <div id="view-hokm" class="view">
+    <div class="top-bar-game"><button type="button" class="back-btn" data-back="1">⬅ بازگشت</button><div class="stake-pill" id="stake-hokm">تمرینی</div></div>
+    <div class="pasur-scores"><span>👑 حکم: <strong id="hokmSuit" style="color:#fbbf24">؟</strong></span><span>👤 دست شما: <strong id="hMyTricks" style="color:#6ee7b7">0</strong></span><span>🤖 دست حریف: <strong id="hBotTricks" style="color:#fda4af">0</strong></span></div>
+    <div class="status-banner" id="hokmStatus">خال حکم را انتخاب کنید</div>
+    <div id="hokmSuitPicker" style="display:flex;justify-content:center;gap:10px;margin-bottom:12px">
+      <button type="button" class="back-btn h-suit-btn" data-s="♠">♠ پیک</button>
+      <button type="button" class="back-btn h-suit-btn" data-s="♥" style="color:#fb7185">♥ دل</button>
+      <button type="button" class="back-btn h-suit-btn" data-s="♣">♣ گشنیز</button>
+      <button type="button" class="back-btn h-suit-btn" data-s="♦" style="color:#fb7185">♦ خشت</button>
+    </div>
+    <div class="pasur-table" style="min-height:110px;display:flex;align-items:center;justify-content:center;gap:24px" id="hokmCenter"></div>
+    <div class="cards-row" id="hokmHand" style="margin-bottom:12px"></div>
+    <button type="button" class="primary-btn" id="btnResetHokm">دست جدید حکم</button>
+  </div>
+  <div id="view-ludo" class="view">
+    <div class="top-bar-game"><button type="button" class="back-btn" data-back="1">⬅ بازگشت</button><div class="stake-pill" id="stake-ludo">تمرینی</div></div>
+    <div class="pasur-scores"><span>🔵 خانه شما: <strong id="ludoMyPos">0</strong> / 28</span><span>🔴 خانه حریف: <strong id="ludoBotPos">0</strong> / 28</span></div>
+    <div class="status-banner" id="ludoStatus">تاس بیندازید (با ۶ وارد زمین می‌شوید)</div>
+    <div class="ludo-track" id="ludoTrack"></div>
+    <button type="button" class="primary-btn" id="btnLudoRoll" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">🎲 انداختن تاس منچ</button>
+  </div>
+  <div id="view-snl" class="view">
+    <div class="top-bar-game"><button type="button" class="back-btn" data-back="1">⬅ بازگشت</button><div class="stake-pill" id="stake-snl">تمرینی</div></div>
+    <div class="pasur-scores"><span>🔵 شما: <strong id="snlMyPos">1</strong></span><span>🔴 حریف: <strong id="snlBotPos">1</strong></span><span>🪜 نردبان | 🐍 مار</span></div>
+    <div class="status-banner" id="snlStatus">تاس بیندازید تا به خانه ۱۰۰ برسید</div>
+    <div class="snl-grid" id="snlGrid"></div>
+    <button type="button" class="primary-btn" id="btnSnlRoll" style="background:linear-gradient(135deg,#10b981,#059669)">🎲 انداختن تاس مار و پله</button>
+  </div>
+  <div id="view-bg" class="view">
+    <div class="top-bar-game"><button type="button" class="back-btn" data-back="1">⬅ بازگشت</button><div class="stake-pill" id="stake-bg">تمرینی</div></div>
+    <div class="pasur-scores"><span>⚪ خارج‌شده شما: <strong id="bgMyOff">0</strong>/15</span><span>⚫ خارج‌شده حریف: <strong id="bgBotOff">0</strong>/15</span><span>🎲 تاس: <strong id="bgDice">-</strong></span></div>
+    <div class="status-banner" id="bgStatus">روی دکمه تاس بزنید</div>
+    <div class="bg-board"><div class="bg-row" id="bgTop"></div><div class="bg-row" id="bgBot"></div></div>
+    <div style="display:flex;gap:8px"><button type="button" class="primary-btn" id="btnBgRoll">🎲 ریختن تاس</button><button type="button" class="back-btn" id="btnResetBg">شروع مجدد</button></div>
+  </div>
+  <div id="view-shop" class="view">
+    <div class="section-header"><div class="section-title">💎 خرید الماس (۳ روش پرداخت)</div></div>
+    <div class="pay-tabs"><div class="pay-tab active" data-panel="panel-stars">⭐ استارز</div><div class="pay-tab" data-panel="panel-ton">💠 ارز TON</div><div class="pay-tab" data-panel="panel-card">💳 کارت‌به‌کارت</div></div>
+    <div id="panel-stars" class="pay-panel active">
+      <div class="shop-card"><div><h3>💎 ۲۰۰ الماس</h3><p style="font-size:12px;color:var(--muted)">شارژ آنی با Telegram Stars</p></div><button type="button" class="buy-btn buy-stars" data-g="200" data-s="50">۵۰ ⭐</button></div>
+      <div class="shop-card"><div><h3>💎 ۴۲۰ الماس</h3><p style="font-size:12px;color:var(--muted)">پکیج اقتصادی + ۲۰ الماس هدیه</p></div><button type="button" class="buy-btn buy-stars" data-g="420" data-s="100">۱۰۰ ⭐</button></div>
+      <div class="shop-card"><div><h3>💎 ۹۰۰ الماس</h3><p style="font-size:12px;color:var(--muted)">پکیج حرفه‌ای VIP</p></div><button type="button" class="buy-btn buy-stars" data-g="900" data-s="200">۲۰۰ ⭐</button></div>
+    </div>
+    <div id="panel-ton" class="pay-panel">
+      <div class="ton-box"><div><h4 style="font-size:13px;color:#7dd3fc">💠 کیف پول Tonkeeper</h4><p id="walletFullStatus" style="font-size:11px;color:var(--muted);margin-top:2px">متصل نشده</p></div><button type="button" class="wallet-btn" id="btnTonShop">اتصال ولت</button></div>
+      <div class="shop-card"><div><h3>💎 ۲۰۰ الماس</h3><p style="font-size:12px;color:var(--muted)">پرداخت مستقیم با TON</p></div><button type="button" class="buy-btn buy-ton" data-g="200" data-ton="0.2">0.2 TON</button></div>
+      <div class="shop-card"><div><h3>💎 ۴۲۰ الماس</h3><p style="font-size:12px;color:var(--muted)">پکیج اقتصادی + ۲۰ هدیه</p></div><button type="button" class="buy-btn buy-ton" data-g="420" data-ton="0.4">0.4 TON</button></div>
+      <div class="shop-card"><div><h3>💎 ۹۰۰ الماس</h3><p style="font-size:12px;color:var(--muted)">پکیج حرفه‌ای VIP</p></div><button type="button" class="buy-btn buy-ton" data-g="900" data-ton="0.75">0.75 TON</button></div>
+    </div>
+    <div id="panel-card" class="pay-panel">
+      <div class="card-info-box"><div style="font-size:12px;color:#a7f3d0">شماره کارت جهت واریز ریالی (برای کپی لمس کنید):</div><div class="card-num" id="copyCardBtn">6277-6014-2080-7065</div><div style="font-size:12px;color:#fff;text-align:center">به نام: <strong>مهدی لایقی</strong></div></div>
+      <div class="shop-card"><div><h3>💎 ۲۰۰ الماس</h3><p style="font-size:12px;color:var(--muted)">۸۵,۰۰۰ تومان</p></div><button type="button" class="buy-btn buy-card" data-g="200" data-toman="85,000">خرید ریالی</button></div>
+      <div class="shop-card"><div><h3>💎 ۴۲۰ الماس</h3><p style="font-size:12px;color:var(--muted)">۱۶۵,۰۰۰ تومان</p></div><button type="button" class="buy-btn buy-card" data-g="420" data-toman="165,000">خرید ریالی</button></div>
+      <div class="shop-card"><div><h3>💎 ۹۰۰ الماس</h3><p style="font-size:12px;color:var(--muted)">۳۲۰,۰۰۰ تومان</p></div><button type="button" class="buy-btn buy-card" data-g="900" data-toman="320,000">خرید ریالی</button></div>
+    </div>
+  </div>
+  <div id="view-withdraw" class="view">
+    <div class="section-header"><div class="section-title">💸 برداشت جوایز (تبدیل الماس به پول)</div></div>
+    <div class="card-info-box" style="margin-bottom:14px"><div style="font-size:13px;color:#a7f3d0;margin-bottom:4px">موجودی قابل برداشت شما: <strong id="wdBalDisplay" style="color:#fff">0 💎</strong></div><div style="font-size:11px;color:var(--muted)">حداقل موجودی برای ثبت درخواست برداشت: ۴۰۰ الماس</div></div>
+    <div class="shop-card"><div><h3>💠 برداشت به Tonkeeper</h3><p style="font-size:12px;color:var(--muted)">۴۰۰ الماس = 0.35 TON</p></div><button type="button" class="buy-btn buy-ton wd-btn" data-m="ton" data-g="400">برداشت TON</button></div>
+    <div class="shop-card"><div><h3>💳 برداشت به کارت بانکی</h3><p style="font-size:12px;color:var(--muted)">۴۰۰ الماس = ۱۵۰,۰۰۰ تومان</p></div><button type="button" class="buy-btn buy-card wd-btn" data-m="card" data-g="400">برداشت ریالی</button></div>
+    <div class="shop-card"><div><h3>💠 برداشت VIP به Tonkeeper</h3><p style="font-size:12px;color:var(--muted)">۱۰۰۰ الماس = 0.9 TON</p></div><button type="button" class="buy-btn buy-ton wd-btn" data-m="ton" data-g="1000">برداشت TON</button></div>
+  </div>
+  <div id="view-rank" class="view">
+    <div class="section-header"><div class="section-title">🏆 برترین بازیکنان</div></div>
+    <div class="rank-item"><div>🥇 <strong>Amir_King</strong></div><div style="color:#6ee7b7;font-weight:700">۴,۲۵۰ 💎</div></div>
+    <div class="rank-item"><div>🥈 <strong>Reza_Pro</strong></div><div style="color:#6ee7b7;font-weight:700">۳,۱۰۰ 💎</div></div>
+    <div class="rank-item" style="border-color:var(--accent)"><div>👤 <strong id="myRankName">شما</strong></div><div style="color:var(--gold);font-weight:700" id="myRankGems">0 💎</div></div>
+  </div>
+</div>
+<div class="modal-backdrop" id="modeModal">
+  <div class="modal-sheet">
+    <h3 id="modalTitle" style="font-size:16px;margin-bottom:14px;text-align:center">انتخاب نوع بازی</h3>
+    <button type="button" class="mode-btn" data-stake="0"><span>🆓 بازی تمرینی (رایگان)</span><span style="color:var(--muted);font-size:12px">بدون شرط</span></button>
+    <button type="button" class="mode-btn" data-stake="50"><span>💎 میز رقابتی ۵۰ الماسی</span><span style="color:#6ee7b7">جایزه: ۹۰ 💎</span></button>
+    <button type="button" class="mode-btn" data-stake="100"><span>🔥 میز حرفه‌ای ۱۰۰ الماسی</span><span style="color:#6ee7b7">جایزه: ۱۸۰ 💎</span></button>
+  </div>
+</div>
+<div class="bottom-nav">
+  <div class="nav-item active" data-tab="view-lobby"><span>🎮</span><span>بازی‌ها</span></div>
+  <div class="nav-item" data-tab="view-shop"><span>💎</span><span>فروشگاه</span></div>
+  <div class="nav-item" data-tab="view-withdraw"><span>💸</span><span>برداشت</span></div>
+  <div class="nav-item" data-tab="view-rank"><span>🏆</span><span>برترین‌ها</span></div>
+</div>
+  var pDeck=[], pHand=[], bHand=[], tCards=[], myPile=[], botPile=[], mySur=0, botSur=0, selH=-1, selT=[], pTurn=true, pActive=false;
+  function buildDeck(){ var s=["♠","♣","♥","♦"],d=[]; for(var i=0;i<4;i++)for(var v=1;v<=13;v++)d.push({s:s[i],v:v}); return d.sort(function(){return Math.random()-0.5;}); }
+  function cLbl(v){ return v===1?"A":v===11?"J":v===12?"Q":v===13?"K":String(v); }
+  function initPasur(){ pDeck=buildDeck();pHand=[];bHand=[];tCards=[];myPile=[];botPile=[];mySur=0;botSur=0;selH=-1;selT=[];pActive=true; while(tCards.length<4){var c=pDeck.pop();if(c.v===11)pDeck.unshift(c);else tCards.push(c);} dealPasur(); }
+  function dealPasur(){ if(!pDeck.length){pActive=false;var mp=myPile.length+mySur*5,bp=botPile.length+botSur*5;if(mp>=bp)rewardWin("pasurStatus","🎉 بردید ("+mp+" به "+bp+")");else document.getElementById("pasurStatus").textContent="😢 حریف برد ("+bp+" به "+mp+")";return;} for(var i=0;i<4;i++){if(pDeck.length)pHand.push(pDeck.pop());if(pDeck.length)bHand.push(pDeck.pop());} selH=-1;selT=[];pTurn=true;document.getElementById("pasurStatus").textContent="کارت خود را انتخاب کنید";renderPasur(); }
+  function renderPasur(){ document.getElementById("pMyScore").textContent=myPile.length+mySur*5; document.getElementById("pBotScore").textContent=botPile.length+botSur*5; document.getElementById("pMySur").textContent=mySur; document.getElementById("pDeckCount").textContent=pDeck.length; var bh=document.getElementById("botHand");bh.innerHTML="";bHand.forEach(function(){var d=document.createElement("div");d.className="p-card bot-back";d.textContent="🂠";bh.appendChild(d);}); var tc=document.getElementById("tableCards");tc.innerHTML="";tCards.forEach(function(c,i){var d=document.createElement("div");d.className="p-card "+((c.s==="♥"||c.s==="♦")?"red":"black")+(selT.indexOf(i)!==-1?" selected":"");d.innerHTML="<span>"+cLbl(c.v)+"</span><span>"+c.s+"</span>";d.onclick=function(){if(!pTurn||!pActive)return;var p=selT.indexOf(i);if(p===-1)selT.push(i);else selT.splice(p,1);renderPasur();};tc.appendChild(d);}); var ph=document.getElementById("playerHand");ph.innerHTML="";pHand.forEach(function(c,i){var d=document.createElement("div");d.className="p-card "+((c.s==="♥"||c.s==="♦")?"red":"black")+(selH===i?" selected":"");d.innerHTML="<span>"+cLbl(c.v)+"</span><span>"+c.s+"</span>";d.onclick=function(){if(!pTurn||!pActive)return;selH=(selH===i)?-1:i;renderPasur();};ph.appendChild(d);}); }
+  document.getElementById("btnPasurAction").addEventListener("click",function(){ if(!pTurn||!pActive||selH===-1)return toast("یک کارت انتخاب کنید"); var c=pHand[selH],pk=selT.map(function(i){return tCards[i];}); if(pk.length){ var ok=(c.v===11&&pk.every(function(x){return x.v<=11;}))||(c.v>=12&&pk.length===1&&pk[0].v===c.v)||(c.v<=10&&pk.every(function(x){return x.v<=10;})&&pk.reduce(function(a,b){return a+b.v;},c.v)===11); if(!ok)return toast("❌ جمع کارت‌ها باید ۱۱ شود!"); pHand.splice(selH,1);myPile.push(c);selT.sort(function(a,b){return b-a;}).forEach(function(i){myPile.push(tCards.splice(i,1)[0]);});if(!tCards.length&&c.v!==11)mySur++; }else{ pHand.splice(selH,1);tCards.push(c); } selH=-1;selT=[];pTurn=false;renderPasur(); setTimeout(function(){ if(bHand.length){var bc=bHand.pop();tCards.push(bc);} if(!pHand.length&&!bHand.length)dealPasur();else{pTurn=true;renderPasur();} },450); });
+  document.getElementById("btnResetPasur").addEventListener("click",initPasur);
+
+  var hDeck=[], hHand=[], hbHand=[], hSuit="♠", hMyT=0, hBotT=0, hTurn=true, hLead=null;
+  function initHokm(){ hDeck=buildDeck(); hHand=hDeck.slice(0,13); hbHand=hDeck.slice(13,26); hMyT=0; hBotT=0; hLead=null; hTurn=false; document.getElementById("hMyTricks").textContent="0"; document.getElementById("hBotTricks").textContent="0"; document.getElementById("hokmSuit").textContent="؟"; document.getElementById("hokmSuitPicker").style.display="flex"; document.getElementById("hokmCenter").innerHTML=""; document.getElementById("hokmStatus").textContent="شما حاکم هستید! خال حکم را انتخاب کنید"; renderHokm(); }
+  document.querySelectorAll(".h-suit-btn").forEach(function(b){ b.addEventListener("click",function(){ hSuit=b.getAttribute("data-s"); document.getElementById("hokmSuit").textContent=hSuit; document.getElementById("hokmSuitPicker").style.display="none"; hTurn=true; document.getElementById("hokmStatus").textContent="حکم "+hSuit+" شد! یک کارت بازی کنید"; }); });
+  function hPower(c,leadS){ var v=c.v===1?14:c.v; if(c.s===hSuit)return 100+v; if(c.s===leadS)return 50+v; return v; }
+  function renderHokm(){ var ph=document.getElementById("hokmHand"); ph.innerHTML=""; hHand.forEach(function(c,i){ var d=document.createElement("div"); d.className="p-card "+((c.s==="♥"||c.s==="♦")?"red":"black"); d.innerHTML="<span>"+cLbl(c.v)+"</span><span>"+c.s+"</span>"; d.onclick=function(){ if(!hTurn)return; if(hLead&&hHand.some(function(x){return x.s===hLead.s;})&&c.s!==hLead.s)return toast("❌ باید خال "+hLead.s+" را رد کنید!"); hHand.splice(i,1); hTurn=false; playHokmCard(c); }; ph.appendChild(d); }); }
+  function playHokmCard(myC){
+    var ctr=document.getElementById("hokmCenter"), botC=null;
+    if(!hLead){ var same=hbHand.filter(function(x){return x.s===myC.s;}); botC=same.length?same[0]:hbHand[0]; hbHand.splice(hbHand.indexOf(botC),1); ctr.innerHTML="<div class='p-card'>"+cLbl(myC.v)+myC.s+"</div><div class='p-card'>"+cLbl(botC.v)+botC.s+"</div>"; resolveHokm(myC,botC,myC.s); }
+    else{ ctr.innerHTML="<div class='p-card'>"+cLbl(myC.v)+myC.s+"</div><div class='p-card'>"+cLbl(hLead.v)+hLead.s+"</div>"; resolveHokm(myC,hLead,hLead.s); }
+  }
+  function resolveHokm(myC,botC,leadS){
+    renderHokm();
+    setTimeout(function(){
+      document.getElementById("hokmCenter").innerHTML=""; hLead=null;
+      if(hPower(myC,leadS)>hPower(botC,leadS)){ hMyT++; document.getElementById("hMyTricks").textContent=hMyT; hTurn=true; document.getElementById("hokmStatus").textContent="دست برای شما شد! کارت بعدی را بیندازید"; }
+      else{ hBotT++; document.getElementById("hBotTricks").textContent=hBotT; if(hMyT<7&&hBotT<7){ var bc=hbHand.pop(); hLead=bc; document.getElementById("hokmCenter").innerHTML="<div class='p-card'>"+cLbl(bc.v)+bc.s+"</div>"; hTurn=true; document.getElementById("hokmStatus").textContent="حریف "+cLbl(bc.v)+bc.s+" آمد! کارت بزنید"; } }
+      if(hMyT>=7){ hTurn=false; rewardWin("hokmStatus","🎉 دست حکم را ۷ به "+hBotT+" بردید!"); }
+      else if(hBotT>=7){ hTurn=false; document.getElementById("hokmStatus").textContent="😢 حریف ۷ دست گرفت و برنده شد!"; }
+    },700);
+  }
+  document.getElementById("btnResetHokm").addEventListener("click",initHokm);
+  var lMy=0, lBot=0, lTurn=true;
+  function initLudo(){ lMy=0; lBot=0; lTurn=true; document.getElementById("ludoStatus").textContent="تاس بیندازید (با ۶ وارد زمین می‌شوید)"; renderLudo(); }
+  function renderLudo(){ document.getElementById("ludoMyPos").textContent=lMy; document.getElementById("ludoBotPos").textContent=lBot; var tr=document.getElementById("ludoTrack"); tr.innerHTML=""; for(var i=1;i<=28;i++){ var b=document.createElement("div"); b.className="ludo-box"+(i%7===0?" safe":""); b.innerHTML="<div>"+i+"</div><div>"+(lMy===i?"🔵":"")+(lBot===i?"🔴":"")+"</div>"; tr.appendChild(b); } }
+  document.getElementById("btnLudoRoll").addEventListener("click",function(){
+    if(!lTurn)return; var d=Math.floor(Math.random()*6)+1;
+    if(lMy===0){ if(d===6){lMy=1;toast("🎲 تاس ۶! وارد زمین شدید");}else toast("🎲 تاس "+d+" آمد (۶ لازم است)"); }
+    else if(lMy+d<=28){ lMy+=d; if(lMy===lBot&&lMy%7!==0){lBot=0;toast("💥 مهره حریف را زدید!");} }
+    renderLudo(); if(lMy===28){lTurn=false;return rewardWin("ludoStatus");}
+    lTurn=false; document.getElementById("ludoStatus").textContent="شما "+d+" آوردید • نوبت حریف...";
+    setTimeout(function(){ var bd=Math.floor(Math.random()*6)+1; if(lBot===0&&bd===6)lBot=1; else if(lBot>0&&lBot+bd<=28){lBot+=bd;if(lBot===lMy&&lBot%7!==0)lMy=0;} renderLudo(); if(lBot===28){document.getElementById("ludoStatus").textContent="😢 حریف به پایان رسید!";return;} lTurn=true; document.getElementById("ludoStatus").textContent="حریف "+bd+" آورد • نوبت شماست"; },500);
+  });
+
+  var sMy=1, sBot=1, sTurn=true, jumps={4:25,13:46,33:49,42:63,50:69,62:81,74:92, 27:5,40:3,43:18,54:31,66:45,76:58,89:53,99:41};
+  function initSnl(){ sMy=1; sBot=1; sTurn=true; document.getElementById("snlStatus").textContent="تاس بیندازید تا به ۱۰۰ برسید"; renderSnl(); }
+  function renderSnl(){ document.getElementById("snlMyPos").textContent=sMy; document.getElementById("snlBotPos").textContent=sBot; var g=document.getElementById("snlGrid"); g.innerHTML=""; for(var i=100;i>=1;i--){ var c=document.createElement("div"); var j=jumps[i]; c.className="snl-cell"+(j?(j>i?" ladder":" snake"):""); c.innerHTML="<span>"+i+(j?(j>i?"🪜":"🐍"):"")+"</span><div>"+(sMy===i?"<i class='token-p1'></i>":"")+(sBot===i?"<i class='token-p2'></i>":"")+"</div>"; g.appendChild(c); } }
+  document.getElementById("btnSnlRoll").addEventListener("click",function(){
+    if(!sTurn)return; var d=Math.floor(Math.random()*6)+1;
+    if(sMy+d<=100){ sMy+=d; if(jumps[sMy]){ toast(jumps[sMy]>sMy?"🪜 نردبان! صعود به "+jumps[sMy]:"🐍 مار گزید! سقوط به "+jumps[sMy]); sMy=jumps[sMy]; } }
+    renderSnl(); if(sMy===100){sTurn=false;return rewardWin("snlStatus");}
+    sTurn=false; document.getElementById("snlStatus").textContent="تاس شما: "+d+" • نوبت حریف...";
+    setTimeout(function(){ var bd=Math.floor(Math.random()*6)+1; if(sBot+bd<=100){sBot+=bd;if(jumps[sBot])sBot=jumps[sBot];} renderSnl(); if(sBot===100){document.getElementById("snlStatus").textContent="😢 حریف به ۱۰۰ رسید!";return;} sTurn=true; document.getElementById("snlStatus").textContent="تاس حریف: "+bd+" • نوبت شماست"; },450);
+  });
+
+  var bgPts=[], bgMyOff=0, bgBotOff=0, bgMoves=[], bgSel=-1;
+  function initBg(){ bgPts=Array(24).fill(0); bgPts[0]=2;bgPts[11]=5;bgPts[16]=3;bgPts[18]=5; bgPts[23]=-2;bgPts[12]=-5;bgPts[7]=-3;bgPts[5]=-5; bgMyOff=0;bgBotOff=0;bgMoves=[];bgSel=-1; document.getElementById("bgDice").textContent="-"; document.getElementById("bgStatus").textContent="روی دکمه ریختن تاس بزنید"; renderBg(); }
+  function renderBg(){ document.getElementById("bgMyOff").textContent=bgMyOff; document.getElementById("bgBotOff").textContent=bgBotOff; var top=document.getElementById("bgTop"), bot=document.getElementById("bgBot"); top.innerHTML=""; bot.innerHTML=""; for(var i=12;i<24;i++)top.appendChild(makeBgPt(i)); for(var j=11;j>=0;j--)bot.appendChild(makeBgPt(j)); }
+  function makeBgPt(idx){ var d=document.createElement("div"); d.className="bg-pt"+(idx%2?" alt":"")+(bgSel===idx?" sel":""); d.innerHTML="<span>"+(idx+1)+"</span>"; var cnt=bgPts[idx]; for(var k=0;k<Math.min(Math.abs(cnt),4);k++){ var c=document.createElement("div"); c.className="bg-chk "+(cnt>0?"w":"b"); d.appendChild(c); } d.onclick=function(){ onBgClick(idx); }; return d; }
+  document.getElementById("btnBgRoll").addEventListener("click",function(){ if(bgMoves.length)return toast("اول حرکت‌های تاس فعلی را انجام دهید"); var d1=Math.floor(Math.random()*6)+1, d2=Math.floor(Math.random()*6)+1; bgMoves=(d1===d2)?[d1,d1,d1,d1]:[d1,d2]; document.getElementById("bgDice").textContent=bgMoves.join(" , "); document.getElementById("bgStatus").textContent="مهره سفید خود را انتخاب کنید ("+bgMoves.join(" و ")+")"; });
+  function onBgClick(idx){ if(!bgMoves.length)return; if(bgSel===-1){ if(bgPts[idx]>0){bgSel=idx;renderBg();} return; } if(bgSel===idx){ bgSel=-1;renderBg();return; } var diff=idx-bgSel, mIdx=bgMoves.indexOf(diff); if(mIdx!==-1 && bgPts[idx]>=-1){ bgPts[bgSel]--; if(bgPts[idx]===-1)bgPts[idx]=1; else bgPts[idx]++; bgMoves.splice(mIdx,1); bgSel=-1; renderBg(); if(!bgMoves.length)endBgTurn(); }else if(bgSel+bgMoves[0]>=24){ bgPts[bgSel]--; bgMyOff++; bgMoves.shift(); bgSel=-1; renderBg(); if(bgMyOff>=15)return rewardWin("bgStatus"); if(!bgMoves.length)endBgTurn(); }else{ toast("❌ حرکت مجاز نیست"); bgSel=-1; renderBg(); } }
+  function endBgTurn(){ document.getElementById("bgStatus").textContent="نوبت حریف..."; setTimeout(function(){ var bd=Math.floor(Math.random()*6)+1; for(var i=23;i>=0;i--)if(bgPts[i]<0){ var t=i-bd; if(t<0){bgPts[i]++;bgBotOff++;break;} if(bgPts[t]<=1){bgPts[i]++;bgPts[t]=(bgPts[t]===1?-1:bgPts[t]-1);break;} } renderBg(); if(bgBotOff>=15){document.getElementById("bgStatus").textContent="😢 حریف مهره‌هایش را خارج کرد!";return;} document.getElementById("bgDice").textContent="-"; document.getElementById("bgStatus").textContent="نوبت شماست! تاس بریزید"; },450); }
+  document.getElementById("btnResetBg").addEventListener("click",initBg);
+
+  document.querySelectorAll(".buy-stars").forEach(function(btn){ btn.addEventListener("click",function(){ var g=parseInt(btn.getAttribute("data-g"),10),u=invLinks[btn.getAttribute("data-s")]; if(tg&&tg.openInvoice&&u)tg.openInvoice(u,function(st){if(st==="paid"){gems+=g;updateGems();toast("🎉 +"+g+" الماس اضافه شد");}});else toast("⚠️ ابتدا /start بزنید"); }); });
+  document.querySelectorAll(".buy-ton").forEach(function(btn){ btn.addEventListener("click",async function(){ if(!tonConnectUI||!tonConnectUI.connected){toast("💠 ابتدا Tonkeeper را متصل کنید");if(tonConnectUI)tonConnectUI.openModal();return;} var g=parseInt(btn.getAttribute("data-g"),10),nano=String(Math.round(parseFloat(btn.getAttribute("data-ton"))*1e9)); try{await tonConnectUI.sendTransaction({validUntil:Math.floor(Date.now()/1000)+300,messages:[{address:DEST_TON,amount:nano}]});gems+=g;updateGems();toast("🎉 +"+g+" الماس اضافه شد");}catch(e){toast("❌ لغو شد");} }); });
+  document.querySelectorAll(".buy-card").forEach(function(btn){ btn.addEventListener("click",function(){ var l="https://t.me/Starsgameir_bot?start=card_"+btn.getAttribute("data-g")+"_"+btn.getAttribute("data-toman").replace(",",""); if(tg&&tg.openTelegramLink)tg.openTelegramLink(l);else window.open(l,"_blank"); }); });
+  document.querySelectorAll(".wd-btn").forEach(function(btn){ btn.addEventListener("click",function(){ var r=parseInt(btn.getAttribute("data-g"),10); if(gems<r)return toast("❌ حداقل "+r+" الماس لازم است"); var l="https://t.me/Starsgameir_bot?start=wd_"+btn.getAttribute("data-m")+"_"+r; if(tg&&tg.openTelegramLink)tg.openTelegramLink(l);else window.open(l,"_blank"); }); });
+});
+</script>
+</body>
+</html>
