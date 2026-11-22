@@ -1,0 +1,1050 @@
+    .center-arena {
+      position: relative;
+      width: 210px;
+      height: 210px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .played-slot {
+      position: absolute;
+      width: 58px;
+      height: 82px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .slot-top { top: 6px; left: 50%; transform: translateX(-50%); }
+    .slot-bottom { bottom: 6px; left: 50%; transform: translateX(-50%); }
+    .slot-left { left: 10px; top: 50%; transform: translateY(-50%); }
+    .slot-right { right: 10px; top: 50%; transform: translateY(-50%); }
+
+    .card {
+      width: 56px;
+      height: 80px;
+      background: #ffffff;
+      border-radius: 7px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.45);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 4px 5px;
+      position: relative;
+      border: 1px solid #d1d5db;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card.red { color: #dc2626; }
+    .card.black { color: #111827; }
+
+    .card-corner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1;
+      font-weight: 800;
+      font-size: 13px;
+    }
+    .card-corner.bottom { transform: rotate(180deg); }
+    .card-center-suit {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+    }
+
+    .card.ace-winner {
+      box-shadow: 0 0 22px 6px rgba(243, 210, 102, 0.95);
+      border: 2px solid var(--gold-light);
+      transform: scale(1.1);
+      z-index: 10;
+    }
+    .card.ace-winner::before {
+      content: '👑';
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 18px;
+    }
+
+    .table-banner {
+      background: linear-gradient(90deg, #c59d24, #ebd072, #c59d24);
+      color: #1a1505;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 5px 18px;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      margin-bottom: 6px;
+      z-index: 10;
+      display: none;
+    }
+
+    .my-hand-container {
+      width: 100%;
+      height: 92px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: 2px;
+      z-index: 15;
+    }
+
+    .my-hand-container .card {
+      width: 54px;
+      height: 78px;
+      margin-left: -26px;
+      cursor: pointer;
+    }
+    .my-hand-container .card:first-child { margin-left: 0; }
+    .my-hand-container .card.playable:hover,
+    .my-hand-container .card.playable:active {
+      transform: translateY(-14px);
+      z-index: 30;
+    }
+    .my-hand-container .card.disabled {
+      filter: brightness(0.65);
+      cursor: not-allowed;
+    }
+
+    .bottom-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px 12px 14px;
+      background: var(--bg-dark);
+    }
+
+    .status-pill {
+      background: var(--panel-dark);
+      color: #e5e7eb;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .user-profile-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .user-avatar-small {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #27382e;
+      border: 1.5px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 12, 10, 0.88);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .modal-card {
+      background: #1a211d;
+      border: 1.5px solid var(--gold);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 360px;
+      padding: 22px 18px;
+      text-align: center;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.7);
+    }
+
+    .modal-title {
+      color: var(--gold-light);
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .modal-sub {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+
+    .option-btn {
+      width: 100%;
+      background: #232d27;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      color: #fff;
+      padding: 14px;
+      border-radius: 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+    }
+    .option-btn:active { transform: scale(0.98); background: #2c3831; }
+    .option-btn-title { font-weight: 800; font-size: 15px; text-align: right; }
+    .option-btn-desc { font-size: 11px; color: var(--text-muted); text-align: right; margin-top: 2px; }
+
+    .bet-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .bet-chip {
+      background: #232d27;
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      border-radius: 14px;
+      padding: 12px 8px;
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .bet-chip:active { background: var(--gold); color: #111; }
+    .bet-chip.free-mode {
+      grid-column: span 2;
+      background: rgba(22, 94, 59, 0.45);
+      border-color: #4ade80;
+      color: #86efac;
+    }
+
+    .suit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .suit-btn {
+      background: #fff;
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 32px;
+      font-weight: 900;
+      border: 2px solid var(--gold);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .suit-btn span { font-size: 13px; color: #111; }
+    .suit-btn.red { color: #dc2626; }
+    .suit-btn.black { color: #111827; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+    .center-arena {
+      position: relative;
+      width: 210px;
+      height: 210px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .played-slot {
+      position: absolute;
+      width: 58px;
+      height: 82px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .slot-top { top: 6px; left: 50%; transform: translateX(-50%); }
+    .slot-bottom { bottom: 6px; left: 50%; transform: translateX(-50%); }
+    .slot-left { left: 10px; top: 50%; transform: translateY(-50%); }
+    .slot-right { right: 10px; top: 50%; transform: translateY(-50%); }
+
+    .card {
+      width: 56px;
+      height: 80px;
+      background: #ffffff;
+      border-radius: 7px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.45);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 4px 5px;
+      position: relative;
+      border: 1px solid #d1d5db;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card.red { color: #dc2626; }
+    .card.black { color: #111827; }
+
+    .card-corner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1;
+      font-weight: 800;
+      font-size: 13px;
+    }
+    .card-corner.bottom { transform: rotate(180deg); }
+    .card-center-suit {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+    }
+
+    .card.ace-winner {
+      box-shadow: 0 0 22px 6px rgba(243, 210, 102, 0.95);
+      border: 2px solid var(--gold-light);
+      transform: scale(1.1);
+      z-index: 10;
+    }
+    .card.ace-winner::before {
+      content: '👑';
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 18px;
+    }
+
+    .table-banner {
+      background: linear-gradient(90deg, #c59d24, #ebd072, #c59d24);
+      color: #1a1505;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 5px 18px;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      margin-bottom: 6px;
+      z-index: 10;
+      display: none;
+    }
+
+    .my-hand-container {
+      width: 100%;
+      height: 92px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: 2px;
+      z-index: 15;
+    }
+
+    .my-hand-container .card {
+      width: 54px;
+      height: 78px;
+      margin-left: -26px;
+      cursor: pointer;
+    }
+    .my-hand-container .card:first-child { margin-left: 0; }
+    .my-hand-container .card.playable:hover,
+    .my-hand-container .card.playable:active {
+      transform: translateY(-14px);
+      z-index: 30;
+    }
+    .my-hand-container .card.disabled {
+      filter: brightness(0.65);
+      cursor: not-allowed;
+    }
+
+    .bottom-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px 12px 14px;
+      background: var(--bg-dark);
+    }
+
+    .status-pill {
+      background: var(--panel-dark);
+      color: #e5e7eb;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .user-profile-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .user-avatar-small {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #27382e;
+      border: 1.5px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 12, 10, 0.88);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .modal-card {
+      background: #1a211d;
+      border: 1.5px solid var(--gold);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 360px;
+      padding: 22px 18px;
+      text-align: center;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.7);
+    }
+
+    .modal-title {
+      color: var(--gold-light);
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .modal-sub {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+
+    .option-btn {
+      width: 100%;
+      background: #232d27;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      color: #fff;
+      padding: 14px;
+      border-radius: 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s;
+    }
+    .option-btn:active { transform: scale(0.98); background: #2c3831; }
+    .option-btn-title { font-weight: 800; font-size: 15px; text-align: right; }
+    .option-btn-desc { font-size: 11px; color: var(--text-muted); text-align: right; margin-top: 2px; }
+
+    .bet-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .bet-chip {
+      background: #232d27;
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      border-radius: 14px;
+      padding: 12px 8px;
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .bet-chip:active { background: var(--gold); color: #111; }
+    .bet-chip.free-mode {
+      grid-column: span 2;
+      background: rgba(22, 94, 59, 0.45);
+      border-color: #4ade80;
+      color: #86efac;
+    }
+
+    .suit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .suit-btn {
+      background: #fff;
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 32px;
+      font-weight: 900;
+      border: 2px solid var(--gold);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .suit-btn span { font-size: 13px; color: #111; }
+    .suit-btn.red { color: #dc2626; }
+    .suit-btn.black { color: #111827; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="modal-mode" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-title">🂡 انتخاب میز حکم</div>
+      <div class="modal-sub">مدل بازی مورد نظرت رو انتخاب کن:</div>
+
+      <button class="option-btn" onclick="selectMode('2p_bots')">
+        <div>
+          <div class="option-btn-title">👥 دو نفره همراه با ۲ بات</div>
+          <div class="option-btn-desc">تو و هم‌تیمی در مقابل بات ۱ و بات ۲</div>
+        </div>
+        <span style="font-size:22px;">🤖</span>
+      </button>
+
+      <button class="option-btn" onclick="selectMode('4p')">
+        <div>
+          <div class="option-btn-title">🔥 چهار نفره (میز کامل)</div>
+          <div class="option-btn-desc">رقابت ۴ نفره تیمی (۷ دست)</div>
+        </div>
+        <span style="font-size:22px;">🏆</span>
+      </button>
+
+      <button onclick="goBackToMenu()" style="margin-top:8px; background:none; border:none; color:#9aa59e; font-size:13px; cursor:pointer;">
+        بازگشت به منوی اصلی
+      </button>
+    </div>
+  </div>
+
+  <div id="modal-bet" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-title">💎 انتخاب مقدار شرط</div>
+      <div class="modal-sub">
+        موجودی شما: <strong id="user-balance-display" style="color:#f3d266;">750</strong> الماس<br/>
+        برنده کل جایزه میز را دریافت می‌کند!
+      </div>
+
+      <div class="bet-grid">
+        <button class="bet-chip" onclick="startGameWithBet(50)">💎 50</button>
+        <button class="bet-chip" onclick="startGameWithBet(100)">💎 100</button>
+        <button class="bet-chip" onclick="startGameWithBet(150)">💎 150</button>
+        <button class="bet-chip" onclick="startGameWithBet(200)">💎 200</button>
+        <button class="bet-chip" style="grid-column: span 2;" onclick="startGameWithBet(500)">💎 500 الماس (میز VIP)</button>
+        <button class="bet-chip free-mode" onclick="startGameWithBet(0)">🎮 بازی تمرینی رایگان (بدون شرط)</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-hokm" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-title">👑 شما حاکم شدید!</div>
+      <div class="modal-sub">با توجه به ۵ کارت اولت، خال حکم را انتخاب کن:</div>
+      <div id="first-five-preview" style="display:flex; justify-content:center; gap:6px; margin-bottom:16px;"></div>
+      <div class="suit-grid">
+        <button class="suit-btn black" onclick="chooseHokm('♠')">♠️<span>پیک</span></button>
+        <button class="suit-btn red" onclick="chooseHokm('♥')">♥️<span>دل</span></button>
+        <button class="suit-btn black" onclick="chooseHokm('♣')">♣️<span>گشنیز</span></button>
+        <button class="suit-btn red" onclick="chooseHokm('♦')">♦️<span>خشت</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-end" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div id="end-icon" style="font-size:46px; margin-bottom:6px;">🏆</div>
+      <div id="end-title" class="modal-title">شما برنده شدید!</div>
+      <div id="end-desc" class="modal-sub">نتیجه بازی ثبت شد.</div>
+      <button class="option-btn" style="justify-content:center; background:var(--gold); color:#111; font-weight:900;" onclick="location.reload()">
+        🔄 بازی مجدد
+      </button>
+      <button class="option-btn" style="justify-content:center;" onclick="goBackToMenu()">
+        🏠 بازگشت به منوی بازی‌ها
+      </button>
+    </div>
+  </div>
+
+  <div class="top-bar">
+    <div class="score-pill">
+      <div class="score-item">
+        <span class="label">حریف</span>
+        <span id="score-enemy" class="val-enemy">0</span>
+      </div>
+      <div class="score-divider"></div>
+      <div class="score-item">
+        <span class="label">ما</span>
+        <span id="score-us" class="val-us">0</span>
+      </div>
+      <div class="score-divider"></div>
+      <div class="score-item">
+        <span class="label" id="hand-counter">دست ۱</span>
+        <span id="bet-badge" style="color:#f3d266; font-size:11px; font-weight:700;">رایگان</span>
+      </div>
+    </div>
+
+    <div class="game-title-box">
+      <div class="game-title">حکم</div>
+      <div id="hokm-indicator" class="hokm-badge">حکم: ♠️</div>
+    </div>
+
+    <button class="exit-btn" onclick="goBackToMenu()" title="خروج">↪</button>
+  </div>
+
+  <div class="table-wrapper">
+    <div class="poker-table">
+      <div id="seat-top" class="player-seat seat-top">
+        <div class="avatar-ring">
+          <span class="crown-icon">👑</span>
+          🐯
+        </div>
+        <div id="name-top" class="player-tag">هم‌تیمی</div>
+      </div>
+
+      <div id="seat-left" class="player-seat seat-left">
+        <div class="avatar-ring">
+          <span class="crown-icon">👑</span>
+          🦅
+        </div>
+        <div id="name-left" class="player-tag">بات ۲</div>
+      </div>
+
+      <div id="seat-right" class="player-seat seat-right">
+        <div class="avatar-ring">
+          <span class="crown-icon">👑</span>
+          🐺
+        </div>
+        <div id="name-right" class="player-tag">بات ۱</div>
+      </div>
+
+      <div class="center-arena">
+        <div id="slot-top" class="played-slot slot-top"></div>
+        <div id="slot-left" class="played-slot slot-left"></div>
+        <div id="slot-right" class="played-slot slot-right"></div>
+        <div id="slot-bottom" class="played-slot slot-bottom"></div>
+      </div>
+
+      <div id="table-banner" class="table-banner">👑 در حال تعیین حاکم...</div>
+
+      <div id="my-hand" class="my-hand-container"></div>
+    </div>
+  </div>
+
+  <div class="bottom-footer">
+    <div id="bottom-status" class="status-pill">منتظر شروع بازی...</div>
+    <div class="user-profile-pill">
+      <span id="player-username">SavasH</span>
+      <div class="user-avatar-small">😎</div>
+    </div>
+  </div>
+  <script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      const user = tg.initDataUnsafe?.user;
+      if (user?.first_name) {
+        document.getElementById('player-username').innerText = user.first_name;
+      }
+    }
+
+    let gameMode = '2p_bots';
+    let currentBet = 0;
+    let userBalance = parseInt(localStorage.getItem('user_gems') || '750', 10);
+    document.getElementById('user-balance-display').innerText = userBalance;
+
+    const SUITS = ['♠', '♥', '♣', '♦'];
+    const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    const RANK_VALUE = { '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, 'J':11, 'Q':12, 'K':13, 'A':14 };
+
+    const SEATS = ['bottom', 'right', 'top', 'left'];
+    let seatNames = {
+      bottom: document.getElementById('player-username').innerText,
+      right: 'بات ۱',
+      top: 'هم‌تیمی',
+      left: 'بات ۲'
+    };
+
+    let deck = [];
+    let hands = { bottom: [], right: [], top: [], left: [] };
+    let hakemSeat = null;
+    let hokmSuit = null;
+    let currentTurnIndex = 0;
+    let trickCards = [];
+    let tricksUs = 0;
+    let tricksEnemy = 0;
+    let isPlayerTurn = false;
+
+    function goBackToMenu() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    function selectMode(mode) {
+      gameMode = mode;
+      if (mode === '2p_bots') {
+        seatNames.top = 'هم‌تیمی';
+        seatNames.right = 'بات ۱';
+        seatNames.left = 'بات ۲';
+      } else {
+        seatNames.top = 'هم‌تیمی';
+        seatNames.right = 'حریف راست';
+        seatNames.left = 'حریف چپ';
+      }
+      document.getElementById('name-top').innerText = seatNames.top;
+      document.getElementById('name-right').innerText = seatNames.right;
+      document.getElementById('name-left').innerText = seatNames.left;
+
+      document.getElementById('modal-mode').classList.add('hidden');
+      document.getElementById('modal-bet').classList.remove('hidden');
+    }
+
+    function startGameWithBet(amount) {
+      if (amount > userBalance) {
+        alert('موجودی الماس شما برای این میز کافی نیست!');
+        return;
+      }
+      currentBet = amount;
+      if (amount > 0) {
+        userBalance -= amount;
+        localStorage.setItem('user_gems', userBalance);
+        document.getElementById('bet-badge').innerText = `💎 ${amount}`;
+      } else {
+        document.getElementById('bet-badge').innerText = 'تمرینی';
+      }
+
+      document.getElementById('modal-bet').classList.add('hidden');
+      findHakemByAce();
+    }
+
+    function createShuffledDeck() {
+      const d = [];
+      for (const s of SUITS) {
+        for (const r of RANKS) {
+          d.push({ suit: s, rank: r, value: RANK_VALUE[r] });
+        }
+      }
+      for (let i = d.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [d[i], d[j]] = [d[j], d[i]];
+      }
+      return d;
+    }
+
+    function renderCardHTML(card, extraClass = '') {
+      const isRed = (card.suit === '♥' || card.suit === '♦');
+      return `
+        <div class="card ${isRed ? 'red' : 'black'} ${extraClass}">
+          <div class="card-corner">
+            <span>${card.rank}</span>
+            <span>${card.suit}</span>
+          </div>
+          <div class="card-center-suit">${card.suit}</div>
+          <div class="card-corner bottom">
+            <span>${card.rank}</span>
+            <span>${card.suit}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function findHakemByAce() {
+      const d = createShuffledDeck();
+      let idx = 0;
+      let seatIdx = 0;
+
+      setStatus('پخش کارت برای تعیین حاکم...');
+      showBanner('👑 در حال پیدا کردن تک حاکم...');
+
+      const dealInterval = setInterval(() => {
+        const seat = SEATS[seatIdx % 4];
+        const card = d[idx];
+        const slotEl = document.getElementById(`slot-${seat}`);
+
+        if (card.rank === 'A') {
+          clearInterval(dealInterval);
+          slotEl.innerHTML = renderCardHTML(card, 'ace-winner');
+          hakemSeat = seat;
+          document.getElementById(`seat-${seat}`).classList.add('is-hakem');
+
+          const msg = `👑 ${seatNames[seat]} حاکم شد`;
+          showBanner(msg);
+          setStatus(`${seatNames[seat]} حاکم شد`);
+
+          if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+          setTimeout(() => {
+            clearTableSlots();
+            dealInitialCards();
+          }, 2000);
+        } else {
+          slotEl.innerHTML = renderCardHTML(card);
+        }
+
+        idx++;
+        seatIdx++;
+      }, 320);
+    }
+
+    function dealInitialCards() {
+      deck = createShuffledDeck();
+      hands = {
+        bottom: deck.slice(0, 13),
+        right: deck.slice(13, 26),
+        top: deck.slice(26, 39),
+        left: deck.slice(39, 52)
+      };
+
+      if (hakemSeat === 'bottom') {
+        const firstFive = hands.bottom.slice(0, 5);
+        const previewEl = document.getElementById('first-five-preview');
+        previewEl.innerHTML = firstFive.map(c => renderCardHTML(c)).join('');
+        document.getElementById('modal-hokm').classList.remove('hidden');
+      } else {
+        const botFirstFive = hands[hakemSeat].slice(0, 5);
+        const counts = { '♠':0, '♥':0, '♣':0, '♦':0 };
+        botFirstFive.forEach(c => counts[c.suit] += c.value);
+        const bestSuit = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+
+        setTimeout(() => {
+          chooseHokm(bestSuit);
+        }, 900);
+      }
+    }
+
+    function chooseHokm(suit) {
+      hokmSuit = suit;
+      document.getElementById('modal-hokm').classList.add('hidden');
+
+      const badge = document.getElementById('hokm-indicator');
+      badge.innerText = `حکم: ${suit}`;
+      badge.style.display = 'inline-block';
+
+      showBanner(`حکم این دست: ${suit}`);
+      setTimeout(() => hideBanner(), 1800);
+
+      sortPlayerHand();
+      renderPlayerHand();
+
+      currentTurnIndex = SEATS.indexOf(hakemSeat);
+      nextTurn();
+    }
+
+    function sortPlayerHand() {
+      const suitOrder = { '♠': 1, '♥': 2, '♣': 3, '♦': 4 };
+      hands.bottom.sort((a, b) => {
+        if (a.suit !== b.suit) return suitOrder[a.suit] - suitOrder[b.suit];
+        return b.value - a.value;
+      });
+    }
+
+    function renderPlayerHand() {
+      const container = document.getElementById('my-hand');
+      const leadSuit = trickCards.length > 0 ? trickCards[0].card.suit : null;
+      const hasLeadSuit = leadSuit ? hands.bottom.some(c => c.suit === leadSuit) : false;
+
+      container.innerHTML = hands.bottom.map((card, index) => {
+        const valid = !isPlayerTurn ? false : (!leadSuit || !hasLeadSuit || card.suit === leadSuit);
+        const cls = isPlayerTurn ? (valid ? 'playable' : 'disabled') : '';
+        return `<div onclick="onPlayerCardClick(${index})">${renderCardHTML(card, cls)}</div>`;
+      }).join('');
+    }
+
+    function nextTurn() {
+      SEATS.forEach(s => document.getElementById(`seat-${s}`).classList.remove('active-turn'));
+
+      if (trickCards.length === 4) {
+        setTimeout(evaluateTrick, 900);
+        return;
+      }
+
+      const activeSeat = SEATS[currentTurnIndex % 4];
+      document.getElementById(`seat-${activeSeat}`).classList.add('active-turn');
+
+      if (activeSeat === 'bottom') {
+        isPlayerTurn = true;
+        setStatus('نوبت شماست! یک کارت بازی کنید');
+        renderPlayerHand();
+      } else {
+        isPlayerTurn = false;
+        renderPlayerHand();
+        setStatus(`نوبت ${seatNames[activeSeat]}...`);
+        setTimeout(() => playBotCard(activeSeat), 700);
+      }
+    }
+
+    function onPlayerCardClick(index) {
+      if (!isPlayerTurn) return;
+      const card = hands.bottom[index];
+      const leadSuit = trickCards.length > 0 ? trickCards[0].card.suit : null;
+      const hasLeadSuit = leadSuit ? hands.bottom.some(c => c.suit === leadSuit) : false;
+
+      if (leadSuit && hasLeadSuit && card.suit !== leadSuit) {
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+        setStatus(`باید خال زمینه (${leadSuit}) را بازی کنید!`);
+        return;
+      }
+
+      isPlayerTurn = false;
+      hands.bottom.splice(index, 1);
+      playCardToTable('bottom', card);
+    }
+
+    function playBotCard(seat) {
+      const hand = hands[seat];
+      const leadSuit = trickCards.length > 0 ? trickCards[0].card.suit : null;
+      let validCards = leadSuit ? hand.filter(c => c.suit === leadSuit) : [];
+
+      if (validCards.length === 0) {
+        const hokms = hand.filter(c => c.suit === hokmSuit);
+        validCards = hokms.length > 0 ? hokms : hand;
+      }
+
+      validCards.sort((a, b) => b.value - a.value);
+      const chosen = trickCards.length === 0 ? validCards[0] : validCards[validCards.length - 1];
+
+      const idx = hand.indexOf(chosen);
+      hand.splice(idx, 1);
+      playCardToTable(seat, chosen);
+    }
+
+    function playCardToTable(seat, card) {
+      if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+      trickCards.push({ seat, card });
+      document.getElementById(`slot-${seat}`).innerHTML = renderCardHTML(card);
+      renderPlayerHand();
+
+      currentTurnIndex++;
+      nextTurn();
+    }
+
+    function evaluateTrick() {
+      const leadSuit = trickCards[0].card.suit;
+      let winner = trickCards[0];
+
+      for (let i = 1; i < trickCards.length; i++) {
+        const curr = trickCards[i];
+        const winIsHokm = winner.card.suit === hokmSuit;
+        const currIsHokm = curr.card.suit === hokmSuit;
+
+        if (currIsHokm && !winIsHokm) {
+          winner = curr;
+        } else if (currIsHokm && winIsHokm && curr.card.value > winner.card.value) {
+          winner = curr;
+        } else if (!winIsHokm && curr.card.suit === leadSuit && curr.card.value > winner.card.value) {
+          winner = curr;
+        }
+      }
+
+      const weWon = (winner.seat === 'bottom' || winner.seat === 'top');
+      if (weWon) tricksUs++; else tricksEnemy++;
+
+      document.getElementById('score-us').innerText = tricksUs;
+      document.getElementById('score-enemy').innerText = tricksEnemy;
+      document.getElementById('hand-counter').innerText = `دست ${tricksUs + tricksEnemy + 1}`;
+
+      setStatus(`دست را ${seatNames[winner.seat]} برد!`);
+      clearTableSlots();
+      trickCards = [];
+
+      if (tricksUs === 7 || tricksEnemy === 7) {
+        finishMatch(tricksUs === 7);
+        return;
+      }
+
+      currentTurnIndex = SEATS.indexOf(winner.seat);
+      setTimeout(nextTurn, 500);
+    }
+
+    function finishMatch(didWeWin) {
+      const modal = document.getElementById('modal-end');
+      const title = document.getElementById('end-title');
+      const desc = document.getElementById('end-desc');
+      const icon = document.getElementById('end-icon');
+
+      if (didWeWin) {
+        const prize = currentBet * 2;
+        if (prize > 0) {
+          userBalance += prize;
+          localStorage.setItem('user_gems', userBalance);
+        }
+        icon.innerText = '🏆';
+        title.innerText = 'تبریک! شما برنده شدید';
+        desc.innerText = currentBet > 0
+          ? `نتیجه: ${tricksUs} بر ${tricksEnemy} | جایزه +${prize} الماس به حسابت اضافه شد!`
+          : `نتیجه نهایی: ${tricksUs} بر ${tricksEnemy}`;
+      } else {
+        icon.innerText = '💔';
+        title.innerText = 'حریف برنده این دست شد';
+        desc.innerText = `نتیجه نهایی: ${tricksUs} بر ${tricksEnemy}`;
+      }
+
+      if (tg) {
+        try {
+          tg.sendData(JSON.stringify({
+            action: 'hokm_result',
+            mode: gameMode,
+            bet: currentBet,
+            won: didWeWin,
+            score_us: tricksUs,
+            score_enemy: tricksEnemy
+          }));
+        } catch (e) {}
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function clearTableSlots() {
+      SEATS.forEach(s => document.getElementById(`slot-${s}`).innerHTML = '');
+    }
+
+    function setStatus(text) {
+      document.getElementById('bottom-status').innerText = text;
+    }
+
+    function showBanner(text) {
+      const b = document.getElementById('table-banner');
+      b.innerText = text;
+      b.style.display = 'block';
+    }
+
+    function hideBanner() {
+      document.getElementById('table-banner').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
