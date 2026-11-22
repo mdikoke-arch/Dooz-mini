@@ -46,10 +46,15 @@
       border-radius: 18px; padding: 15px; margin-bottom: 14px;
     }
     .box-title { font-size: 14px; font-weight: bold; color: #e9d5ff; margin-bottom: 10px; }
-    .card-row {
+    .card-box {
       background: #0c0a14; border: 1px dashed var(--neon-cyan);
       border-radius: 12px; padding: 10px 12px; margin-bottom: 10px;
-      display: flex; justify-content: space-between; align-items: center; font-size: 12px;
+      display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px;
+    }
+    .btn-sm {
+      border: none; border-radius: 9px; padding: 6px 10px;
+      background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
+      color: #fff; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap;
     }
     .inp {
       width: 100%; background: #0c0a14; border: 1.5px solid rgba(168, 85, 247, 0.45);
@@ -63,11 +68,6 @@
       color: #fff; font-weight: bold; font-size: 13px; cursor: pointer;
       box-shadow: 0 0 12px rgba(168, 85, 247, 0.45);
     }
-    .btn-sm {
-      border: none; border-radius: 9px; padding: 6px 10px;
-      background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
-      color: #fff; font-weight: bold; font-size: 11px; cursor: pointer;
-    }
     .status-txt { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
   </style>
 </head>
@@ -78,36 +78,45 @@
     <div class="bal-badge">💎 <span id="w-bal">0</span></div>
   </div>
 
-  <!-- ۱. واریز کارت به کارت -->
   <div class="box">
     <div class="box-title">💳 واریز کارت به کارت</div>
-    <div class="card-row">
-      <span id="card-num" dir="ltr">6037-9975-0000-0000</span>
-      <button class="btn-sm" onclick="copyCard()">کپی</button>
+    <div class="card-box">
+      <div>
+        <div id="owner-card-num" dir="ltr" style="font-weight:bold; color:#fff;">6277-6014-2080-7065</div>
+        <div id="owner-card-name" style="font-size:11px; color:var(--muted); margin-top:2px;">به‌نام: مهدی لایقی</div>
+      </div>
+      <button class="btn-sm" onclick="copyOwnerCard()">کپی کارت</button>
     </div>
-    <input id="dep-amount" class="inp" type="number" placeholder="مبلغ واریزی به تومان (مثلاً 100000)" />
-    <input id="dep-ref" class="inp" type="text" placeholder="۴ رقم آخر کارت یا کد پیگیری" />
-    <button class="btn" onclick="sendCardDeposit()">ثبت رسید کارت به کارت</button>
+    <p class="status-txt" style="margin-top:0; margin-bottom:10px;">
+      با زدن دکمه زیر وارد ربات می‌شوید تا شماره کارت نمایش داده شود، واریز کنید و رسید بفرستید تا پس از تایید حساب شما شارژ شود.
+    </p>
+    <button class="btn" onclick="goCardToBot()">رفتن به ربات و دریافت شماره کارت</button>
   </div>
 
-  <!-- ۲. اتصال به Tonkeeper -->
   <div class="box">
-    <div class="box-title">💠 اتصال به کیف پول TON (Tonkeeper)</div>
+    <div class="box-title">💠 شارژ با کیف پول TON (Tonkeeper)</div>
     <div id="ton-btn-box"></div>
     <div id="ton-status" class="status-txt">در حال آماده‌سازی TonConnect...</div>
-    <button id="ton-pay-btn" class="btn" style="margin-top:10px; display:none; background:linear-gradient(90deg,#0891b2,#7c3aed);" onclick="sendTonPayment()">ارسال تراکنش TON</button>
+    <div id="ton-charge-box" style="display:none; margin-top:10px;">
+      <input id="ton-amount" class="inp" type="number" step="0.1" min="0.1" placeholder="مقدار TON برای شارژ (مثلاً 0.5)" />
+      <button class="btn" style="background:linear-gradient(90deg,#0891b2,#7c3aed);" onclick="sendTonCharge()">پرداخت و شارژ با TON</button>
+    </div>
   </div>
 
-  <!-- ۳. برداشت جایزه -->
   <div class="box">
     <div class="box-title">💸 برداشت جایزه</div>
     <input id="wd-amount" class="inp" type="number" placeholder="مقدار الماس برداشت (حداقل 100)" />
     <input id="wd-dest" class="inp" type="text" placeholder="شماره کارت یا آدرس کیف پول TON" />
     <button class="btn" onclick="sendWithdraw()">ثبت درخواست برداشت</button>
   </div>
+
   <script>
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.ready(); tg.expand(); }
+
+    const CARD_NUMBER = '6277601420807065';
+    const CARD_HOLDER = 'مهدی لایقی';
+    const TON_DEST_WALLET = 'UQAMHpeWXnFzkb_MsfnQptMVpLaocJcTlcALtSGmpJ2WnUYg';
 
     if (localStorage.getItem('gems_bal') === null) localStorage.setItem('gems_bal', '0');
     document.getElementById('w-bal').innerText = localStorage.getItem('gems_bal') || '0';
@@ -115,9 +124,31 @@
     let tonUI = null;
     let walletAddr = null;
 
+    function copyOwnerCard() {
+      if (navigator.clipboard) navigator.clipboard.writeText(CARD_NUMBER).catch(() => {});
+      alert('شماره کارت مهدی لایقی کپی شد: 6277-6014-2080-7065');
+    }
+
+    function goCardToBot() {
+      const uname = localStorage.getItem('player_username') || '';
+      const payload = JSON.stringify({
+        action: 'card_to_bot',
+        card: CARD_NUMBER,
+        holder: CARD_HOLDER,
+        username: uname
+      });
+      if (tg && tg.initData) {
+        try {
+          tg.sendData(payload);
+          return;
+        } catch (e) {}
+      }
+      alert('شماره کارت: 6277-6014-2080-7065 به نام مهدی لایقی\nبرای بازگشت به ربات، مینی‌اپ را از دکمه ربات باز کنید.');
+    }
+
     function initWalletTon() {
       if (!window.TON_CONNECT_UI) {
-        document.getElementById('ton-status').innerText = 'کتابخانه TonConnect لود نشد (اتصال اینترنت/VPN را چک کنید).';
+        document.getElementById('ton-status').innerText = 'کتابخانه TonConnect لود نشد (اینترنت یا VPN را چک کنید).';
         return;
       }
       try {
@@ -125,53 +156,53 @@
           manifestUrl: 'https://mdikoke-arch.github.io/Dooz-mini/tonconnect-manifest.json',
           buttonRootId: 'ton-btn-box'
         });
-        document.getElementById('ton-status').innerText = 'روی دکمه بالا بزن تا Tonkeeper باز شود.';
+        document.getElementById('ton-status').innerText = 'برای اتصال به Tonkeeper روی دکمه بالا بزنید.';
 
         tonUI.onStatusChange(w => {
           if (w && w.account) {
             walletAddr = w.account.address;
-            document.getElementById('ton-status').innerText = 'متصل شد: ' + walletAddr.slice(0, 6) + '...' + walletAddr.slice(-4);
-            document.getElementById('ton-pay-btn').style.display = 'block';
+            document.getElementById('ton-status').innerText = 'ولت متصل شد: ' + walletAddr.slice(0, 6) + '...' + walletAddr.slice(-4);
+            document.getElementById('ton-charge-box').style.display = 'block';
           } else {
             walletAddr = null;
             document.getElementById('ton-status').innerText = 'ولت متصل نیست.';
-            document.getElementById('ton-pay-btn').style.display = 'none';
+            document.getElementById('ton-charge-box').style.display = 'none';
           }
         });
       } catch (e) {
-        document.getElementById('ton-status').innerText = 'خطا در مقداردهی TonConnect.';
+        document.getElementById('ton-status').innerText = 'خطا در راه‌اندازی TonConnect.';
       }
     }
 
-    async function sendTonPayment() {
-      if (!tonUI || !walletAddr) return;
+    async function sendTonCharge() {
+      if (!tonUI || !walletAddr) {
+        alert('ابتدا به Tonkeeper متصل شوید.');
+        return;
+      }
+      const tonVal = parseFloat(document.getElementById('ton-amount').value);
+      if (!tonVal || tonVal <= 0) {
+        alert('مقدار TON معتبر وارد کنید (مثلاً 0.5).');
+        return;
+      }
+      const nanoAmount = Math.round(tonVal * 1e9).toString();
       try {
         const res = await tonUI.sendTransaction({
           validUntil: Math.floor(Date.now() / 1000) + 300,
-          messages: [{ address: 'UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJKZ', amount: '100000000' }]
+          messages: [{ address: TON_DEST_WALLET, amount: nanoAmount }]
         });
-        if (tg) tg.sendData(JSON.stringify({ action: 'ton_tx', boc: res.boc, wallet: walletAddr }));
+        if (tg) {
+          tg.sendData(JSON.stringify({
+            action: 'ton_deposit',
+            ton_amount: tonVal,
+            to_wallet: TON_DEST_WALLET,
+            boc: res.boc,
+            wallet: walletAddr
+          }));
+        }
         alert('✅ تراکنش TON ارسال شد.');
       } catch (e) {
         alert('تراکنش لغو شد.');
       }
-    }
-
-    function copyCard() {
-      const raw = document.getElementById('card-num').innerText.replace(/-/g, '');
-      if (navigator.clipboard) navigator.clipboard.writeText(raw).catch(() => {});
-      alert('شماره کارت کپی شد.');
-    }
-
-    function sendCardDeposit() {
-      const amt = parseInt(document.getElementById('dep-amount').value, 10);
-      const ref = document.getElementById('dep-ref').value.trim();
-      if (!amt || amt < 10000) { alert('مبلغ معتبر وارد کنید.'); return; }
-      if (ref.length < 4) { alert('حداقل ۴ رقم آخر کارت یا کد پیگیری را بزنید.'); return; }
-      if (tg) {
-        try { tg.sendData(JSON.stringify({ action: 'card_deposit', amount: amt, ref })); } catch (e) {}
-      }
-      alert('✅ رسید کارت به کارت برای ربات ارسال شد.');
     }
 
     function sendWithdraw() {
