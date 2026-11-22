@@ -4,18 +4,28 @@ if (tg) {
   tg.expand();
 }
 
+const WITHDRAW_RATE_PER_100 = 40000;
+
+function updateWithdrawCalc() {
+  const amt = parseInt(document.getElementById('withdraw-amount')?.value || '0', 10);
+  const el = document.getElementById('withdraw-calc');
+  if (!el) return;
+  const toman = amt > 0 ? Math.floor((amt / 100) * WITHDRAW_RATE_PER_100) : 0;
+  el.innerText = `هر 100 الماس = 40,000 تومان | مبلغ دریافتی: ${toman.toLocaleString()} تومان`;
+}
+
 function loadState() {
   const name = localStorage.getItem('player_name') || '';
   const uname = localStorage.getItem('player_username') || '';
-  if (localStorage.getItem('gems_bal') === null) {
-    localStorage.setItem('gems_bal', '0');
-  }
+  if (localStorage.getItem('gems_bal') === null) localStorage.setItem('gems_bal', '0');
+
   const gems = localStorage.getItem('gems_bal') || '0';
   const wins = localStorage.getItem('stats_wins') || '0';
   const losses = localStorage.getItem('stats_losses') || '0';
 
   document.getElementById('top-gems').innerText = gems;
-  document.getElementById('wallet-gems').innerText = gems;
+  const pGems = document.getElementById('profile-gems');
+  if (pGems) pGems.innerText = gems;
   document.getElementById('stat-wins').innerText = wins;
   document.getElementById('stat-losses').innerText = losses;
 
@@ -28,6 +38,7 @@ function loadState() {
   } else {
     document.getElementById('profile-lock-alert').style.display = 'flex';
   }
+  updateWithdrawCalc();
 }
 
 function selectCat(cat, btn) {
@@ -40,20 +51,16 @@ function selectCat(cat, btn) {
 function saveUserProfile() {
   const name = document.getElementById('inp-name').value.trim();
   const uname = document.getElementById('inp-username').value.trim().replace(/^@/, '');
-
   if (name.length < 2 || uname.length < 3) {
     alert('لطفاً نام و یوزرنیم معتبر وارد کنید!');
     return;
   }
-
   localStorage.setItem('player_name', name);
   localStorage.setItem('player_username', uname);
   loadState();
-
   if (tg) {
     try { tg.sendData(JSON.stringify({ action: 'save_profile', name, username: uname })); } catch (e) {}
   }
-
   alert('✅ پروفایل ثبت شد!');
   switchTab('home', document.querySelector('[data-t=home]'));
 }
@@ -76,33 +83,18 @@ function switchTab(id, el) {
   if (el) el.classList.add('active');
 }
 
-function requestBuy(gems, stars) {
-  if (tg) {
-    try { tg.sendData(JSON.stringify({ action: 'buy_stars', gems, stars })); } catch (e) {}
-  }
-  alert(`درخواست خرید ${gems} الماس (${stars}) به ربات ارسال شد.`);
-}
-
-function sendWalletAction(type) {
-  if (tg) {
-    try { tg.sendData(JSON.stringify({ action: type })); } catch (e) {}
-  }
-  alert(type === 'deposit_card' ? 'درخواست واریز کارت به کارت به ربات ارسال شد.' : 'درخواست واریز TON به ربات ارسال شد.');
-}
-
 function submitWithdraw() {
   const amt = parseInt(document.getElementById('withdraw-amount').value, 10);
   const dest = document.getElementById('withdraw-dest').value.trim();
   const bal = parseInt(localStorage.getItem('gems_bal') || '0', 10);
-
   if (!amt || amt < 100) { alert('حداقل مقدار برداشت ۱۰۰ الماس است.'); return; }
   if (amt > bal) { alert('موجودی الماس شما کافی نیست.'); return; }
   if (dest.length < 6) { alert('شماره کارت یا آدرس ولت معتبر وارد کنید.'); return; }
-
+  const toman = Math.floor((amt / 100) * WITHDRAW_RATE_PER_100);
   if (tg) {
-    try { tg.sendData(JSON.stringify({ action: 'withdraw', amount: amt, destination: dest })); } catch (e) {}
+    try { tg.sendData(JSON.stringify({ action: 'withdraw', amount: amt, toman, destination: dest })); } catch (e) {}
   }
-  alert('✅ درخواست برداشت ثبت شد.');
+  alert(`✅ درخواست برداشت ${amt} الماس (${toman.toLocaleString()} تومان) ثبت شد.`);
 }
 
 loadState();

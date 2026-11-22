@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>واریز و برداشت</title>
+  <title>فروشگاه و واریز</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <style>
@@ -42,72 +42,99 @@
     }
     .box {
       background: var(--card); border: 1.5px solid rgba(168, 85, 247, 0.38);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
-      border-radius: 18px; padding: 15px; margin-bottom: 14px;
+      border-radius: 18px; padding: 14px; margin-bottom: 12px;
     }
-    .box-title { font-size: 14px; font-weight: bold; color: #e9d5ff; margin-bottom: 10px; }
-    .card-box {
+    .box-title { font-size: 14px; font-weight: bold; color: #f3e8ff; margin-bottom: 10px; }
+    .pkg-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .pkg-card {
+      background: var(--card-2); border: 1.5px solid rgba(168, 85, 247, 0.45);
+      border-radius: 16px; padding: 12px; text-align: center; cursor: pointer;
+    }
+    .pkg-card.selected {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.35);
+    }
+    .pkg-gems { font-size: 15px; font-weight: bold; color: #fff; margin: 4px 0; }
+    .pkg-toman { font-size: 12px; color: #f472b6; font-weight: bold; }
+    .pkg-ton { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .btn {
+      width: 100%; border: none; border-radius: 12px; padding: 11px 12px;
+      background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
+      color: #fff; font-weight: bold; font-size: 12px; cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn-ton { background: linear-gradient(90deg, #0891b2, #7c3aed); }
+    .card-strip {
       background: #0c0a14; border: 1px dashed var(--neon-cyan);
-      border-radius: 12px; padding: 10px 12px; margin-bottom: 10px;
-      display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px;
+      border-radius: 12px; padding: 10px 12px; margin-bottom: 8px;
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
     }
     .btn-sm {
       border: none; border-radius: 9px; padding: 6px 10px;
       background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
-      color: #fff; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap;
+      color: #fff; font-weight: bold; font-size: 11px; cursor: pointer;
     }
-    .inp {
-      width: 100%; background: #0c0a14; border: 1.5px solid rgba(168, 85, 247, 0.45);
-      color: #fff; padding: 10px 12px; border-radius: 12px; margin-bottom: 10px;
-      font-size: 13px; outline: none;
-    }
-    .inp:focus { border-color: var(--neon-cyan); }
-    .btn {
-      width: 100%; border: none; border-radius: 12px; padding: 11px 14px;
-      background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
-      color: #fff; font-weight: bold; font-size: 13px; cursor: pointer;
-      box-shadow: 0 0 12px rgba(168, 85, 247, 0.45);
-    }
-    .status-txt { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+    .hint { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
   </style>
 </head>
 <body>
   <div class="topbar">
     <button class="back-btn" onclick="location.href='index.html'">↪ بازگشت</button>
-    <div style="font-weight:bold; font-size:14px;">💳 واریز و برداشت</div>
+    <div style="font-weight:bold; font-size:14px;">💎 فروشگاه الماس</div>
     <div class="bal-badge">💎 <span id="w-bal">0</span></div>
   </div>
 
   <div class="box">
-    <div class="box-title">💳 واریز کارت به کارت</div>
-    <div class="card-box">
-      <div>
-        <div id="owner-card-num" dir="ltr" style="font-weight:bold; color:#fff;">6277-6014-2080-7065</div>
-        <div id="owner-card-name" style="font-size:11px; color:var(--muted); margin-top:2px;">به‌نام: مهدی لایقی</div>
+    <div class="box-title">🛒 انتخاب بسته الماس</div>
+    <div class="pkg-grid">
+      <div class="pkg-card selected" data-gems="200" data-toman="85000" data-ton="0.4" onclick="choosePkg(this)">
+        <div>💎</div>
+        <div class="pkg-gems">200 الماس</div>
+        <div class="pkg-toman">85,000 تومان</div>
+        <div class="pkg-ton">~0.4 TON</div>
       </div>
-      <button class="btn-sm" onclick="copyOwnerCard()">کپی کارت</button>
+      <div class="pkg-card" data-gems="450" data-toman="185000" data-ton="0.85" onclick="choosePkg(this)">
+        <div>💎💎</div>
+        <div class="pkg-gems">450 الماس</div>
+        <div class="pkg-toman">185,000 تومان</div>
+        <div class="pkg-ton">~0.85 TON</div>
+      </div>
+      <div class="pkg-card" data-gems="1000" data-toman="400000" data-ton="1.8" onclick="choosePkg(this)">
+        <div>🔥💎</div>
+        <div class="pkg-gems">1,000 الماس</div>
+        <div class="pkg-toman">400,000 تومان</div>
+        <div class="pkg-ton">~1.8 TON</div>
+      </div>
+      <div class="pkg-card" data-gems="2500" data-toman="950000" data-ton="4.2" onclick="choosePkg(this)">
+        <div>👑💎</div>
+        <div class="pkg-gems">2,500 الماس</div>
+        <div class="pkg-toman">950,000 تومان</div>
+        <div class="pkg-ton">~4.2 TON</div>
+      </div>
     </div>
-    <p class="status-txt" style="margin-top:0; margin-bottom:10px;">
-      با زدن دکمه زیر وارد ربات می‌شوید تا شماره کارت نمایش داده شود، واریز کنید و رسید بفرستید تا پس از تایید حساب شما شارژ شود.
-    </p>
-    <button class="btn" onclick="goCardToBot()">رفتن به ربات و دریافت شماره کارت</button>
+    <div id="selected-summary" class="hint" style="color:#e9d5ff; font-weight:bold;">
+      بسته انتخابی: 200 الماس — 85,000 تومان
+    </div>
   </div>
 
   <div class="box">
-    <div class="box-title">💠 شارژ با کیف پول TON (Tonkeeper)</div>
+    <div class="box-title">💳 خرید با کارت به کارت</div>
+    <div class="card-strip">
+      <div>
+        <div dir="ltr" style="font-weight:bold; font-size:13px; color:#fff;">6277-6014-2080-7065</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:2px;">مهدی لایقی</div>
+      </div>
+      <button class="btn-sm" onclick="copyCard()">کپی کارت</button>
+    </div>
+    <button class="btn" onclick="buyWithCard()">رفتن به ربات و تکمیل واریز کارت به کارت</button>
+    <div class="hint">وارد ربات می‌شوی، واریز می‌کنی و رسید می‌فرستی تا بعد از تایید حساب شارژ شود.</div>
+  </div>
+
+  <div class="box">
+    <div class="box-title">💠 خرید با کیف پول TON</div>
     <div id="ton-btn-box"></div>
-    <div id="ton-status" class="status-txt">در حال آماده‌سازی TonConnect...</div>
-    <div id="ton-charge-box" style="display:none; margin-top:10px;">
-      <input id="ton-amount" class="inp" type="number" step="0.1" min="0.1" placeholder="مقدار TON برای شارژ (مثلاً 0.5)" />
-      <button class="btn" style="background:linear-gradient(90deg,#0891b2,#7c3aed);" onclick="sendTonCharge()">پرداخت و شارژ با TON</button>
-    </div>
-  </div>
-
-  <div class="box">
-    <div class="box-title">💸 برداشت جایزه</div>
-    <input id="wd-amount" class="inp" type="number" placeholder="مقدار الماس برداشت (حداقل 100)" />
-    <input id="wd-dest" class="inp" type="text" placeholder="شماره کارت یا آدرس کیف پول TON" />
-    <button class="btn" onclick="sendWithdraw()">ثبت درخواست برداشت</button>
+    <div id="ton-status" class="hint">ولت متصل نیست.</div>
+    <button id="ton-buy-btn" class="btn btn-ton" style="display:none;" onclick="buyWithTon()">پرداخت بسته انتخابی با TON</button>
   </div>
 
   <script>
@@ -117,87 +144,92 @@
     const CARD_NUMBER = '6277601420807065';
     const CARD_HOLDER = 'مهدی لایقی';
     const TON_DEST_WALLET = 'UQAMHpeWXnFzkb_MsfnQptMVpLaocJcTlcALtSGmpJ2WnUYg';
+    const BOT_URL = 'https://t.me/Starsgameir_bot';
 
     if (localStorage.getItem('gems_bal') === null) localStorage.setItem('gems_bal', '0');
     document.getElementById('w-bal').innerText = localStorage.getItem('gems_bal') || '0';
 
-    let tonUI = null;
-    let walletAddr = null;
+    let selectedPkg = { gems: 200, toman: 85000, ton: 0.4 };
 
-    function copyOwnerCard() {
-      if (navigator.clipboard) navigator.clipboard.writeText(CARD_NUMBER).catch(() => {});
-      alert('شماره کارت مهدی لایقی کپی شد: 6277-6014-2080-7065');
+    function choosePkg(el) {
+      document.querySelectorAll('.pkg-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedPkg = {
+        gems: parseInt(el.dataset.gems, 10),
+        toman: parseInt(el.dataset.toman, 10),
+        ton: parseFloat(el.dataset.ton)
+      };
+      document.getElementById('selected-summary').innerText =
+        `بسته انتخابی: ${selectedPkg.gems.toLocaleString()} الماس — ${selectedPkg.toman.toLocaleString()} تومان`;
     }
 
-    function goCardToBot() {
+    function copyCard() {
+      if (navigator.clipboard) navigator.clipboard.writeText(CARD_NUMBER).catch(() => {});
+      alert('شماره کارت کپی شد: 6277-6014-2080-7065');
+    }
+
+    function buyWithCard() {
       const uname = localStorage.getItem('player_username') || '';
       const payload = JSON.stringify({
-        action: 'card_to_bot',
+        action: 'card_buy_pkg',
+        gems: selectedPkg.gems,
+        toman: selectedPkg.toman,
         card: CARD_NUMBER,
         holder: CARD_HOLDER,
         username: uname
       });
-      if (tg && tg.initData) {
-        try {
-          tg.sendData(payload);
-          return;
-        } catch (e) {}
+      let sent = false;
+      if (tg) {
+        try { tg.sendData(payload); sent = true; } catch (e) {}
       }
-      alert('شماره کارت: 6277-6014-2080-7065 به نام مهدی لایقی\nبرای بازگشت به ربات، مینی‌اپ را از دکمه ربات باز کنید.');
+      if (!sent) {
+        if (tg && tg.openTelegramLink) tg.openTelegramLink(BOT_URL);
+        else window.open(BOT_URL, '_blank');
+      }
     }
 
-    function initWalletTon() {
-      if (!window.TON_CONNECT_UI) {
-        document.getElementById('ton-status').innerText = 'کتابخانه TonConnect لود نشد (اینترنت یا VPN را چک کنید).';
-        return;
-      }
+    let tonUI = null;
+    let walletAddr = null;
+
+    function initTon() {
+      if (!window.TON_CONNECT_UI) return;
       try {
         tonUI = new TON_CONNECT_UI.TonConnectUI({
           manifestUrl: 'https://mdikoke-arch.github.io/Dooz-mini/tonconnect-manifest.json',
           buttonRootId: 'ton-btn-box'
         });
-        document.getElementById('ton-status').innerText = 'برای اتصال به Tonkeeper روی دکمه بالا بزنید.';
-
         tonUI.onStatusChange(w => {
           if (w && w.account) {
             walletAddr = w.account.address;
-            document.getElementById('ton-status').innerText = 'ولت متصل شد: ' + walletAddr.slice(0, 6) + '...' + walletAddr.slice(-4);
-            document.getElementById('ton-charge-box').style.display = 'block';
+            document.getElementById('ton-status').innerText = 'متصل: ' + walletAddr.slice(0, 6) + '...' + walletAddr.slice(-4);
+            document.getElementById('ton-buy-btn').style.display = 'block';
           } else {
             walletAddr = null;
             document.getElementById('ton-status').innerText = 'ولت متصل نیست.';
-            document.getElementById('ton-charge-box').style.display = 'none';
+            document.getElementById('ton-buy-btn').style.display = 'none';
           }
         });
-      } catch (e) {
-        document.getElementById('ton-status').innerText = 'خطا در راه‌اندازی TonConnect.';
-      }
+      } catch (e) {}
     }
 
-    async function sendTonCharge() {
-      if (!tonUI || !walletAddr) {
-        alert('ابتدا به Tonkeeper متصل شوید.');
-        return;
-      }
-      const tonVal = parseFloat(document.getElementById('ton-amount').value);
-      if (!tonVal || tonVal <= 0) {
-        alert('مقدار TON معتبر وارد کنید (مثلاً 0.5).');
-        return;
-      }
-      const nanoAmount = Math.round(tonVal * 1e9).toString();
+    async function buyWithTon() {
+      if (!tonUI || !walletAddr) return;
+      const nano = Math.round(selectedPkg.ton * 1e9).toString();
       try {
         const res = await tonUI.sendTransaction({
           validUntil: Math.floor(Date.now() / 1000) + 300,
-          messages: [{ address: TON_DEST_WALLET, amount: nanoAmount }]
+          messages: [{ address: TON_DEST_WALLET, amount: nano }]
         });
         if (tg) {
-          tg.sendData(JSON.stringify({
-            action: 'ton_deposit',
-            ton_amount: tonVal,
-            to_wallet: TON_DEST_WALLET,
-            boc: res.boc,
-            wallet: walletAddr
-          }));
+          try {
+            tg.sendData(JSON.stringify({
+              action: 'ton_buy_pkg',
+              gems: selectedPkg.gems,
+              ton_amount: selectedPkg.ton,
+              boc: res.boc,
+              wallet: walletAddr
+            }));
+          } catch (e) {}
         }
         alert('✅ تراکنش TON ارسال شد.');
       } catch (e) {
@@ -205,20 +237,7 @@
       }
     }
 
-    function sendWithdraw() {
-      const amt = parseInt(document.getElementById('wd-amount').value, 10);
-      const dest = document.getElementById('wd-dest').value.trim();
-      const bal = parseInt(localStorage.getItem('gems_bal') || '0', 10);
-      if (!amt || amt < 100) { alert('حداقل برداشت ۱۰۰ الماس است.'); return; }
-      if (amt > bal) { alert('موجودی کافی نیست.'); return; }
-      if (dest.length < 6) { alert('مقصد معتبر وارد کنید.'); return; }
-      if (tg) {
-        try { tg.sendData(JSON.stringify({ action: 'withdraw', amount: amt, destination: dest })); } catch (e) {}
-      }
-      alert('✅ درخواست برداشت ثبت شد.');
-    }
-
-    initWalletTon();
+    initTon();
   </script>
 </body>
 </html>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>@Starsgameir_bot</title>
-  <script src="https://telegram.org/js/telegram-web-app.js?v=v1795389799"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
       --bg: #08070d;
@@ -23,8 +23,6 @@
       min-height: 100vh;
       padding-bottom: 78px;
     }
-
-    /* هدر بالایی */
     .topbar {
       display: flex; justify-content: space-between; align-items: center;
       padding: 12px 15px; background: rgba(18, 15, 29, 0.94);
@@ -41,16 +39,12 @@
     .gem-pill {
       background: rgba(168, 85, 247, 0.15);
       border: 1.5px solid var(--neon-purple);
-      box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
       color: #e9d5ff; padding: 6px 14px; border-radius: 20px;
       font-weight: bold; font-size: 14px; cursor: pointer;
     }
-
     .wrap { padding: 14px; }
     .tab-sec { display: none; }
     .tab-sec.active { display: block; }
-
-    /* بنر تبلیغاتی بالای صفحه */
     .promo-banner {
       background: linear-gradient(135deg, #251047 0%, #3b0d54 55%, #1a0b2e 100%);
       border: 1.5px solid var(--neon-pink);
@@ -60,19 +54,21 @@
     .promo-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .promo-tag {
       background: var(--neon-pink); color: #fff; font-size: 10px; font-weight: bold;
-      padding: 3px 10px; border-radius: 10px; box-shadow: 0 0 8px var(--neon-pink);
+      padding: 3px 10px; border-radius: 10px;
     }
-    .promo-title { font-size: 15px; font-weight: bold; color: #fff; margin-bottom: 3px; }
+    .promo-title { font-size: 15px; font-weight: bold; margin-bottom: 3px; }
     .promo-sub { font-size: 11px; color: #ddd6fe; line-height: 1.5; }
-
-    /* هشدار تکمیل پروفایل */
     .lock-alert {
       background: rgba(236, 72, 153, 0.14); border: 1px dashed var(--neon-pink);
       border-radius: 14px; padding: 10px 12px; margin-bottom: 14px;
       display: flex; justify-content: space-between; align-items: center; font-size: 11px;
     }
-
-    /* تب‌های کپسولی دسته‌بندی بالای بازی‌ها (مثل عکس) */
+    .neon-btn {
+      background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
+      color: #fff; border: none; border-radius: 12px; padding: 10px 14px;
+      font-weight: bold; font-size: 12px; cursor: pointer;
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.45);
+    }
     .cat-bar {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
       background: #120e21; border: 1px solid rgba(168, 85, 247, 0.3);
@@ -81,68 +77,42 @@
     .cat-pill {
       background: transparent; border: none; color: var(--muted);
       padding: 10px 6px; border-radius: 22px; font-size: 12px; font-weight: bold;
-      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+      cursor: pointer; white-space: nowrap;
     }
     .cat-pill.active {
       background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
       color: #fff; box-shadow: 0 0 12px rgba(236, 72, 153, 0.55);
     }
-
-    /* گرید ۲ ستونه کارت‌های مربعی بازی‌ها */
-    .games-grid {
-      display: none;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
+    .games-grid { display: none; grid-template-columns: repeat(2, 1fr); gap: 12px; }
     .games-grid.active { display: grid; }
     .sq-card {
       aspect-ratio: 1 / 1.05;
       background: linear-gradient(160deg, #1b1333 0%, #100c1d 100%);
       border: 1.5px solid rgba(168, 85, 247, 0.5);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.55), inset 0 0 16px rgba(168, 85, 247, 0.12);
       border-radius: 22px; padding: 14px;
       display: flex; flex-direction: column; justify-content: space-between; align-items: center;
-      cursor: pointer; transition: transform 0.15s, border-color 0.2s;
+      cursor: pointer;
     }
-    .sq-card:active { transform: scale(0.96); border-color: var(--neon-cyan); }
     .sq-badge {
       align-self: flex-start;
       background: rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.45);
       color: #e9d5ff; font-size: 10px; font-weight: bold; padding: 3px 9px; border-radius: 10px;
     }
-    .sq-icon { font-size: 46px; filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.45)); }
+    .sq-icon { font-size: 46px; }
     .sq-title { font-size: 15px; font-weight: bold; color: #f3e8ff; text-align: center; }
-
-    /* پنل‌های پروفایل، فروشگاه و واریز/برداشت */
-    .neon-btn {
-      background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
-      color: #fff; border: none; border-radius: 12px; padding: 9px 14px;
-      font-weight: bold; font-size: 12px; cursor: pointer;
-      box-shadow: 0 0 12px rgba(168, 85, 247, 0.5);
-    }
     .box-panel {
       background: var(--card); border: 1px solid rgba(168, 85, 247, 0.35);
-      border-radius: 18px; padding: 16px; margin-bottom: 12px;
+      border-radius: 18px; padding: 15px; margin-bottom: 12px;
     }
     .panel-title { font-size: 14px; font-weight: bold; color: #d8b4fe; margin-bottom: 10px; }
     .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .stat-box {
-      background: var(--card-2); border-radius: 14px; padding: 12px; text-align: center;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
+    .stat-box { background: var(--card-2); border-radius: 14px; padding: 12px; text-align: center; }
     .stat-win { color: #4ade80; font-size: 20px; font-weight: bold; }
     .stat-loss { color: #f87171; font-size: 20px; font-weight: bold; }
     .input-field {
       width: 100%; background: #0c0a14; border: 1.5px solid rgba(168, 85, 247, 0.45);
-      color: #fff; padding: 11px 12px; border-radius: 12px; margin-bottom: 10px; font-size: 13px; outline: none;
+      color: #fff; padding: 10px 12px; border-radius: 12px; margin-bottom: 10px; font-size: 13px; outline: none;
     }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .shop-item {
-      background: var(--card-2); border: 1px solid rgba(168, 85, 247, 0.4);
-      border-radius: 16px; padding: 14px 10px; text-align: center; cursor: pointer;
-    }
-
-    /* نوار پایین */
     .bnav {
       position: fixed; bottom: 0; left: 0; right: 0;
       background: rgba(14, 11, 24, 0.96);
@@ -154,7 +124,7 @@
       font-size: 11px; font-weight: bold; cursor: pointer;
       display: flex; flex-direction: column; align-items: center; gap: 3px;
     }
-    .bnav-btn.active { color: #e9d5ff; text-shadow: 0 0 8px var(--neon-purple); }
+    .bnav-btn.active { color: #e9d5ff; }
   </style>
 </head>
 <body>
@@ -166,21 +136,20 @@
         <div id="top-username" dir="ltr" style="font-size:11px; color:var(--muted); text-align:right;">@username</div>
       </div>
     </div>
-    <div class="gem-pill" onclick="location.href='wallet.html?v=v1795389799'">
+    <div class="gem-pill" onclick="location.href='wallet.html'">
       💎 <span id="top-gems">0</span>
     </div>
   </header>
 
   <main class="wrap">
-    <!-- ۱. تب بازی‌ها -->
     <section id="tab-home" class="tab-sec active">
       <div class="promo-banner">
         <div class="promo-top">
           <span class="promo-tag">NEON CLUB</span>
-          <span style="font-size:11px; color:#f472b6; font-weight:bold;">🔥 +۵۰٪ بونوس شارژ</span>
+          <span style="font-size:11px; color:#f472b6; font-weight:bold;">💎 شارژ سریع الماس</span>
         </div>
-        <div class="promo-title">رقابت کن، الماس ببر و آنی برداشت بزن!</div>
-        <div class="promo-sub">میزهای اختصاصی ورق، تخته‌ای و اسلاتی با تسویه سریع.</div>
+        <div class="promo-title">رقابت کن، الماس ببر و برداشت بزن!</div>
+        <div class="promo-sub">میزهای اختصاصی ورق، تخته‌ای و اسلاتی با تسویه منظم.</div>
       </div>
 
       <div id="profile-lock-alert" class="lock-alert">
@@ -188,14 +157,12 @@
         <button class="neon-btn" style="padding:6px 10px; font-size:11px;" onclick="switchTab('profile', document.querySelector('[data-t=profile]'))">پروفایل</button>
       </div>
 
-      <!-- تب‌های دسته‌بندی بالای بازی‌ها -->
       <div class="cat-bar">
         <button class="cat-pill active" data-cat="cards" onclick="selectCat('cards', this)">🃏 ورق و پاسور</button>
         <button class="cat-pill" data-cat="board" onclick="selectCat('board', this)">🎲 تخته‌ای</button>
         <button class="cat-pill" data-cat="slots" onclick="selectCat('slots', this)">🎰 اسلاتی</button>
       </div>
 
-      <!-- کارت‌های مربعی دسته ۱: بازی‌های ورق یا پاسور -->
       <div id="cat-cards" class="games-grid active">
         <div class="sq-card" onclick="launchGame('hokm.html')">
           <span class="sq-badge">👥 ۲ و ۴ نفره</span>
@@ -209,7 +176,6 @@
         </div>
       </div>
 
-      <!-- کارت‌های مربعی دسته ۲: بازی‌های تخته‌ای -->
       <div id="cat-board" class="games-grid">
         <div class="sq-card" onclick="launchGame('dooz3.html')">
           <span class="sq-badge">👥 ۲ نفره</span>
@@ -223,7 +189,6 @@
         </div>
       </div>
 
-      <!-- کارت‌های مربعی دسته ۳: بازی‌های اسلاتی -->
       <div id="cat-slots" class="games-grid">
         <div class="sq-card" onclick="launchGame('slot.html')">
           <span class="sq-badge">⚡ تک نفره</span>
@@ -238,24 +203,6 @@
       </div>
     </section>
 
-    <!-- ۳. تب واریز و برداشت -->
-    <section id="tab-wallet" class="tab-sec">
-      <div class="box-panel">
-        <div class="panel-title">💳 واریز مستقیم (افزایش موجودی)</div>
-        <button class="neon-btn" style="width:100%; margin-bottom:8px;" onclick="sendWalletAction('deposit_card')">💳 واریز کارت به کارت</button>
-        <button class="neon-btn" style="width:100%; background:linear-gradient(90deg,#0891b2,#7c3aed);" onclick="sendWalletAction('deposit_ton')">💠 واریز با کیف پول TON</button>
-      </div>
-
-      <div class="box-panel">
-        <div class="panel-title">💸 برداشت جایزه</div>
-        <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">موجودی فعلی: <strong style="color:#fff;" id="wallet-gems">0</strong> الماس</p>
-        <input id="withdraw-amount" class="input-field" type="number" placeholder="مقدار الماس برای برداشت (حداقل 100)" />
-        <input id="withdraw-dest" class="input-field" type="text" placeholder="شماره کارت یا آدرس کیف پول TON" />
-        <button class="neon-btn" style="width:100%;" onclick="submitWithdraw()">ثبت درخواست برداشت</button>
-      </div>
-    </section>
-
-    <!-- ۴. تب پروفایل -->
     <section id="tab-profile" class="tab-sec">
       <div class="box-panel">
         <div class="panel-title">📊 آمار بازی‌های شما</div>
@@ -272,6 +219,15 @@
       </div>
 
       <div class="box-panel">
+        <div class="panel-title">💸 برداشت جایزه</div>
+        <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">موجودی قابل برداشت: <strong style="color:#fff;" id="profile-gems">0</strong> الماس</p>
+        <input id="withdraw-amount" class="input-field" type="number" oninput="updateWithdrawCalc()" placeholder="مقدار الماس برای برداشت (حداقل 100)" />
+        <div id="withdraw-calc" style="font-size:12px; color:#22d3ee; margin-bottom:10px;">هر 100 الماس = 40,000 تومان | مبلغ دریافتی: 0 تومان</div>
+        <input id="withdraw-dest" class="input-field" type="text" placeholder="شماره کارت یا آدرس کیف پول TON" />
+        <button class="neon-btn" style="width:100%;" onclick="submitWithdraw()">ثبت درخواست برداشت</button>
+      </div>
+
+      <div class="box-panel">
         <div class="panel-title">✍️ نام و یوزرنیم (الزامی برای بازی)</div>
         <input id="inp-name" class="input-field" type="text" placeholder="نام نمایشی (مثلاً: SavasH)" />
         <input id="inp-username" class="input-field" type="text" placeholder="یوزرنیم (مثلاً: Savashm)" />
@@ -282,10 +238,10 @@
 
   <nav class="bnav">
     <button class="bnav-btn active" data-t="home" onclick="switchTab('home', this)">🎮<span>بازی‌ها</span></button>
-    <button class="bnav-btn" data-t="wallet" onclick="location.href='wallet.html?v=v1795389799'">💳<span>واریز و برداشت</span></button>
+    <button class="bnav-btn" onclick="location.href='wallet.html'">💎<span>فروشگاه و واریز</span></button>
     <button class="bnav-btn" data-t="profile" onclick="switchTab('profile', this)">👤<span>پروفایل</span></button>
   </nav>
 
-  <script src="app.js?v=v1795389799"></script>
+  <script src="app.js"></script>
 </body>
 </html>
