@@ -55,7 +55,7 @@
   </style>
 </head>
 <body>
-  <div id="profile-header-btn" class="profile-header">
+  <div id="profile-header-btn" class="profile-header" onclick="window.openProfileModal()">
     <div class="ph-right">
       <div id="header-avatar" class="avatar">U</div>
       <div><div id="header-name" class="ph-name">بازیکن</div><div class="ph-sub">پروفایل، برد/باخت و برداشت</div></div>
@@ -64,9 +64,9 @@
   </div>
   <div id="pane-games" class="pane active">
     <div class="cats-row">
-      <button class="cat-chip active" type="button" data-cat="card">بازی‌های کارتی</button>
-      <button class="cat-chip" type="button" data-cat="board">بازی‌های تخته‌ای</button>
-      <button class="cat-chip" type="button" data-cat="slot">اسلات (بچرخون و جایزه بگیر)</button>
+      <button class="cat-chip active" type="button" data-cat="card" onclick="window.selectCategory('card')">بازی‌های کارتی</button>
+      <button class="cat-chip" type="button" data-cat="board" onclick="window.selectCategory('board')">بازی‌های تخته‌ای</button>
+      <button class="cat-chip" type="button" data-cat="slot" onclick="window.selectCategory('slot')">اسلات (بچرخون و جایزه بگیر)</button>
     </div>
     <div class="slots-grid">
       <div id="slot-1" class="game-slot"><div class="slot-label">جایگاه بازی ۱</div><div class="slot-hint">خالی</div></div>
@@ -78,10 +78,10 @@
   <div id="pane-shop" class="pane">
     <h3 style="margin:4px 0 12px;font-size:16px;">فروشگاه الماس</h3>
     <div class="shop-grid">
-      <div class="pack-card" data-gems="200" data-toman="50000" data-ton="0.2"><div class="pack-gems">💎 ۲۰۰ الماس</div><div class="pack-price">۵۰,۰۰۰ تومان / 0.2 TON</div><button class="pack-btn" type="button">خرید بسته</button></div>
-      <div class="pack-card" data-gems="420" data-toman="100000" data-ton="0.4"><div class="pack-gems">💎 ۴۲۰ الماس</div><div class="pack-price">۱۰۰,۰۰۰ تومان / 0.4 TON</div><button class="pack-btn" type="button">خرید بسته</button></div>
-      <div class="pack-card" data-gems="900" data-toman="200000" data-ton="0.8"><div class="pack-gems">💎 ۹۰۰ الماس</div><div class="pack-price">۲۰۰,۰۰۰ تومان / 0.8 TON</div><button class="pack-btn" type="button">خرید بسته</button></div>
-      <div class="pack-card" data-gems="2500" data-toman="500000" data-ton="2.0"><div class="pack-gems">💎 ۲,۵۰۰ الماس</div><div class="pack-price">۵۰۰,۰۰۰ تومان / 2.0 TON</div><button class="pack-btn" type="button">خرید بسته</button></div>
+      <div class="pack-card" onclick="window.openBuyPackModal(200,50000,0.2)"><div class="pack-gems">💎 ۲۰۰ الماس</div><div class="pack-price">۵۰,۰۰۰ تومان / 0.2 TON</div><button class="pack-btn" type="button">خرید بسته</button></div>
+      <div class="pack-card" onclick="window.openBuyPackModal(420,100000,0.4)"><div class="pack-gems">💎 ۴۲۰ الماس</div><div class="pack-price">۱۰۰,۰۰۰ تومان / 0.4 TON</div><button class="pack-btn" type="button">خرید بسته</button></div>
+      <div class="pack-card" onclick="window.openBuyPackModal(900,200000,0.8)"><div class="pack-gems">💎 ۹۰۰ الماس</div><div class="pack-price">۲۰۰,۰۰۰ تومان / 0.8 TON</div><button class="pack-btn" type="button">خرید بسته</button></div>
+      <div class="pack-card" onclick="window.openBuyPackModal(2500,500000,2.0)"><div class="pack-gems">💎 ۲,۵۰۰ الماس</div><div class="pack-price">۵۰۰,۰۰۰ تومان / 2.0 TON</div><button class="pack-btn" type="button">خرید بسته</button></div>
     </div>
   </div>
   <div id="pane-friends" class="pane">
@@ -90,17 +90,17 @@
       <div style="font-size:12px;color:#c4b5fd;margin-top:4px;">لینک اختصاصی خودت را بفرست تا دوستانت به لیست اضافه شوند</div>
       <div id="invite-url-box" class="invite-url">https://t.me/Starsgameir_bot?start=ref_0</div>
       <div class="row-2">
-        <button id="copy-invite-btn" class="btn-full" type="button" style="margin-top:0;">کپی لینک</button>
-        <button id="share-invite-btn" class="btn-sec" type="button" style="margin-top:0;">ارسال به دوست</button>
+        <button id="copy-invite-btn" class="btn-full" type="button" style="margin-top:0;" onclick="window.copyInviteLink()">کپی لینک</button>
+        <button id="share-invite-btn" class="btn-sec" type="button" style="margin-top:0;" onclick="window.shareInviteLink()">ارسال به دوست</button>
       </div>
     </div>
     <div style="font-size:14px;font-weight:bold;margin-bottom:8px;">لیست دوستان (کلیک برای پروفایل)</div>
     <div id="friends-list"></div>
   </div>
   <div class="bottom-bar">
-    <button id="nav-shop" class="nav-item" type="button">فروشگاه</button>
-    <button id="nav-games" class="nav-item active" type="button">بازی</button>
-    <button id="nav-friends" class="nav-item" type="button">دوستان</button>
+    <button id="nav-shop" class="nav-item" type="button" onclick="window.switchMainTab('shop')">فروشگاه</button>
+    <button id="nav-games" class="nav-item active" type="button" onclick="window.switchMainTab('games')">بازی</button>
+    <button id="nav-friends" class="nav-item" type="button" onclick="window.switchMainTab('friends')">دوستان</button>
   </div>
   <div id="profile-modal" class="modal">
     <div class="modal-box">
@@ -113,8 +113,8 @@
       <div style="font-size:13px;font-weight:bold;margin-top:8px;">درخواست برداشت / پرداخت جایزه</div>
       <input id="withdraw-amount" type="number" placeholder="تعداد الماس یا مبلغ برداشت" />
       <input id="withdraw-dest" type="text" placeholder="شماره کارت بانکی یا آدرس کیف‌پول TON" />
-      <button id="withdraw-submit-btn" class="btn-full" type="button">ثبت درخواست برداشت</button>
-      <button id="close-profile-btn" class="btn-sec" type="button">بستن</button>
+      <button id="withdraw-submit-btn" class="btn-full" type="button" onclick="window.submitWithdraw()">ثبت درخواست برداشت</button>
+      <button id="close-profile-btn" class="btn-sec" type="button" onclick="window.closeModal('profile-modal')">بستن</button>
     </div>
   </div>
   <div id="buy-modal" class="modal">
@@ -122,19 +122,19 @@
       <div id="buy-pack-title" style="font-size:16px;font-weight:bold;">خرید بسته الماس</div>
       <div id="buy-pack-sub" style="font-size:12px;color:#c4b5fd;margin-top:4px;">روش پرداخت را انتخاب کنید</div>
       <div class="row-2" style="margin-top:12px;">
-        <button id="pay-method-ton" class="btn-full" type="button" style="margin-top:0;">پرداخت با Tonkeeper</button>
-        <button id="pay-method-card" class="btn-full" type="button" style="margin-top:0;background:#5b21b6;">کارت‌به‌کارت</button>
+        <button id="pay-method-ton" class="btn-full" type="button" style="margin-top:0;" onclick="window.choosePayMethod('ton')">پرداخت با Tonkeeper</button>
+        <button id="pay-method-card" class="btn-full" type="button" style="margin-top:0;background:#5b21b6;" onclick="window.choosePayMethod('card')">کارت‌به‌کارت</button>
       </div>
       <div id="card-step-box" style="display:none;margin-top:10px;">
         <div class="info-line">شماره کارت: <b id="card-num-display"></b><br/>به نام: <b id="card-owner-display"></b><br/>مبلغ قابل واریز: <b id="card-pay-amount"></b></div>
         <input id="buy-card-ref" type="text" placeholder="۴ رقم آخر کارت یا کد پیگیری را وارد کنید" />
-        <button id="confirm-card-btn" class="btn-full" type="button">تایید و ثبت کارت‌به‌کارت</button>
+        <button id="confirm-card-btn" class="btn-full" type="button" onclick="window.confirmCardPurchase()">تایید و ثبت کارت‌به‌کارت</button>
       </div>
       <div id="ton-step-box" style="display:none;margin-top:10px;">
         <div class="info-line">مبلغ: <b id="ton-pay-amount"></b><br/>آدرس ولت TON: <span id="ton-addr-display"></span></div>
-        <button id="confirm-ton-btn" class="btn-full" type="button">باز کردن Tonkeeper و پرداخت</button>
+        <button id="confirm-ton-btn" class="btn-full" type="button" onclick="window.confirmTonPurchase()">باز کردن Tonkeeper و پرداخت</button>
       </div>
-      <button id="close-buy-btn" class="btn-sec" type="button">انصراف</button>
+      <button id="close-buy-btn" class="btn-sec" type="button" onclick="window.closeModal('buy-modal')">انصراف</button>
     </div>
   </div>
   <div id="friend-modal" class="modal">
@@ -145,9 +145,141 @@
         <div class="stat-cell"><div id="fp-losses" class="stat-num">0</div><div class="stat-lbl">باخت‌ها</div></div>
         <div class="stat-cell"><div id="fp-gems" class="stat-num">0</div><div class="stat-lbl">الماس</div></div>
       </div>
-      <button id="close-friend-btn" class="btn-sec" type="button">بستن</button>
+      <button id="close-friend-btn" class="btn-sec" type="button" onclick="window.closeModal('friend-modal')">بستن</button>
     </div>
   </div>
-  <script src="app.js"></script>
+  <script>
+    (function () {
+      var BOT_USERNAME = "Starsgameir_bot";
+      var TON_WALLET = "UQ_YOUR_TON_WALLET_ADDRESS_HERE";
+      var CARD_NUMBER = "6277-6014-2080-7065";
+      var CARD_OWNER = "مهدی لایقی";
+      var tg = window.Telegram && window.Telegram.WebApp;
+      if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
+      var user = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || { id: 123456789, first_name: "بازیکن", username: "guest", photo_url: "" };
+      window.APP_STATE = {
+        user: user, gems: 750, wins: 14, losses: 6, selectedPack: null, selectedCat: "card",
+        friends: [
+          { id: 901, name: "امیرحسین", wins: 22, losses: 9, gems: 1450 },
+          { id: 902, name: "سارا", wins: 11, losses: 5, gems: 680 },
+          { id: 903, name: "رضا", wins: 31, losses: 12, gems: 2900 }
+        ]
+      };
+      function byId(id) { return document.getElementById(id); }
+      window.haptic = function (t) { try { if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(t || "light"); } catch (e) {} };
+      window.openBotLink = function (p) {
+        window.haptic("medium");
+        var u = "https://t.me/" + BOT_USERNAME + "?start=" + encodeURIComponent(p);
+        if (tg && tg.openTelegramLink) tg.openTelegramLink(u); else window.open(u, "_blank");
+      };
+      window.switchMainTab = function (tab) {
+        window.haptic("light");
+        ["games", "shop", "friends"].forEach(function (t) {
+          if (byId("pane-" + t)) byId("pane-" + t).classList.toggle("active", t === tab);
+          if (byId("nav-" + t)) byId("nav-" + t).classList.toggle("active", t === tab);
+        });
+      };
+      window.selectCategory = function (cat) {
+        window.haptic("light");
+        window.APP_STATE.selectedCat = cat;
+        var chips = document.querySelectorAll(".cat-chip");
+        for (var i = 0; i < chips.length; i++) chips[i].classList.toggle("active", chips[i].getAttribute("data-cat") === cat);
+      };
+      window.openProfileModal = function () { window.haptic("light"); if (byId("profile-modal")) byId("profile-modal").classList.add("open"); };
+      window.closeModal = function (id) { if (byId(id)) byId(id).classList.remove("open"); };
+      window.submitWithdraw = function () {
+        var a = byId("withdraw-amount") ? byId("withdraw-amount").value.trim() : "";
+        var d = byId("withdraw-dest") ? byId("withdraw-dest").value.trim() : "";
+        if (!a || !d) { alert("مبلغ و شماره کارت یا آدرس ولت را وارد کنید."); return; }
+        window.openBotLink("withdraw_" + a + "_" + d.replace(/\s+/g, ""));
+      };
+      window.openBuyPackModal = function (gems, toman, ton) {
+        window.haptic("medium");
+        window.APP_STATE.selectedPack = { gems: gems, toman: toman, ton: ton };
+        if (byId("buy-pack-title")) byId("buy-pack-title").textContent = "خرید بسته " + gems + " الماس";
+        if (byId("buy-pack-sub")) byId("buy-pack-sub").textContent = "مبلغ: " + Number(toman).toLocaleString("fa-IR") + " تومان یا " + ton + " TON";
+        if (byId("card-step-box")) byId("card-step-box").style.display = "none";
+        if (byId("ton-step-box")) byId("ton-step-box").style.display = "none";
+        if (byId("buy-modal")) byId("buy-modal").classList.add("open");
+      };
+      window.choosePayMethod = function (m) {
+        window.haptic("light");
+        var p = window.APP_STATE.selectedPack;
+        if (!p) return;
+        if (byId("card-step-box")) byId("card-step-box").style.display = m === "card" ? "block" : "none";
+        if (byId("ton-step-box")) byId("ton-step-box").style.display = m === "ton" ? "block" : "none";
+        if (m === "card") {
+          if (byId("card-num-display")) byId("card-num-display").textContent = CARD_NUMBER;
+          if (byId("card-owner-display")) byId("card-owner-display").textContent = CARD_OWNER;
+          if (byId("card-pay-amount")) byId("card-pay-amount").textContent = Number(p.toman).toLocaleString("fa-IR") + " تومان";
+        } else {
+          if (byId("ton-addr-display")) byId("ton-addr-display").textContent = TON_WALLET;
+          if (byId("ton-pay-amount")) byId("ton-pay-amount").textContent = p.ton + " TON";
+        }
+      };
+      window.confirmCardPurchase = function () {
+        var p = window.APP_STATE.selectedPack;
+        var r = byId("buy-card-ref") ? byId("buy-card-ref").value.trim() : "";
+        if (!p) return;
+        if (!r) { alert("لطفاً ۴ رقم آخر کارت یا کد پیگیری را وارد کنید."); return; }
+        window.openBotLink("card_" + p.toman + "_" + r + "_g" + p.gems);
+      };
+      window.confirmTonPurchase = function () {
+        var p = window.APP_STATE.selectedPack;
+        if (!p) return;
+        window.open("ton://transfer/" + TON_WALLET + "?amount=" + Math.round(p.ton * 1e9) + "&text=U" + user.id + "_G" + p.gems, "_blank");
+      };
+      window.copyInviteLink = function () {
+        window.haptic("medium");
+        var link = "https://t.me/" + BOT_USERNAME + "?start=ref_" + user.id;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(link).then(function () { alert("لینک دعوت اختصاصی کپی شد:\n" + link); }).catch(function () { prompt("لینک دعوت شما:", link); });
+        } else prompt("لینک دعوت شما:", link);
+      };
+      window.shareInviteLink = function () {
+        window.haptic("medium");
+        var link = "https://t.me/" + BOT_USERNAME + "?start=ref_" + user.id;
+        var u = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent("بیا با هم بازی کنیم و الماس ببریم!");
+        if (tg && tg.openTelegramLink) tg.openTelegramLink(u); else window.open(u, "_blank");
+      };
+      window.showFriendProfile = function (i) {
+        window.haptic("light");
+        var f = window.APP_STATE.friends[i];
+        if (!f) return;
+        if (byId("fp-name")) byId("fp-name").textContent = f.name;
+        if (byId("fp-avatar")) byId("fp-avatar").textContent = f.name.charAt(0);
+        if (byId("fp-wins")) byId("fp-wins").textContent = f.wins;
+        if (byId("fp-losses")) byId("fp-losses").textContent = f.losses;
+        if (byId("fp-gems")) byId("fp-gems").textContent = f.gems;
+        if (byId("friend-modal")) byId("friend-modal").classList.add("open");
+      };
+      function initUI() {
+        var n = user.first_name || "بازیکن";
+        if (byId("header-name")) byId("header-name").textContent = n;
+        if (byId("header-gems")) byId("header-gems").textContent = window.APP_STATE.gems;
+        if (byId("prof-name")) byId("prof-name").textContent = n;
+        if (byId("prof-wins")) byId("prof-wins").textContent = window.APP_STATE.wins;
+        if (byId("prof-losses")) byId("prof-losses").textContent = window.APP_STATE.losses;
+        if (byId("prof-gems")) byId("prof-gems").textContent = window.APP_STATE.gems;
+        if (byId("invite-url-box")) byId("invite-url-box").textContent = "https://t.me/" + BOT_USERNAME + "?start=ref_" + user.id;
+        var av = byId("header-avatar"), pav = byId("prof-avatar");
+        if (user.photo_url) {
+          if (av) av.innerHTML = '<img src="' + user.photo_url + '" alt="avatar" />';
+          if (pav) pav.innerHTML = '<img src="' + user.photo_url + '" alt="avatar" />';
+        } else {
+          var ch = n.charAt(0) || "U";
+          if (av) av.textContent = ch;
+          if (pav) pav.textContent = ch;
+        }
+        var fl = byId("friends-list");
+        if (fl) {
+          fl.innerHTML = window.APP_STATE.friends.map(function (f, i) {
+            return '<div class="friend-row" onclick="window.showFriendProfile(' + i + ')"><div class="friend-left"><div class="mini-av">' + f.name.charAt(0) + '</div><div><div class="friend-name">' + f.name + '</div><div class="friend-sub">کلیک برای مشاهده پروفایل</div></div></div><div class="friend-gems">💎 ' + f.gems + '</div></div>';
+          }).join("");
+        }
+      }
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initUI); else initUI();
+    })();
+  </script>
 </body>
 </html>
