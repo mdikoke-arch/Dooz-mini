@@ -6,86 +6,476 @@
   <title>Dooz-mini</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
+    * { box-sizing: border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
     body {
       margin: 0;
-      padding: 18px;
-      font-family: sans-serif;
-      background: #0d0717;
+      padding: 14px 14px 86px;
+      background: #0a0612;
       color: #ffffff;
     }
-    .panel {
-      max-width: 440px;
-      margin: 16px auto;
-      background: #190f2b;
-      border: 1px solid #5e2ced;
-      border-radius: 16px;
-      padding: 18px;
+    .profile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, #1b0f30, #120921);
+      border: 1px solid #5b2fc9;
+      border-radius: 18px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      cursor: pointer;
     }
-    h1 {
-      margin: 0 0 14px;
-      font-size: 20px;
-      color: #efe5ff;
+    .ph-right { display: flex; align-items: center; gap: 10px; }
+    .avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: #6d28d9;
+      border: 2px solid #a78bfa;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 18px;
+      overflow: hidden;
     }
-    label {
-      display: block;
-      margin-top: 12px;
-      margin-bottom: 6px;
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .ph-name { font-size: 15px; font-weight: bold; }
+    .ph-sub { font-size: 11px; color: #c4b5fd; margin-top: 2px; }
+    .gem-pill {
+      background: #2a1452;
+      border: 1px solid #8b5cf6;
+      padding: 6px 12px;
+      border-radius: 999px;
       font-size: 13px;
-      color: #cbb8ff;
+      font-weight: bold;
+      color: #f5f3ff;
     }
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 11px;
-      border-radius: 10px;
-      border: 1px solid #3c266e;
-      background: #0e071a;
-      color: #fff;
-      font-size: 15px;
+    .pane { display: none; }
+    .pane.active { display: block; }
+    .cats-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
     }
-    .btn {
-      width: 100%;
-      margin-top: 14px;
-      padding: 12px;
+    .cat-chip {
+      white-space: nowrap;
+      padding: 8px 13px;
+      border-radius: 999px;
+      border: 1px solid #3f2278;
+      background: #160c28;
+      color: #d8b4fe;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .cat-chip.active {
+      background: #7c3aed;
+      border-color: #a78bfa;
+      color: #ffffff;
+    }
+    .game-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #160c27;
+      border: 1px solid #3c1f70;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    .gi-title { font-size: 15px; font-weight: bold; margin-bottom: 4px; }
+    .gi-desc { font-size: 12px; color: #bca6f2; }
+    .btn-play {
+      padding: 9px 16px;
       border: none;
       border-radius: 12px;
       background: #7c3aed;
       color: #fff;
-      font-size: 15px;
+      font-size: 13px;
       font-weight: bold;
       cursor: pointer;
     }
-    .btn-secondary {
-      background: #2b184d;
-      border: 1px solid #6d3df2;
+    .slot-box {
+      background: #190d2e;
+      border: 1px solid #6d28d9;
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+      margin-top: 12px;
+    }
+    .slot-reels {
+      font-size: 26px;
+      background: #0d0718;
+      border: 1px solid #4c1d95;
+      border-radius: 12px;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    .shop-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .pack-card {
+      background: #170d29;
+      border: 1px solid #4c2694;
+      border-radius: 16px;
+      padding: 14px 10px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .pack-gems { font-size: 16px; font-weight: bold; color: #f3e8ff; margin-bottom: 6px; }
+    .pack-price { font-size: 12px; color: #c4b5fd; margin-bottom: 10px; }
+    .pack-btn {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 10px;
+      background: #7c3aed;
+      color: #fff;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .invite-card {
+      background: #170d29;
+      border: 1px solid #5b2fc9;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .invite-url {
+      background: #0d0718;
+      border: 1px dashed #6d28d9;
+      border-radius: 10px;
+      padding: 9px;
+      font-size: 11px;
+      color: #ddd6fe;
+      word-break: break-all;
+      margin: 8px 0;
+    }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .friend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #160c27;
+      border: 1px solid #391d6b;
+      border-radius: 14px;
+      padding: 11px 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .friend-left { display: flex; align-items: center; gap: 10px; }
+    .mini-av {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #4c1d95; display: flex; align-items: center; justify-content: center;
+      font-weight: bold;
+    }
+    .friend-name { font-size: 14px; font-weight: bold; }
+    .friend-sub { font-size: 11px; color: #a78bfa; }
+    .friend-gems { font-size: 13px; font-weight: bold; color: #e9d5ff; }
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      z-index: 50;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    .modal.open { display: flex; align-items: center; justify-content: center; }
+    .modal-box {
+      width: 100%;
+      max-width: 420px;
+      background: #170d29;
+      border: 1px solid #6d28d9;
+      border-radius: 18px;
+      padding: 16px;
+    }
+    .stats-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 12px 0;
+      text-align: center;
+    }
+    .stat-cell {
+      background: #0f081c;
+      border: 1px solid #3c1f70;
+      border-radius: 12px;
+      padding: 10px 6px;
+    }
+    .stat-num { font-size: 16px; font-weight: bold; color: #f3e8ff; }
+    .stat-lbl { font-size: 11px; color: #c4b5fd; margin-top: 3px; }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 8px;
+      border-radius: 10px;
+      border: 1px solid #4c2694;
+      background: #0d0718;
+      color: #fff;
+      font-size: 13px;
+    }
+    .btn-full {
+      width: 100%;
+      margin-top: 10px;
+      padding: 11px;
+      border: none;
+      border-radius: 12px;
+      background: #7c3aed;
+      color: #fff;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-sec {
+      width: 100%;
+      margin-top: 8px;
+      padding: 10px;
+      border: 1px solid #5b2fc9;
+      border-radius: 12px;
+      background: transparent;
+      color: #e9d5ff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .info-line {
+      background: #0d0718;
+      border: 1px solid #3c1f70;
+      border-radius: 10px;
+      padding: 9px;
+      font-size: 12px;
+      margin-top: 8px;
+      word-break: break-all;
+    }
+    .bottom-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: #130922;
+      border-top: 1px solid #4c2694;
+      padding: 8px;
+      z-index: 30;
+    }
+    .nav-item {
+      border: none;
+      background: transparent;
+      color: #a78bfa;
+      font-size: 13px;
+      font-weight: bold;
+      padding: 9px 4px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .nav-item.active {
+      background: #2c1654;
+      color: #ffffff;
     }
   </style>
 </head>
 <body>
-  <div class="panel">
-    <h1>Dooz-mini</h1>
 
-    <label for="deposit-amount">مبلغ واریز کارت‌به‌کارت (تومان)</label>
-    <input id="deposit-amount" type="number" value="100000" min="1000" />
+  <div class="profile-header" onclick="openProfileModal()">
+    <div class="ph-right">
+      <div id="header-avatar" class="avatar">U</div>
+      <div>
+        <div id="header-name" class="ph-name">بازیکن</div>
+        <div class="ph-sub">پروفایل، برد/باخت و برداشت</div>
+      </div>
+    </div>
+    <div class="gem-pill">💎 <span id="header-gems">750</span></div>
+  </div>
 
-    <label for="card-ref">۴ رقم آخر کارت یا کد پیگیری</label>
-    <input id="card-ref" type="text" placeholder="مثلاً 1234" />
+  <div id="pane-games" class="pane active">
+    <div class="cats-row">
+      <button class="cat-chip active" data-cat="all" onclick="selectCategory('all')">همه بازی‌ها</button>
+      <button class="cat-chip" data-cat="card" onclick="selectCategory('card')">بازی‌های کارتی</button>
+      <button class="cat-chip" data-cat="board" onclick="selectCategory('board')">بازی‌های تخته‌ای</button>
+      <button class="cat-chip" data-cat="slot" onclick="selectCategory('slot')">اسلات (بچرخون و جایزه بگیر)</button>
+    </div>
 
-    <button id="card-deposit-btn" class="btn" type="button" onclick="window.submitCardDeposit()">
-      ثبت واریز کارت‌به‌کارت
-    </button>
+    <div class="game-item" data-cat="card">
+      <div>
+        <div class="gi-title">حکم (Hokm)</div>
+        <div class="gi-desc">دسته‌بندی: بازی‌های کارتی • رقابت شرطی</div>
+      </div>
+      <button class="btn-play" onclick="window.location.href='hokm.html'">شروع بازی</button>
+    </div>
 
-    <button class="btn btn-secondary" type="button" onclick="window.location.href='wallet.html'">
-      صفحه کیف پول (wallet.html)
-    </button>
+    <div class="game-item" data-cat="card">
+      <div>
+        <div class="gi-title">چهاربرگ (Chahar Barg)</div>
+        <div class="gi-desc">دسته‌بندی: بازی‌های کارتی • به‌زودی</div>
+      </div>
+      <button class="btn-play" onclick="alert('بازی چهاربرگ به‌زودی فعال می‌شود')">ورود</button>
+    </div>
+
+    <div class="game-item" data-cat="board">
+      <div>
+        <div class="gi-title">دوز (Dooz)</div>
+        <div class="gi-desc">دسته‌بندی: بازی‌های تخته‌ای • تک‌نفره و آنلاین</div>
+      </div>
+      <button class="btn-play" onclick="openBotLink('play_dooz')">شروع بازی</button>
+    </div>
+
+    <div class="game-item" data-cat="board">
+      <div>
+        <div class="gi-title">منچ و تخته نرد</div>
+        <div class="gi-desc">دسته‌بندی: بازی‌های تخته‌ای • به‌زودی</div>
+      </div>
+      <button class="btn-play" onclick="alert('منچ و تخته نرد به‌زودی اضافه می‌شود')">ورود</button>
+    </div>
+
+    <div class="game-item" data-cat="slot" style="display:block;">
+      <div class="gi-title">اسلات شانس (بچرخون و جایزه بگیر)</div>
+      <div class="gi-desc">۳ شکل یکسان بیار و الماس ببر</div>
+      <div class="slot-box">
+        <div id="slot-reels" class="slot-reels">💎  |  7️⃣  |  👑</div>
+        <div id="slot-msg" style="font-size:12px;color:#d8b4fe;margin-bottom:8px;">آماده چرخش</div>
+        <button class="btn-play" style="width:100%;" onclick="spinSlotDemo()">بچرخون 🎰</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pane-shop" class="pane">
+    <h3 style="margin:4px 0 12px;font-size:16px;">فروشگاه الماس</h3>
+    <div class="shop-grid">
+      <div class="pack-card" onclick="openBuyPackModal(200, 50000, 0.2)">
+        <div class="pack-gems">💎 ۲۰۰ الماس</div>
+        <div class="pack-price">۵۰,۰۰۰ تومان / 0.2 TON</div>
+        <button class="pack-btn" type="button">خرید بسته</button>
+      </div>
+      <div class="pack-card" onclick="openBuyPackModal(420, 100000, 0.4)">
+        <div class="pack-gems">💎 ۴۲۰ الماس</div>
+        <div class="pack-price">۱۰۰,۰۰۰ تومان / 0.4 TON</div>
+        <button class="pack-btn" type="button">خرید بسته</button>
+      </div>
+      <div class="pack-card" onclick="openBuyPackModal(900, 200000, 0.8)">
+        <div class="pack-gems">💎 ۹۰۰ الماس</div>
+        <div class="pack-price">۲۰۰,۰۰۰ تومان / 0.8 TON</div>
+        <button class="pack-btn" type="button">خرید بسته</button>
+      </div>
+      <div class="pack-card" onclick="openBuyPackModal(2500, 500000, 2.0)">
+        <div class="pack-gems">💎 ۲,۵۰۰ الماس</div>
+        <div class="pack-price">۵۰۰,۰۰۰ تومان / 2.0 TON</div>
+        <button class="pack-btn" type="button">خرید بسته</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pane-friends" class="pane">
+    <div class="invite-card">
+      <div style="font-size:15px;font-weight:bold;">دعوت از دوستان</div>
+      <div style="font-size:12px;color:#c4b5fd;margin-top:4px;">لینک اختصاصی خودت را بفرست تا دوستانت به لیست اضافه شوند</div>
+      <div id="invite-url-box" class="invite-url">https://t.me/Starsgameir_bot?start=ref_0</div>
+      <div class="row-2">
+        <button class="btn-full" style="margin-top:0;" onclick="copyInviteLink()">کپی لینک</button>
+        <button class="btn-sec" style="margin-top:0;" onclick="shareInviteLink()">ارسال به دوست</button>
+      </div>
+    </div>
+
+    <div style="font-size:14px;font-weight:bold;margin-bottom:8px;">لیست دوستان (کلیک برای پروفایل)</div>
+    <div id="friends-list"></div>
+  </div>
+
+  <div class="bottom-bar">
+    <button id="nav-shop" class="nav-item" onclick="switchMainTab('shop')">فروشگاه</button>
+    <button id="nav-games" class="nav-item active" onclick="switchMainTab('games')">بازی</button>
+    <button id="nav-friends" class="nav-item" onclick="switchMainTab('friends')">دوستان</button>
+  </div>
+
+  <div id="profile-modal" class="modal">
+    <div class="modal-box">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div id="prof-avatar" class="avatar">U</div>
+        <div>
+          <div id="prof-name" style="font-size:16px;font-weight:bold;">بازیکن</div>
+          <div style="font-size:12px;color:#c4b5fd;">آمار بازی و تسویه</div>
+        </div>
+      </div>
+
+      <div class="stats-3">
+        <div class="stat-cell">
+          <div id="prof-wins" class="stat-num">14</div>
+          <div class="stat-lbl">بردها</div>
+        </div>
+        <div class="stat-cell">
+          <div id="prof-losses" class="stat-num">6</div>
+          <div class="stat-lbl">باخت‌ها</div>
+        </div>
+        <div class="stat-cell">
+          <div id="prof-gems" class="stat-num">750</div>
+          <div class="stat-lbl">الماس</div>
+        </div>
+      </div>
+
+      <div style="font-size:13px;font-weight:bold;margin-top:8px;">درخواست برداشت / پرداخت جایزه</div>
+      <input id="withdraw-amount" type="number" placeholder="تعداد الماس یا مبلغ برداشت" />
+      <input id="withdraw-dest" type="text" placeholder="شماره کارت بانکی یا آدرس کیف‌پول TON" />
+      <button class="btn-full" onclick="submitWithdraw()">ثبت درخواست برداشت</button>
+      <button class="btn-sec" onclick="closeModal('profile-modal')">بستن</button>
+    </div>
+  </div>
+
+  <div id="buy-modal" class="modal">
+    <div class="modal-box">
+      <div id="buy-pack-title" style="font-size:16px;font-weight:bold;">خرید بسته الماس</div>
+      <div id="buy-pack-sub" style="font-size:12px;color:#c4b5fd;margin-top:4px;">روش پرداخت را انتخاب کنید</div>
+
+      <div class="row-2" style="margin-top:12px;">
+        <button class="btn-full" style="margin-top:0;" onclick="choosePayMethod('ton')">پرداخت با Tonkeeper</button>
+        <button class="btn-full" style="margin-top:0;background:#5b21b6;" onclick="choosePayMethod('card')">کارت‌به‌کارت</button>
+      </div>
+
+      <div id="card-step-box" style="display:none;margin-top:10px;">
+        <div class="info-line">
+          شماره کارت: <b id="card-num-display"></b><br/>
+          به نام: <b id="card-owner-display"></b><br/>
+          مبلغ قابل واریز: <b id="card-pay-amount"></b>
+        </div>
+        <input id="buy-card-ref" type="text" placeholder="۴ رقم آخر کارت یا کد پیگیری را وارد کنید" />
+        <button class="btn-full" onclick="confirmCardPurchase()">تایید و ثبت کارت‌به‌کارت</button>
+      </div>
+
+      <div id="ton-step-box" style="display:none;margin-top:10px;">
+        <div class="info-line">
+          مبلغ: <b id="ton-pay-amount"></b><br/>
+          آدرس ولت TON: <span id="ton-addr-display"></span>
+        </div>
+        <button class="btn-full" onclick="confirmTonPurchase()">باز کردن Tonkeeper و پرداخت</button>
+      </div>
+
+      <button class="btn-sec" onclick="closeModal('buy-modal')">انصراف</button>
+    </div>
+  </div>
+
+  <div id="friend-modal" class="modal">
+    <div class="modal-box">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div id="fp-avatar" class="avatar">ف</div>
+        <div>
+          <div id="fp-name" style="font-size:16px;font-weight:bold;">دوست</div>
+          <div style="font-size:12px;color:#c4b5fd;">پروفایل دوست</div>
+        </div>
+      </div>
+      <div class="stats-3">
+        <div class="stat-cell">
+          <div id="fp-wins" class="stat-num">0</div>
+          <div class="stat-lbl">بردها</div>
+        </div>
+        <div class="stat-cell">
+          <div id="fp-losses" class="stat-num">0</div>
+          <div class="stat-lbl">باخت‌ها</div>
+        </div>
+        <div class="stat-cell">
+          <div id="fp-gems" class="stat-num">0</div>
+          <div class="stat-lbl">الماس</div>
+        </div>
+      </div>
+      <button class="btn-sec" onclick="closeModal('friend-modal')">بستن</button>
+    </div>
   </div>
 
   <script src="app.js"></script>
-  <script>
-    if (window.Telegram && window.Telegram.WebApp) {
-      window.Telegram.WebApp.ready();
-      window.Telegram.WebApp.expand();
-    }
-  </script>
 </body>
 </html>
