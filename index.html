@@ -34,7 +34,10 @@
     .bar { position: fixed; bottom: 0; left: 0; right: 0; display: grid; grid-template-columns: repeat(3, 1fr); background: #130922; border-top: 1px solid #4c2694; padding: 8px; z-index: 40; }
     .nav { border: none; background: transparent; color: #a78bfa; font-size: 13px; font-weight: bold; padding: 9px 4px; border-radius: 12px; cursor: pointer; }
     .nav.active { background: #2c1654; color: #fff; }
-  </style>
+  
+    .u-tag { display: inline-block; background: #2a1452; border: 1px solid #7c3aed; color: #e9d5ff; padding: 4px 10px; border-radius: 999px; font-size: 12px; margin-top: 6px; }
+    .search-box { background: #170d29; border: 1px solid #4c2694; border-radius: 16px; padding: 12px; margin-bottom: 12px; }
+</style>
 </head>
 <body>
   <div class="ph">
@@ -72,7 +75,19 @@
       </div>
     </div>
     <div style="font-size:14px;font-weight:bold;margin-bottom:8px">لیست دوستان دعوت‌شده</div>
-    <div id="f-list"></div>
+    
+    <div class="inv" style="margin-bottom:10px;">
+      <b>یوزرنیم پروفایل شما</b>
+      <div style="font-size:11px;color:#c4b5fd;margin-top:3px">دوستانتان می‌توانند با این یوزرنیم شما را جستجو کنند</div>
+      <div id="my-handle" class="u-tag">@user</div>
+    </div>
+    <div class="search-box">
+      <b>جستجوی کاربر با یوزرنیم</b>
+      <input id="search-user-input" type="text" placeholder="مثلاً @ali یا ali" />
+      <button class="btn" type="button" onclick="findAndAddFriend()">جستجو و افزودن به دوستان</button>
+      <div id="search-msg" style="font-size:11px;color:#c4b5fd;margin-top:8px;"></div>
+    </div>
+<div id="f-list"></div>
   </div>
   <div class="bar">
     <button id="nav-games" class="nav active" type="button" onclick="goTab('games')">بازی‌ها</button>
@@ -200,6 +215,39 @@
         renderF();
       })
       .catch(function () {});
+
+    function getMyHandle() {
+      var raw = (u.username || ((u.first_name || "user") + "_" + String(u.id).slice(-4))).toLowerCase().replace(/[^a-z0-9_]/g, "");
+      return "@" + (raw || ("user_" + String(u.id).slice(-4)));
+    }
+    if (el("my-handle")) el("my-handle").textContent = getMyHandle();
+
+    window.findAndAddFriend = function () {
+      var inp = el("search-user-input");
+      var msg = el("search-msg");
+      if (!inp) return;
+      var q = inp.value.trim().toLowerCase().replace(/^@+/, "");
+      if (!q) {
+        if (msg) msg.textContent = "یک یوزرنیم وارد کنید.";
+        return;
+      }
+      var cleanHandle = "@" + q.replace(/[^a-z0-9_]/g, "");
+      if (cleanHandle === getMyHandle().toLowerCase()) {
+        if (msg) msg.textContent = "نمی‌توانید یوزرنیم خودتان را اضافه کنید.";
+        return;
+      }
+      var list = loadF(u.id);
+      if (list.some(function (x) { return (x.handle || "").toLowerCase() === cleanHandle; })) {
+        if (msg) msg.textContent = cleanHandle + " قبلاً در لیست دوستان شماست.";
+        return;
+      }
+      list.push({ id: q, name: cleanHandle, handle: cleanHandle, gems: 0 });
+      saveF(u.id, list);
+      inp.value = "";
+      if (msg) msg.textContent = cleanHandle + " به لیست دوستان اضافه شد.";
+      renderF();
+    };
+
     renderF();
   </script>
 </body>
