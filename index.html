@@ -1,36 +1,126 @@
-<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Dooz-mini</title><script src="https://telegram.org/js/telegram-web-app.js"></script><style>*{box-sizing:border-box;font-family:sans-serif}body{margin:0;padding:14px 14px 80px;background:#0a0612;color:#fff}.card{background:#170d29;border:1px solid #5b2fc9;border-radius:16px;padding:14px;margin-bottom:12px}.url{background:#0d0718;border:1px dashed #6d28d9;border-radius:10px;padding:8px;font-size:11px;word-break:break-all;margin:8px 0}.btn{padding:10px;border:none;border-radius:10px;background:#7c3aed;color:#fff;font-weight:bold;cursor:pointer;width:100%}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.empty{background:#160c27;border:1px dashed #391d6b;border-radius:12px;padding:16px;text-align:center;color:#a78bfa;font-size:12px}.item{display:flex;justify-content:space-between;background:#160c27;border:1px solid #391d6b;border-radius:12px;padding:10px 12px;margin-bottom:8px}</style></head><body><div class="card"><b>دعوت از دوستان</b><div id="inv-link" class="url"></div><div class="row"><button class="btn" type="button" onclick="copyInv()">کپی لینک</button><button class="btn" style="background:#4c1d95" type="button" onclick="shareInv()">ارسال به دوست</button></div></div><b>لیست دوستان دعوت‌شده</b><div id="f-list" style="margin-top:8px;"></div><script>
-var BOT="Starsgameir_bot",tg=window.Telegram&&window.Telegram.WebApp;
-if(tg){try{tg.ready();tg.expand();}catch(e){}}
-var me=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user)||{id:8359766039,first_name:"SavasH"};
-var myLink="https://t.me/"+BOT+"?start=ref_"+me.id;
-document.getElementById("inv-link").textContent=myLink;
-function getRefId(){
-  var p=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.start_param)||"";
-  if(!p){var q=new URLSearchParams(location.search);p=q.get("start")||q.get("tgWebAppStartParam")||"";}
-  return p.indexOf("ref_")===0?p.slice(4).trim():"";
-}
-function loadF(id){try{return JSON.parse(localStorage.getItem("ref_list_"+id)||"[]");}catch(e){return[];}}
-function saveF(id,arr){try{localStorage.setItem("ref_list_"+id,JSON.stringify(arr));}catch(e){}}
-var rId=getRefId();
-if(rId&&String(rId)!==String(me.id)){
-  var arr=loadF(rId);
-  if(!arr.some(function(x){return String(x.id)===String(me.id);})){
-    arr.push({id:me.id,name:me.first_name||"کاربر",gems:0});
-    saveF(rId,arr);
-  }
-}
-function render(){
-  var list=loadF(me.id),box=document.getElementById("f-list");
-  if(!list.length){box.innerHTML='<div class="empty">هنوز کسی دعوت نشده است.</div>';return;}
-  box.innerHTML=list.map(function(x){return '<div class="item"><b>'+x.name+'</b><span>💎 '+x.gems+'</span></div>';}).join("");
-}
-window.copyInv=function(){
-  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(myLink).then(function(){alert("کپی شد");}).catch(function(){prompt("لینک:",myLink);});}
-  else prompt("لینک:",myLink);
-};
-window.shareInv=function(){
-  var u="https://t.me/share/url?url="+encodeURIComponent(myLink)+"&text="+encodeURIComponent("بیا تو ربات!");
-  if(tg&&tg.openTelegramLink)tg.openTelegramLink(u);else window.open(u,"_blank");
-};
-render();
-</script></body></html>
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dooz-mini</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { box-sizing: border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; padding: 14px 14px 86px; background: #0a0612; color: #fff; }
+    .ph { display: flex; align-items: center; justify-content: space-between; background: #1b0f30; border: 1px solid #5b2fc9; border-radius: 18px; padding: 10px 14px; margin-bottom: 14px; cursor: pointer; }
+    .ph-r { display: flex; align-items: center; gap: 10px; }
+    .av { width: 42px; height: 42px; border-radius: 50%; background: #6d28d9; border: 2px solid #a78bfa; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; }
+    .av img { width: 100%; height: 100%; object-fit: cover; }
+    .gem { background: #2a1452; border: 1px solid #8b5cf6; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: bold; }
+    .pane { display: none; }
+    .pane.active { display: block; }
+    .cats { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 14px; }
+    .chip { white-space: nowrap; padding: 9px 14px; border-radius: 999px; border: 1px solid #4c2694; background: #160c28; color: #e9d5ff; font-size: 12px; font-weight: bold; cursor: pointer; }
+    .chip.active { background: #7c3aed; color: #fff; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .slot { min-height: 110px; background: #160c27; border: 1.5px solid #4c2694; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="ph" onclick="openMod('prof-mod')">
+    <div class="ph-r">
+      <div id="h-av" class="av">S</div>
+      <div>
+        <b id="h-nm">SavasH</b>
+        <div style="font-size:11px;color:#c4b5fd">پروفایل، برد/باخت و برداشت</div>
+      </div>
+    </div>
+    <div class="gem">💎 <span id="h-gm">0</span></div>
+  </div>
+  <div id="pane-games" class="pane active">
+    <div class="cats">
+      <button class="chip active" type="button" onclick="selCat(this)">بازی‌های کارتی</button>
+      <button class="chip" type="button" onclick="selCat(this)">بازی‌های تخته‌ای</button>
+      <button class="chip" type="button" onclick="selCat(this)">اسلات (بچرخون و جایزه بگیر)</button>
+    </div>
+    <div class="grid2">
+      <div id="slot-1" class="slot"><b>جایگاه بازی ۱</b><small style="color:#a78bfa;margin-top:4px">خالی</small></div>
+      <div id="slot-2" class="slot"><b>جایگاه بازی ۲</b><small style="color:#a78bfa;margin-top:4px">خالی</small></div>
+      <div id="slot-3" class="slot"><b>جایگاه بازی ۳</b><small style="color:#a78bfa;margin-top:4px">خالی</small></div>
+      <div id="slot-4" class="slot"><b>جایگاه بازی ۴</b><small style="color:#a78bfa;margin-top:4px">خالی</small></div>
+    </div>
+  </div>
+  <style>
+    .card, .inv { background: #170d29; border: 1px solid #4c2694; border-radius: 16px; padding: 12px; text-align: center; cursor: pointer; }
+    .inv { text-align: right; margin-bottom: 12px; }
+    .url { background: #0d0718; border: 1px dashed #6d28d9; border-radius: 10px; padding: 8px; font-size: 11px; word-break: break-all; margin: 8px 0; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .frow { display: flex; align-items: center; justify-content: space-between; background: #160c27; border: 1px solid #391d6b; border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; }
+    .mav { width: 34px; height: 34px; border-radius: 50%; background: #4c1d95; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .empty { background: #160c27; border: 1px dashed #391d6b; border-radius: 14px; padding: 18px; text-align: center; font-size: 12px; color: #a78bfa; }
+  </style>
+  <div id="pane-shop" class="pane">
+    <h3 style="margin:4px 0 12px;font-size:16px">فروشگاه الماس</h3>
+    <div class="grid2">
+      <div class="card" onclick="openPack(200,50000,0.2)"><b>💎 ۲۰۰ الماس</b><div style="font-size:12px;color:#c4b5fd;margin:6px 0">۵۰,۰۰۰ تومان / 0.2 TON</div><button class="btn" style="margin-top:0;padding:8px" type="button">خرید بسته</button></div>
+      <div class="card" onclick="openPack(420,100000,0.4)"><b>💎 ۴۲۰ الماس</b><div style="font-size:12px;color:#c4b5fd;margin:6px 0">۱۰۰,۰۰۰ تومان / 0.4 TON</div><button class="btn" style="margin-top:0;padding:8px" type="button">خرید بسته</button></div>
+      <div class="card" onclick="openPack(900,200000,0.8)"><b>💎 ۹۰۰ الماس</b><div style="font-size:12px;color:#c4b5fd;margin:6px 0">۲۰۰,۰۰۰ تومان / 0.8 TON</div><button class="btn" style="margin-top:0;padding:8px" type="button">خرید بسته</button></div>
+      <div class="card" onclick="openPack(2500,500000,2.0)"><b>💎 ۲,۵۰۰ الماس</b><div style="font-size:12px;color:#c4b5fd;margin:6px 0">۵۰۰,۰۰۰ تومان / 2.0 TON</div><button class="btn" style="margin-top:0;padding:8px" type="button">خرید بسته</button></div>
+    </div>
+  </div>
+  <div id="pane-friends" class="pane">
+    <div class="inv">
+      <b>دعوت از دوستان</b>
+      <div style="font-size:11px;color:#c4b5fd;margin-top:3px">لینک اختصاصی خودت را بفرست تا دوستان دعوت‌شده به لیست اضافه شوند</div>
+      <div id="inv-url" class="url"></div>
+      <div class="row2">
+        <button class="btn" style="margin-top:0" type="button" onclick="copyInv()">کپی لینک</button>
+        <button class="bsec" style="margin-top:0" type="button" onclick="shareInv()">ارسال به دوست</button>
+      </div>
+    </div>
+    <div style="font-size:14px;font-weight:bold;margin-bottom:8px">لیست دوستان دعوت‌شده</div>
+    <div id="f-list"></div>
+  </div>
+  <script>
+    var BOT = "Starsgameir_bot", TON = "UQ_YOUR_TON_WALLET_ADDRESS_HERE", CARD = "6277-6014-2080-7065", OWNER = "مهدی لایقی";
+    var tg = window.Telegram && window.Telegram.WebApp;
+    if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
+    var u = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || { id: 8955189092, first_name: "SavasH", photo_url: "" };
+    var myLink = "https://t.me/" + BOT + "?start=ref_" + u.id, pack = null;
+    function el(id) { return document.getElementById(id); }
+    function goUrl(url) { if (tg && tg.openTelegramLink) tg.openTelegramLink(url); else window.open(url, "_blank"); }
+    function loadF(id) { try { return JSON.parse(localStorage.getItem("ref_list_" + id) || "[]"); } catch (e) { return []; } }
+    function saveF(id, a) { try { localStorage.setItem("ref_list_" + id, JSON.stringify(a)); } catch (e) {} }
+    var sp = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || new URLSearchParams(location.search).get("start") || new URLSearchParams(location.search).get("tgWebAppStartParam") || "";
+    if (sp.indexOf("ref_") === 0) {
+      var rId = sp.slice(4).trim();
+      if (rId && String(rId) !== String(u.id)) {
+        var cur = loadF(rId);
+        if (!cur.some(function (x) { return String(x.id) === String(u.id); })) {
+          cur.push({ id: u.id, name: u.first_name || "کاربر", wins: 0, losses: 0, gems: 0 });
+          saveF(rId, cur);
+        }
+      }
+    }
+    function renderF() {
+      var list = loadF(u.id), b = el("f-list");
+      if (!list.length) { b.innerHTML = '<div class="empty">هنوز کسی دعوت نشده است.</div>'; return; }
+      b.innerHTML = list.map(function (x, i) {
+        return '<div class="frow" onclick="openFr(' + i + ')"><b>' + x.gems + ' 💎</b><div style="display:flex;align-items:center;gap:10px"><div style="text-align:right"><b>' + x.name + '</b><div style="font-size:11px;color:#a78bfa">کلیک برای مشاهده پروفایل</div></div><div class="mav">' + (x.name || "د").charAt(0) + '</div></div></div>';
+      }).join("");
+    }
+    window.goTab = function (t) { ["games", "shop", "friends"].forEach(function (k) { el("pane-" + k).classList.toggle("active", k === t); el("nav-" + k).classList.toggle("active", k === t); }); if (t === "friends") renderF(); };
+    window.selCat = function (btn) { document.querySelectorAll(".chip").forEach(function (c) { c.classList.remove("active"); }); btn.classList.add("active"); };
+    window.openMod = function (id) { el(id).classList.add("open"); };
+    window.closeMod = function (id) { el(id).classList.remove("open"); };
+    window.sendW = function () { var a = el("w-amt").value.trim(), d = el("w-dst").value.trim(); if (!a || !d) { alert("مبلغ و شماره کارت یا ولت را وارد کنید."); return; } goUrl("https://t.me/" + BOT + "?start=" + encodeURIComponent("withdraw_" + a + "_" + d.replace(/\s+/g, ""))); };
+    window.openPack = function (g, tm, tn) { pack = { g: g, tm: tm, tn: tn }; el("b-title").textContent = "خرید بسته " + g + " الماس"; el("b-sub").textContent = Number(tm).toLocaleString("fa-IR") + " تومان یا " + tn + " TON"; el("c-box").style.display = "none"; el("t-box").style.display = "none"; openMod("buy-mod"); };
+    window.setPay = function (m) { if (!pack) return; el("c-box").style.display = m === "card" ? "block" : "none"; el("t-box").style.display = m === "ton" ? "block" : "none"; if (m === "card") el("c-info").innerHTML = "کارت: <b>" + CARD + "</b><br/>نام: <b>" + OWNER + "</b><br/>مبلغ: <b>" + Number(pack.tm).toLocaleString("fa-IR") + " تومان</b>"; else el("t-info").innerHTML = "مبلغ: <b>" + pack.tn + " TON</b><br/>ولت: " + TON; };
+    window.okCard = function () { var r = el("c-ref").value.trim(); if (!pack) return; if (!r) { alert("۴ رقم آخر کارت یا کد پیگیری را بزنید."); return; } goUrl("https://t.me/" + BOT + "?start=" + encodeURIComponent("card_" + pack.tm + "_" + r + "_g" + pack.g)); };
+    window.okTon = function () { if (!pack) return; window.location.href = "ton://transfer/" + TON + "?amount=" + Math.round(pack.tn * 1e9) + "&text=U" + u.id + "_G" + pack.g; };
+    window.copyInv = function () { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(myLink).then(function () { alert("لینک کپی شد"); }).catch(function () { prompt("لینک:", myLink); }); else prompt("لینک:", myLink); };
+    window.shareInv = function () { goUrl("https://t.me/share/url?url=" + encodeURIComponent(myLink) + "&text=" + encodeURIComponent("بیا با هم بازی کنیم!")); };
+    window.openFr = function (i) { var f = loadF(u.id)[i]; if (!f) return; el("fr-nm").textContent = f.name; el("fr-w").textContent = f.wins || 0; el("fr-l").textContent = f.losses || 0; el("fr-g").textContent = f.gems || 0; openMod("fr-mod"); };
+    el("inv-url").textContent = myLink;
+    if (u.first_name) { el("h-nm").textContent = u.first_name; el("p-nm").textContent = u.first_name; }
+    if (u.photo_url) { el("h-av").innerHTML = '<img src="' + u.photo_url + '" alt="av"/>'; el("p-av").innerHTML = '<img src="' + u.photo_url + '" alt="av"/>'; }
+    renderF();
+  </script>
+</body>
+</html>
