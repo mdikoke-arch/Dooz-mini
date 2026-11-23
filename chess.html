@@ -101,6 +101,9 @@
       color: var(--gold); font-size: 12px; font-weight: 700;
       min-height: 28px; line-height: 18px;
     }
+    .turn-pill.check-alert {
+      background: #3b1418; border-color: #f87171; color: #fca5a5;
+    }
     .player-strip { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin: 6px 0; }
     .p-avatar {
       width: 38px; height: 38px; border-radius: 50%; background: #232822;
@@ -118,11 +121,12 @@
       position: relative; display: flex; align-items: center; justify-content: center;
       cursor: pointer; line-height: 1; overflow: hidden;
     }
-    .sq.last-move { box-shadow: inset 0 0 0 2.5px rgba(250, 204, 21, 0.85); background-blend-mode: lighten; }
+    .sq.last-move { box-shadow: inset 0 0 0 2.5px rgba(250, 204, 21, 0.85); }
     .sq.last-move::before {
       content: ""; position: absolute; inset: 0;
       background: rgba(250, 204, 21, 0.24); pointer-events: none;
     }
+    .sq.in-check { box-shadow: inset 0 0 0 3px #ef4444; background-color: rgba(239, 68, 68, 0.45) !important; }
     .piece-glyph {
       position: relative; z-index: 2;
       font-size: clamp(22px, 6.2vw, 34px);
@@ -291,9 +295,8 @@
       k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟"
     };
 
-    const PIECE_FA = {
-      p: "پیاده", n: "اسب", b: "فیل", r: "رخ", q: "وزیر", k: "شاه"
-    };
+    const PIECE_FA = { p: "پیاده", n: "اسب", b: "فیل", r: "رخ", q: "وزیر", k: "شاه" };
+    const PIECE_VAL = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
 
     let cfg = { level: "medium", color: "white", theme: "green" };
     let board = [];
@@ -308,7 +311,8 @@
     const isW = (p) => !!p && p === p.toUpperCase();
     const isB = (p) => !!p && p === p.toLowerCase();
     const inside = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
-    const squareName = (r, c) => `${"abcdefgh"[c]}${8 - r}`;
+    const sqName = (r, c) => `${"abcdefgh"[c]}${8 - r}`;
+    const cloneBoard = (b) => b.map((row) => [...row]);
 
     function buildMiniBoards() {
       Object.keys(THEMES).forEach((k) => {
@@ -330,7 +334,17 @@
       document.getElementById("setupGemTxt").textContent = `💎 ${state.gems} الماس`;
     }
 
-    function getMoves(b, r, c) {
+    function findKing(b, sideWhite) {
+      const target = sideWhite ? "K" : "k";
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          if (b[r][c] === target) return [r, c];
+        }
+      }
+      return null;
+    }
+
+    function getPseudoMoves(b, r, c) {
       const p = b[r][c];
       if (!p) return [];
       const w = isW(p);
@@ -374,9 +388,102 @@
       return out;
     }
 
+    function isSquareAttacked(b, tr, tc, byWhite) {
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const p = b[r][c];
+          if (!p) continue;
+          if ((byWhite && isW(p)) || (!byWhite && isB(p))) {
+            const pm = getPseudoMoves(b, r, c);
+            if (pm.some(([mr, mc]) => mr === tr && mc === tc)) return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function isKingInCheck(b, sideWhite) {
+      const kPos = findKing(b, sideWhite);
+      if (!kPos) return false;
+      return isSquareAttacked(b, kPos[0], kPos[1], !sideWhite);
+    }
+
+    function applyMoveOnBoard(b, fr, fc, tr, tc) {
+      const nb = cloneBoard(b);
+      let piece = nb[fr][fc];
+      if (piece === "P" && tr === 0) piece = "Q";
+      if (piece === "p" && tr === 7) piece = "q";
+      nb[tr][tc] = piece;
+      nb[fr][fc] = "";
+      return nb;
+    }
+
+    function getLegalMoves(b, r, c) {
+      const p = b[r][c];
+      if (!p) return [];
+      const sideWhite = isW(p);
+      return getPseudoMoves(b, r, c).filter(([tr, tc]) => {
+        const after = applyMoveOnBoard(b, r, c, tr, tc);
+        return !isKingInCheck(after, sideWhite);
+      });
+    }
+
+    function getAllLegalMoves(b, sideWhite) {
+      const all = [];
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const p = b[r][c];
+          if (p && (sideWhite ? isW(p) : isB(p))) {
+            for (const [tr, tc] of getLegalMoves(b, r, c)) {
+              all.push({ from: [r, c], to: [tr, tc], cap: b[tr][tc], piece: p });
+            }
+          }
+        }
+      }
+      return all;
+    }
+
+    function setTurnBadge(text, alert = false) {
+      const badge = document.getElementById("turnBadge");
+      badge.textContent = text;
+      badge.classList.toggle("check-alert", alert);
+    }
+
+    function evaluateTurnPosition() {
+      const moves = getAllLegalMoves(board, whiteTurn);
+      const inCheck = isKingInCheck(board, whiteTurn);
+      const humanIsWhite = cfg.color === "white";
+      const isHumanTurn = (humanIsWhite && whiteTurn) || (!humanIsWhite && !whiteTurn);
+
+      if (moves.length === 0) {
+        ended = true;
+        botThinking = false;
+        if (inCheck) {
+          setTurnBadge(isHumanTurn ? "کیش‌مات! ربات برنده شد" : "کیش‌مات! شما برنده شدید", true);
+        } else {
+          setTurnBadge("پات! بازی مساوی شد");
+        }
+        return false;
+      }
+
+      if (isHumanTurn) {
+        if (inCheck) setTurnBadge("کیش! شاهت در تهدیده — نوبت شماست", true);
+        else setTurnBadge("نوبت شماست", false);
+      } else {
+        if (inCheck) setTurnBadge("کیش دادی! ربات در حال دفاع...", true);
+        else setTurnBadge("ربات در حال فکر کردن...", false);
+      }
+      return true;
+    }
+
     function renderBoard() {
       const el = document.getElementById("chessBoard");
       const th = THEMES[cfg.theme] || THEMES.green;
+      const wCheck = isKingInCheck(board, true);
+      const bCheck = isKingInCheck(board, false);
+      const wKing = wCheck ? findKing(board, true) : null;
+      const bKing = bCheck ? findKing(board, false) : null;
+
       el.innerHTML = "";
       for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
@@ -385,8 +492,9 @@
           const isSel = selected && selected[0] === r && selected[1] === c;
           const isTgt = targets.some(([tr, tc]) => tr === r && tc === c);
           const isLast = lastMove && ((lastMove.from[0] === r && lastMove.from[1] === c) || (lastMove.to[0] === r && lastMove.to[1] === c));
+          const isChkKing = (wKing && wKing[0] === r && wKing[1] === c) || (bKing && bKing[0] === r && bKing[1] === c);
 
-          sq.className = "sq" + (isSel ? " sel" : "") + (isTgt ? " tgt" : "") + (isLast ? " last-move" : "");
+          sq.className = "sq" + (isSel ? " sel" : "") + (isTgt ? " tgt" : "") + (isLast ? " last-move" : "") + (isChkKing ? " in-check" : "");
           sq.style.background = light ? th.light : th.dark;
           sq.style.color = light ? th.textLight : th.textDark;
 
@@ -426,85 +534,80 @@
       whiteTurn = true;
       botThinking = false;
       ended = false;
-      const myTurn = (cfg.color === "white" && whiteTurn) || (cfg.color === "black" && !whiteTurn);
-      document.getElementById("turnBadge").textContent = myTurn ? "نوبت شماست" : "ربات در حال فکر کردن...";
       renderBoard();
-      if (!myTurn) scheduleBotMove();
-    }
-
-    function finishMatch(msg) {
-      ended = true;
-      botThinking = false;
-      document.getElementById("turnBadge").textContent = msg;
+      const canContinue = evaluateTurnPosition();
+      const humanIsWhite = cfg.color === "white";
+      const isHumanTurn = (humanIsWhite && whiteTurn) || (!humanIsWhite && !whiteTurn);
+      if (canContinue && !isHumanTurn) scheduleBotMove();
     }
 
     function scheduleBotMove() {
       if (ended) return;
       botThinking = true;
-      document.getElementById("turnBadge").textContent = "ربات در حال حرکت است...";
       botTimer = setTimeout(() => {
         botTimer = null;
         if (ended) return;
         const botIsWhite = cfg.color === "black";
-        const list = [];
-        for (let r = 0; r < 8; r++) {
-          for (let c = 0; c < 8; c++) {
-            const p = board[r][c];
-            if (p && (botIsWhite ? isW(p) : isB(p))) {
-              for (const [nr, nc] of getMoves(board, r, c)) {
-                list.push({ from: [r, c], to: [nr, nc], cap: board[nr][nc] });
-              }
-            }
-          }
-        }
-        if (!list.length) { finishMatch("پایان بازی"); return; }
-        list.sort((a, b) => (b.cap ? 5 : 0) - (a.cap ? 5 : 0));
-        const poolSize = cfg.level === "hard" ? 1 : cfg.level === "medium" ? 2 : list.length;
-        const pick = list[Math.floor(Math.random() * Math.min(poolSize, list.length))];
-        const piece = board[pick.from[0]][pick.from[1]];
-        const capKing = board[pick.to[0]][pick.to[1]].toUpperCase() === "K";
+        const moves = getAllLegalMoves(board, botIsWhite);
+        if (!moves.length) { evaluateTurnPosition(); return; }
 
-        board[pick.to[0]][pick.to[1]] = piece;
-        board[pick.from[0]][pick.from[1]] = "";
+        const scored = moves.map((m) => {
+          const nb = applyMoveOnBoard(board, m.from[0], m.from[1], m.to[0], m.to[1]);
+          const givesCheck = isKingInCheck(nb, !botIsWhite);
+          const capScore = m.cap ? (PIECE_VAL[m.cap.toLowerCase()] || 1) * 3 : 0;
+          return { ...m, score: capScore + (givesCheck ? 4 : 0) + Math.random() * 1.5 };
+        }).sort((a, b) => b.score - a.score);
+
+        const pool = cfg.level === "hard" ? 1 : cfg.level === "medium" ? 3 : scored.length;
+        const pick = scored[Math.floor(Math.random() * Math.min(pool, scored.length))];
+
+        board = applyMoveOnBoard(board, pick.from[0], pick.from[1], pick.to[0], pick.to[1]);
         lastMove = { from: pick.from, to: pick.to };
         whiteTurn = !whiteTurn;
         botThinking = false;
         renderBoard();
 
-        if (capKing) { finishMatch("ربات برنده شد"); return; }
-        const pName = PIECE_FA[piece.toLowerCase()] || "مهره";
-        document.getElementById("turnBadge").textContent =
-          `ربات ${pName} را از ${squareName(pick.from[0], pick.from[1])} به ${squareName(pick.to[0], pick.to[1])} برد — نوبت شماست`;
+        const alive = evaluateTurnPosition();
+        if (alive) {
+          const pName = PIECE_FA[pick.piece.toLowerCase()] || "مهره";
+          const checkTag = isKingInCheck(board, humanIsWhite()) ? " — کیش!" : "";
+          setTurnBadge(
+            `ربات ${pName} را از ${sqName(pick.from[0], pick.from[1])} به ${sqName(pick.to[0], pick.to[1])} برد${checkTag} — نوبت شماست`,
+            isKingInCheck(board, humanIsWhite())
+          );
+        }
       }, 750);
+    }
+
+    function humanIsWhite() {
+      return cfg.color === "white";
     }
 
     function handleSq(r, c) {
       if (ended || botThinking) return;
-      const myTurn = (cfg.color === "white" && whiteTurn) || (cfg.color === "black" && !whiteTurn);
-      if (!myTurn) return;
+      const isHumanTurn = (humanIsWhite() && whiteTurn) || (!humanIsWhite() && !whiteTurn);
+      if (!isHumanTurn) return;
 
       const isTgt = targets.some(([tr, tc]) => tr === r && tc === c);
       if (selected && isTgt) {
         const [sr, sc] = selected;
-        const piece = board[sr][sc];
-        const capKing = board[r][c].toUpperCase() === "K";
-        board[r][c] = piece;
-        board[sr][sc] = "";
+        board = applyMoveOnBoard(board, sr, sc, r, c);
         selected = null;
         targets = [];
         lastMove = { from: [sr, sc], to: [r, c] };
         whiteTurn = !whiteTurn;
         renderBoard();
-        if (capKing) { finishMatch("شما برنده شدید!"); return; }
-        scheduleBotMove();
+
+        const alive = evaluateTurnPosition();
+        if (alive) scheduleBotMove();
         return;
       }
 
       const p = board[r][c];
-      const mine = p && (cfg.color === "white" ? isW(p) : isB(p));
+      const mine = p && (humanIsWhite() ? isW(p) : isB(p));
       if (mine) {
         selected = [r, c];
-        targets = getMoves(board, r, c);
+        targets = getLegalMoves(board, r, c);
       } else {
         selected = null;
         targets = [];
