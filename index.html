@@ -26,6 +26,7 @@
     .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .friend-row { display: flex; align-items: center; justify-content: space-between; background: #160c27; border: 1px solid #391d6b; border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; }
     .mini-av { width: 34px; height: 34px; border-radius: 50%; background: #4c1d95; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .empty-box { background: #160c27; border: 1px dashed #391d6b; border-radius: 14px; padding: 18px; text-align: center; font-size: 12px; color: #a78bfa; }
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.82); z-index: 999; padding: 16px; }
     .modal.open { display: flex; align-items: center; justify-content: center; }
     .modal-box { width: 100%; max-width: 400px; background: #170d29; border: 1px solid #6d28d9; border-radius: 18px; padding: 16px; }
@@ -73,14 +74,14 @@
   <div id="pane-friends" class="pane">
     <div class="invite-card">
       <b>دعوت از دوستان</b>
-      <div style="font-size:11px;color:#c4b5fd;margin-top:3px;">لینک اختصاصی خودت را بفرست تا دوستانت به لیست اضافه شوند</div>
-      <div id="invite-url-box" class="invite-url">https://t.me/Starsgameir_bot?start=ref_8359766039</div>
+      <div style="font-size:11px;color:#c4b5fd;margin-top:3px;">لینک اختصاصی خودت را بفرست تا دوستان دعوت‌شده به لیست اضافه شوند</div>
+      <div id="invite-url-box" class="invite-url">https://t.me/Starsgameir_bot?start=ref_0</div>
       <div class="row-2">
         <button class="btn" style="margin-top:0;" type="button" onclick="appCopyLink()">کپی لینک</button>
         <button class="btn-sec" style="margin-top:0;" type="button" onclick="appShareLink()">ارسال به دوست</button>
       </div>
     </div>
-    <div style="font-size:14px;font-weight:bold;margin-bottom:8px;">لیست دوستان (کلیک برای پروفایل)</div>
+    <div style="font-size:14px;font-weight:bold;margin-bottom:8px;">لیست دوستان دعوت‌شده</div>
     <div id="friends-list"></div>
   </div>
   <div class="bottom-bar">
@@ -138,11 +139,6 @@
     var tg = window.Telegram && window.Telegram.WebApp;
     if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
     var u = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || { id: 8359766039, first_name: "SavasH", photo_url: "" };
-    var friends = [
-      { name: "امیرحسین", wins: 22, losses: 9, gems: 1450 },
-      { name: "سارا", wins: 11, losses: 5, gems: 680 },
-      { name: "رضا", wins: 31, losses: 12, gems: 2900 }
-    ];
     var pack = null;
     function el(id) { return document.getElementById(id); }
     function vib(t) { try { if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(t || "light"); } catch (e) {} }
@@ -151,12 +147,41 @@
       var url = "https://t.me/" + BOT + "?start=" + encodeURIComponent(p);
       if (tg && tg.openTelegramLink) tg.openTelegramLink(url); else window.open(url, "_blank");
     }
+    function loadInvites(ownerId) {
+      try { return JSON.parse(localStorage.getItem("savash_inv_" + ownerId) || "[]"); } catch (e) { return []; }
+    }
+    function saveInvites(ownerId, list) {
+      try { localStorage.setItem("savash_inv_" + ownerId, JSON.stringify(list)); } catch (e) {}
+    }
+    var sp = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || new URLSearchParams(location.search).get("start") || new URLSearchParams(location.search).get("tgWebAppStartParam") || "";
+    if (sp && sp.indexOf("ref_") === 0) {
+      var refId = sp.replace("ref_", "").trim();
+      if (refId && String(refId) !== String(u.id)) {
+        var cur = loadInvites(refId);
+        if (!cur.some(function (x) { return String(x.id) === String(u.id); })) {
+          cur.push({ id: u.id, name: u.first_name || "کاربر", wins: 0, losses: 0, gems: 0 });
+          saveInvites(refId, cur);
+        }
+      }
+    }
+    var friends = loadInvites(u.id);
+    function renderFriends() {
+      var box = el("friends-list");
+      if (!friends.length) {
+        box.innerHTML = '<div class="empty-box">هنوز کسی را دعوت نکرده‌اید. لینک دعوت خود را بفرستید.</div>';
+        return;
+      }
+      box.innerHTML = friends.map(function (f, i) {
+        return '<div class="friend-row" onclick="appFriend(' + i + ')"><b>' + f.gems + ' 💎</b><div style="display:flex;align-items:center;gap:10px;"><div style="text-align:right;"><b>' + f.name + '</b><div style="font-size:11px;color:#a78bfa;">کلیک برای مشاهده پروفایل</div></div><div class="mini-av">' + (f.name || "د").charAt(0) + '</div></div></div>';
+      }).join("");
+    }
     window.appTab = function (t) {
       vib("light");
       ["games", "shop", "friends"].forEach(function (k) {
         if (el("pane-" + k)) el("pane-" + k).classList.toggle("active", k === t);
         if (el("nav-" + k)) el("nav-" + k).classList.toggle("active", k === t);
       });
+      if (t === "friends") renderFriends();
     };
     window.appSelectCat = function (btn) {
       vib("light");
@@ -214,7 +239,7 @@
       var f = friends[i];
       if (!f) return;
       el("fp-name").textContent = f.name;
-      el("fp-avatar").textContent = f.name.charAt(0);
+      el("fp-avatar").textContent = (f.name || "د").charAt(0);
       el("fp-wins").textContent = f.wins;
       el("fp-losses").textContent = f.losses;
       el("fp-gems").textContent = f.gems;
@@ -230,9 +255,7 @@
       el("header-avatar").textContent = nm.charAt(0) || "S";
       el("prof-avatar").textContent = nm.charAt(0) || "S";
     }
-    el("friends-list").innerHTML = friends.map(function (f, i) {
-      return '<div class="friend-row" onclick="appFriend(' + i + ')"><b>' + f.gems + ' 💎</b><div style="display:flex;align-items:center;gap:10px;"><div style="text-align:right;"><b>' + f.name + '</b><div style="font-size:11px;color:#a78bfa;">کلیک برای مشاهده پروفایل</div></div><div class="mini-av">' + f.name.charAt(0) + '</div></div></div>';
-    }).join("");
+    renderFriends();
   </script>
 </body>
 </html>
