@@ -42,15 +42,14 @@
       display: flex; align-items: center; justify-content: space-between;
       background: var(--green-banner); border: 1px solid rgba(52, 211, 153, 0.25);
       border-radius: 16px; padding: 14px 16px; margin-bottom: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     }
     .promo-title { font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 4px; }
     .promo-sub { font-size: 12px; color: #d1fae5; }
     .promo-badge {
-      width: 48px; height: 48px; border-radius: 12px;
+      width: 46px; height: 46px; border-radius: 12px;
       background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(250, 204, 21, 0.45);
       display: flex; align-items: center; justify-content: center;
-      font-size: 22px; font-weight: 900; color: var(--gold);
+      font-size: 20px; font-weight: 900; color: var(--gold);
     }
     .seg-bar {
       display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
@@ -74,7 +73,7 @@
       position: absolute; inset: 0; opacity: 0.45; z-index: 0;
       display: flex; align-items: center; justify-content: center; font-size: 56px;
     }
-    .card-top { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; }
+    .card-top { position: relative; z-index: 1; display: flex; justify-content: space-between; }
     .players-tag {
       background: rgba(15, 23, 18, 0.85); border: 1px solid rgba(255,255,255,0.12);
       color: #e5e7eb; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px;
@@ -82,7 +81,7 @@
     .game-name {
       position: relative; z-index: 1; text-align: center;
       font-size: 20px; font-weight: 900; color: #ffffff;
-      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9); padding-bottom: 4px;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
     }
     .page { display: none; }
     .page.active { display: block; }
@@ -151,7 +150,7 @@
     </section>
 
     <section class="page" id="page-profile">
-      <div class="box-card" id="profileBox">
+      <div class="box-card">
         <strong>پروفایل</strong><br/>
         نام: <span id="profName">کاربر</span><br/>
         موجودی الماس: <span id="profGems">۰</span>
@@ -172,7 +171,6 @@
 
     const KEY = "mini_games_state_v1";
     const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
-
     const state = (() => {
       const def = { name: (tgUser && tgUser.first_name) || "کاربر", gems: 0 };
       try {
@@ -221,8 +219,12 @@
       grid.querySelectorAll(".game-card").forEach((card) => {
         card.addEventListener("click", () => {
           const gName = card.dataset.game;
+          if (gName === "شطرنج") {
+            window.location.href = "chess.html";
+            return;
+          }
           if (tg && tg.showPopup) {
-            tg.showPopup({ title: gName, message: `موجودی شما: ${state.gems} الماس`, buttons: [{ type: "ok" }] });
+            tg.showPopup({ title: gName, message: "این بازی به زودی فعال می‌شود.", buttons: [{ type: "ok" }] });
           }
         });
       });
