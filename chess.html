@@ -7,14 +7,13 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --bg: #0c0e0b;
+      --bg: #0e110d;
       --dark-panel: #161915;
-      --card: #1d211c;
       --gold: #facc15;
       --green-bg: radial-gradient(circle at top, #174931 0%, #0a1f15 70%);
       --text: #f3f4f6;
       --muted: #9ca3af;
-      --border: rgba(255, 255, 255, 0.1);
+      --border: rgba(255, 255, 255, 0.11);
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
     body {
@@ -25,7 +24,7 @@
     .screen { display: none; min-height: 100vh; padding: 14px; max-width: 460px; margin: 0 auto; }
     .screen.active { display: flex; flex-direction: column; }
     .sheet-backdrop {
-      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.72);
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75);
       display: none; align-items: flex-end; justify-content: center; z-index: 40;
     }
     .sheet-backdrop.open { display: flex; }
@@ -39,7 +38,8 @@
     .sheet-title { font-size: 20px; font-weight: 800; color: var(--gold); }
     .circle-btn {
       width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border);
-      background: rgba(255,255,255,0.06); color: #fff; font-size: 16px; cursor: pointer;
+      background: rgba(255,255,255,0.07); color: #fff; font-size: 16px;
+      display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
     }
     .sheet-sub { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
     .mode-card {
@@ -57,9 +57,9 @@
       padding: 2px 8px; border-radius: 999px; background: rgba(0,0,0,0.35); margin-right: 6px;
     }
     .mode-ico { font-size: 24px; }
-    #screen-setup { background: var(--green-bg); justify-content: space-between; }
-    .top-bar-simple { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .page-gold-title { text-align: center; font-size: 22px; font-weight: 900; color: var(--gold); margin: 4px 0 18px; }
+    #screen-setup { background: var(--green-bg); justify-content: flex-start; }
+    .top-bar-simple { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .page-gold-title { text-align: center; font-size: 22px; font-weight: 900; color: var(--gold); margin: 2px 0 16px; }
     .setup-box {
       background: #171a16; border: 1px solid var(--border); border-radius: 20px;
       padding: 18px 16px; box-shadow: 0 12px 32px rgba(0,0,0,0.45);
@@ -97,45 +97,60 @@
       width: 100%; border: none; border-radius: 14px; padding: 13px;
       background: var(--gold); color: #11130f; font-size: 16px; font-weight: 900; cursor: pointer;
     }
-    #screen-play { background: #0f120e; justify-content: space-between; }
-    .play-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    #screen-play { background: #10130f; justify-content: flex-start; }
+    .play-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
     .turn-pill {
       display: inline-block; margin: 0 auto 10px; padding: 4px 14px; border-radius: 999px;
       background: #262214; border: 1px solid rgba(250,204,21,0.35);
-      color: var(--gold); font-size: 12px; font-weight: 700; text-align: center;
+      color: var(--gold); font-size: 12px; font-weight: 700;
     }
-    .player-strip { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin: 8px 0; }
-    .player-strip.bottom { justify-content: flex-end; }
+    .player-strip { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin: 6px 0; }
     .p-avatar {
       width: 38px; height: 38px; border-radius: 50%; background: #232822;
       border: 1.5px solid rgba(250,204,21,0.45); display: flex; align-items: center; justify-content: center;
       font-weight: 800; color: var(--gold); font-size: 15px;
     }
     .board-wrap {
-      border: 2px solid rgba(250,204,21,0.45); border-radius: 10px;
-      padding: 4px; background: #1a1e18; margin: 4px 0 10px;
+      border: 2px solid #c99b2e; border-radius: 8px;
+      overflow: hidden; background: #1a1e18; margin: 6px 0 12px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.5);
     }
     .board-8x8 { display: grid; grid-template-columns: repeat(8, 1fr); aspect-ratio: 1 / 1; }
     .sq {
       position: relative; display: flex; align-items: center; justify-content: center;
-      font-size: clamp(20px, 5.6vw, 30px); cursor: pointer; line-height: 1;
+      cursor: pointer; line-height: 1; overflow: hidden;
     }
-    .sq.sel { box-shadow: inset 0 0 0 2.5px var(--gold); filter: brightness(1.18); }
+    .piece-glyph {
+      font-size: clamp(22px, 6.2vw, 34px);
+      font-family: "Noto Sans Symbols 2", "Segoe UI Symbol", "Apple Color Emoji", sans-serif;
+      display: inline-block; transform: translateY(1px);
+    }
+    .piece-white {
+      color: #fff6d6;
+      -webkit-text-stroke: 0.7px #5c4312;
+      text-shadow: 0 2px 3px rgba(0,0,0,0.75);
+    }
+    .piece-black {
+      color: #16181d;
+      -webkit-text-stroke: 0.5px rgba(255,255,255,0.22);
+      text-shadow: 0 1px 2px rgba(255,255,255,0.25);
+    }
+    .sq.sel { box-shadow: inset 0 0 0 3px #facc15; filter: brightness(1.14); }
     .sq.tgt::after {
-      content: ""; width: 12px; height: 12px; border-radius: 50%;
-      background: rgba(250, 204, 21, 0.65); position: absolute;
+      content: ""; width: 13px; height: 13px; border-radius: 50%;
+      background: rgba(250, 204, 21, 0.72); border: 1.5px solid rgba(0,0,0,0.45);
+      position: absolute; z-index: 2;
     }
-    .coord-r { position: absolute; top: 2px; left: 3px; font-size: 9px; opacity: 0.75; font-weight: 700; }
-    .coord-c { position: absolute; bottom: 1px; right: 3px; font-size: 9px; opacity: 0.75; font-weight: 700; }
+    .coord-r { position: absolute; top: 2px; left: 3px; font-size: 9px; opacity: 0.85; font-weight: 800; pointer-events: none; }
+    .coord-c { position: absolute; bottom: 1px; right: 3px; font-size: 9px; opacity: 0.85; font-weight: 800; pointer-events: none; }
     .moves-bar {
       background: #1b1f1a; border: 1px solid var(--border); border-radius: 12px;
-      padding: 11px; text-align: center; font-size: 13px; font-weight: 700; color: #e5e7eb;
+      padding: 12px; text-align: center; font-size: 13px; font-weight: 700; color: #e5e7eb;
       margin-bottom: 8px;
     }
   </style>
 </head>
 <body>
-  <!-- مرحله اول: انتخاب نحوه بازی (مطابق عکس سوم) -->
   <div class="sheet-backdrop open" id="modeSheet">
     <div class="sheet">
       <div class="sheet-handle"></div>
@@ -171,7 +186,6 @@
     </div>
   </div>
 
-  <!-- مرحله دوم: تنظیمات شطرنج (مطابق عکس دوم) -->
   <section class="screen" id="screen-setup">
     <div>
       <div class="top-bar-simple">
@@ -215,7 +229,6 @@
     </div>
   </section>
 
-  <!-- مرحله سوم: صفحه بازی شطرنج (مطابق عکس اول) -->
   <section class="screen" id="screen-play">
     <div>
       <div class="play-header">
@@ -238,7 +251,7 @@
 
       <div class="moves-bar" id="movesSummary">حرکت‌ها</div>
 
-      <div class="player-strip bottom">
+      <div class="player-strip">
         <div style="font-weight:800;font-size:14px;" id="meName">کاربر</div>
         <div class="p-avatar" id="meAvatar">ک</div>
       </div>
@@ -259,9 +272,9 @@
     })();
 
     const THEMES = {
-      green: { light: "#d6e2c2", dark: "#769656", textLight: "#769656", textDark: "#d6e2c2" },
-      brown: { light: "#f0d9b5", dark: "#b58863", textLight: "#b58863", textDark: "#f0d9b5" },
-      blue:  { light: "#dee3e6", dark: "#8ca2ad", textLight: "#8ca2ad", textDark: "#dee3e6" },
+      green: { light: "#d6e2c2", dark: "#769656", textLight: "#658447", textDark: "#e3ecd2" },
+      brown: { light: "#f0d9b5", dark: "#b58863", textLight: "#a1724c", textDark: "#f5e3c6" },
+      blue:  { light: "#dee3e6", dark: "#8ca2ad", textLight: "#6e8794", textDark: "#eef2f4" },
       bing:  { light: "#e5e7eb", dark: "#14532d", textLight: "#14532d", textDark: "#e5e7eb" }
     };
 
@@ -387,9 +400,8 @@
           const piece = board[r][c];
           if (piece) {
             const span = document.createElement("span");
+            span.className = "piece-glyph " + (isW(piece) ? "piece-white" : "piece-black");
             span.textContent = GLYPHS[piece];
-            span.style.color = isW(piece) ? "#fffdf5" : "#18181b";
-            span.style.textShadow = isW(piece) ? "0 1px 2px rgba(0,0,0,0.65)" : "0 1px 1px rgba(255,255,255,0.25)";
             sq.appendChild(span);
           }
 
@@ -443,7 +455,7 @@
       const poolSize = cfg.level === "hard" ? 1 : cfg.level === "medium" ? 2 : list.length;
       const pick = list[Math.floor(Math.random() * Math.min(poolSize, list.length))];
       const piece = board[pick.from[0]][pick.from[1]];
-      const capKing = piece.toUpperCase() === "K" ? false : board[pick.to[0]][pick.to[1]].toUpperCase() === "K";
+      const capKing = board[pick.to[0]][pick.to[1]].toUpperCase() === "K";
       board[pick.to[0]][pick.to[1]] = piece;
       board[pick.from[0]][pick.from[1]] = "";
       recordMove(pick.from, pick.to, piece);
@@ -495,7 +507,7 @@
 
     document.getElementById("closeSheetBtn").addEventListener("click", () => {
       document.getElementById("modeSheet").classList.remove("open");
-      if (tg && tg.close) tg.close();
+      window.location.href = "index.html";
     });
 
     document.getElementById("btnSolo").addEventListener("click", () => {
