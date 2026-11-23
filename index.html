@@ -2,246 +2,90 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>@Starsgameir_bot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dooz-mini</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    :root {
-      --bg: #08070d;
-      --card: #130f20;
-      --card-2: #1b152e;
-      --neon-purple: #a855f7;
-      --neon-pink: #ec4899;
-      --neon-cyan: #22d3ee;
-      --text: #f5f3ff;
-      --muted: #a19bb8;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; -webkit-tap-highlight-color: transparent; }
     body {
-      background: radial-gradient(circle at top, #180e30 0%, var(--bg) 55%);
-      color: var(--text);
-      min-height: 100vh;
-      padding-bottom: 78px;
+      margin: 0;
+      padding: 18px;
+      font-family: sans-serif;
+      background: #0d0717;
+      color: #ffffff;
     }
-    .topbar {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 15px; background: rgba(18, 15, 29, 0.94);
-      border-bottom: 1px solid rgba(168, 85, 247, 0.35);
-      position: sticky; top: 0; z-index: 20;
+    .panel {
+      max-width: 440px;
+      margin: 16px auto;
+      background: #190f2b;
+      border: 1px solid #5e2ced;
+      border-radius: 16px;
+      padding: 18px;
     }
-    .user-pill { display: flex; align-items: center; gap: 9px; font-weight: bold; font-size: 14px; cursor: pointer; }
-    .avatar {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
-      box-shadow: 0 0 10px rgba(168, 85, 247, 0.7);
-      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    h1 {
+      margin: 0 0 14px;
+      font-size: 20px;
+      color: #efe5ff;
     }
-    .gem-pill {
-      background: rgba(168, 85, 247, 0.15);
-      border: 1.5px solid var(--neon-purple);
-      color: #e9d5ff; padding: 6px 14px; border-radius: 20px;
-      font-weight: bold; font-size: 14px; cursor: pointer;
+    label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #cbb8ff;
     }
-    .wrap { padding: 14px; }
-    .tab-sec { display: none; }
-    .tab-sec.active { display: block; }
-    .promo-banner {
-      background: linear-gradient(135deg, #251047 0%, #3b0d54 55%, #1a0b2e 100%);
-      border: 1.5px solid var(--neon-pink);
-      box-shadow: 0 0 18px rgba(236, 72, 153, 0.32);
-      border-radius: 18px; padding: 14px 16px; margin-bottom: 14px;
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 11px;
+      border-radius: 10px;
+      border: 1px solid #3c266e;
+      background: #0e071a;
+      color: #fff;
+      font-size: 15px;
     }
-    .promo-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .promo-tag {
-      background: var(--neon-pink); color: #fff; font-size: 10px; font-weight: bold;
-      padding: 3px 10px; border-radius: 10px;
-    }
-    .promo-title { font-size: 15px; font-weight: bold; margin-bottom: 3px; }
-    .promo-sub { font-size: 11px; color: #ddd6fe; line-height: 1.5; }
-    .lock-alert {
-      background: rgba(236, 72, 153, 0.14); border: 1px dashed var(--neon-pink);
-      border-radius: 14px; padding: 10px 12px; margin-bottom: 14px;
-      display: flex; justify-content: space-between; align-items: center; font-size: 11px;
-    }
-    .neon-btn {
-      background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
-      color: #fff; border: none; border-radius: 12px; padding: 10px 14px;
-      font-weight: bold; font-size: 12px; cursor: pointer;
-      box-shadow: 0 0 12px rgba(168, 85, 247, 0.45);
-    }
-    .cat-bar {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
-      background: #120e21; border: 1px solid rgba(168, 85, 247, 0.3);
-      padding: 5px; border-radius: 26px; margin-bottom: 16px;
-    }
-    .cat-pill {
-      background: transparent; border: none; color: var(--muted);
-      padding: 10px 6px; border-radius: 22px; font-size: 12px; font-weight: bold;
-      cursor: pointer; white-space: nowrap;
-    }
-    .cat-pill.active {
-      background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
-      color: #fff; box-shadow: 0 0 12px rgba(236, 72, 153, 0.55);
-    }
-    .games-grid { display: none; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .games-grid.active { display: grid; }
-    .sq-card {
-      aspect-ratio: 1 / 1.05;
-      background: linear-gradient(160deg, #1b1333 0%, #100c1d 100%);
-      border: 1.5px solid rgba(168, 85, 247, 0.5);
-      border-radius: 22px; padding: 14px;
-      display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+    .btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: #7c3aed;
+      color: #fff;
+      font-size: 15px;
+      font-weight: bold;
       cursor: pointer;
     }
-    .sq-badge {
-      align-self: flex-start;
-      background: rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.45);
-      color: #e9d5ff; font-size: 10px; font-weight: bold; padding: 3px 9px; border-radius: 10px;
+    .btn-secondary {
+      background: #2b184d;
+      border: 1px solid #6d3df2;
     }
-    .sq-icon { font-size: 46px; }
-    .sq-title { font-size: 15px; font-weight: bold; color: #f3e8ff; text-align: center; }
-    .box-panel {
-      background: var(--card); border: 1px solid rgba(168, 85, 247, 0.35);
-      border-radius: 18px; padding: 15px; margin-bottom: 12px;
-    }
-    .panel-title { font-size: 14px; font-weight: bold; color: #d8b4fe; margin-bottom: 10px; }
-    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .stat-box { background: var(--card-2); border-radius: 14px; padding: 12px; text-align: center; }
-    .stat-win { color: #4ade80; font-size: 20px; font-weight: bold; }
-    .stat-loss { color: #f87171; font-size: 20px; font-weight: bold; }
-    .input-field {
-      width: 100%; background: #0c0a14; border: 1.5px solid rgba(168, 85, 247, 0.45);
-      color: #fff; padding: 10px 12px; border-radius: 12px; margin-bottom: 10px; font-size: 13px; outline: none;
-    }
-    .bnav {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: rgba(14, 11, 24, 0.96);
-      border-top: 1px solid rgba(168, 85, 247, 0.35);
-      display: flex; justify-content: space-around; padding: 9px 0; z-index: 30;
-    }
-    .bnav-btn {
-      background: none; border: none; color: var(--muted);
-      font-size: 11px; font-weight: bold; cursor: pointer;
-      display: flex; flex-direction: column; align-items: center; gap: 3px;
-    }
-    .bnav-btn.active { color: #e9d5ff; }
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="user-pill" onclick="switchTab('profile', document.querySelector('[data-t=profile]'))">
-      <div class="avatar">⚡</div>
-      <div>
-        <div id="top-name">ثبت نام کنید</div>
-        <div id="top-username" dir="ltr" style="font-size:11px; color:var(--muted); text-align:right;">@username</div>
-      </div>
-    </div>
-    <div class="gem-pill" onclick="location.href='wallet.html'">
-      💎 <span id="top-gems">0</span>
-    </div>
-  </header>
+  <div class="panel">
+    <h1>Dooz-mini</h1>
 
-  <main class="wrap">
-    <section id="tab-home" class="tab-sec active">
-      <div class="promo-banner">
-        <div class="promo-top">
-          <span class="promo-tag">NEON CLUB</span>
-          <span style="font-size:11px; color:#f472b6; font-weight:bold;">💎 شارژ سریع الماس</span>
-        </div>
-        <div class="promo-title">رقابت کن، الماس ببر و برداشت بزن!</div>
-        <div class="promo-sub">میزهای اختصاصی ورق، تخته‌ای و اسلاتی با تسویه منظم.</div>
-      </div>
+    <label for="deposit-amount">مبلغ واریز کارت‌به‌کارت (تومان)</label>
+    <input id="deposit-amount" type="number" value="100000" min="1000" />
 
-      <div id="profile-lock-alert" class="lock-alert">
-        <span>🔒 برای شروع بازی، اول نام و یوزرنیم بساز!</span>
-        <button class="neon-btn" style="padding:6px 10px; font-size:11px;" onclick="switchTab('profile', document.querySelector('[data-t=profile]'))">پروفایل</button>
-      </div>
+    <label for="card-ref">۴ رقم آخر کارت یا کد پیگیری</label>
+    <input id="card-ref" type="text" placeholder="مثلاً 1234" />
 
-      <div class="cat-bar">
-        <button class="cat-pill active" data-cat="cards" onclick="selectCat('cards', this)">🃏 ورق و پاسور</button>
-        <button class="cat-pill" data-cat="board" onclick="selectCat('board', this)">🎲 تخته‌ای</button>
-        <button class="cat-pill" data-cat="slots" onclick="selectCat('slots', this)">🎰 اسلاتی</button>
-      </div>
+    <button id="card-deposit-btn" class="btn" type="button" onclick="window.submitCardDeposit()">
+      ثبت واریز کارت‌به‌کارت
+    </button>
 
-      <div id="cat-cards" class="games-grid active">
-        <div class="sq-card" onclick="launchGame('hokm.html')">
-          <span class="sq-badge">👥 ۲ و ۴ نفره</span>
-          <div class="sq-icon">🃏</div>
-          <div class="sq-title">حکم</div>
-        </div>
-        <div class="sq-card" onclick="launchGame('pasoor.html')">
-          <span class="sq-badge">👥 ۲ نفره</span>
-          <div class="sq-icon">🂡</div>
-          <div class="sq-title">پاسور (چهار برگ)</div>
-        </div>
-      </div>
-
-      <div id="cat-board" class="games-grid">
-        <div class="sq-card" onclick="launchGame('dooz3.html')">
-          <span class="sq-badge">👥 ۲ نفره</span>
-          <div class="sq-icon">⭕</div>
-          <div class="sq-title">دوز کلاسیک</div>
-        </div>
-        <div class="sq-card" onclick="launchGame('dooz4.html')">
-          <span class="sq-badge">👥 ۲ نفره</span>
-          <div class="sq-icon">🔵</div>
-          <div class="sq-title">دوز چهارتایی</div>
-        </div>
-      </div>
-
-      <div id="cat-slots" class="games-grid">
-        <div class="sq-card" onclick="launchGame('slot.html')">
-          <span class="sq-badge">⚡ تک نفره</span>
-          <div class="sq-icon">🎰</div>
-          <div class="sq-title">اسلات نئونی</div>
-        </div>
-        <div class="sq-card" onclick="launchGame('wheel.html')">
-          <span class="sq-badge">🎁 شانس روزانه</span>
-          <div class="sq-icon">🎡</div>
-          <div class="sq-title">گردونه الماس</div>
-        </div>
-      </div>
-    </section>
-
-    <section id="tab-profile" class="tab-sec">
-      <div class="box-panel">
-        <div class="panel-title">📊 آمار بازی‌های شما</div>
-        <div class="stats-row">
-          <div class="stat-box">
-            <div id="stat-wins" class="stat-win">0</div>
-            <div style="font-size:12px; color:var(--muted); margin-top:4px;">تعداد برد 🏆</div>
-          </div>
-          <div class="stat-box">
-            <div id="stat-losses" class="stat-loss">0</div>
-            <div style="font-size:12px; color:var(--muted); margin-top:4px;">تعداد باخت 💔</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="box-panel">
-        <div class="panel-title">💸 برداشت جایزه</div>
-        <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">موجودی قابل برداشت: <strong style="color:#fff;" id="profile-gems">0</strong> الماس</p>
-        <input id="withdraw-amount" class="input-field" type="number" oninput="updateWithdrawCalc()" placeholder="مقدار الماس برای برداشت (حداقل 100)" />
-        <div id="withdraw-calc" style="font-size:12px; color:#22d3ee; margin-bottom:10px;">هر 100 الماس = 40,000 تومان | مبلغ دریافتی: 0 تومان</div>
-        <input id="withdraw-dest" class="input-field" type="text" placeholder="شماره کارت یا آدرس کیف پول TON" />
-        <button class="neon-btn" style="width:100%;" onclick="submitWithdraw()">ثبت درخواست برداشت</button>
-      </div>
-
-      <div class="box-panel">
-        <div class="panel-title">✍️ نام و یوزرنیم (الزامی برای بازی)</div>
-        <input id="inp-name" class="input-field" type="text" placeholder="نام نمایشی (مثلاً: SavasH)" />
-        <input id="inp-username" class="input-field" type="text" placeholder="یوزرنیم (مثلاً: Savashm)" />
-        <button class="neon-btn" style="width:100%;" onclick="saveUserProfile()">ذخیره پروفایل</button>
-      </div>
-    </section>
-  </main>
-
-  <nav class="bnav">
-    <button class="bnav-btn active" data-t="home" onclick="switchTab('home', this)">🎮<span>بازی‌ها</span></button>
-    <button class="bnav-btn" onclick="location.href='wallet.html'">💎<span>فروشگاه و واریز</span></button>
-    <button class="bnav-btn" data-t="profile" onclick="switchTab('profile', this)">👤<span>پروفایل</span></button>
-  </nav>
+    <button class="btn btn-secondary" type="button" onclick="window.location.href='wallet.html'">
+      صفحه کیف پول (wallet.html)
+    </button>
+  </div>
 
   <script src="app.js"></script>
+  <script>
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+  </script>
 </body>
 </html>

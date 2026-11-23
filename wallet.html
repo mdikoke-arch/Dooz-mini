@@ -2,251 +2,95 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>فروشگاه و واریز</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>کیف پول و واریز | Dooz-mini</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
   <style>
-    :root {
-      --bg: #08070d;
-      --card: #130f20;
-      --card-2: #1b152e;
-      --neon-purple: #a855f7;
-      --neon-pink: #ec4899;
-      --neon-cyan: #22d3ee;
-      --text: #f5f3ff;
-      --muted: #a19bb8;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; -webkit-tap-highlight-color: transparent; }
     body {
-      background: radial-gradient(circle at top, #180e30 0%, var(--bg) 55%);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 14px 14px 32px;
+      margin: 0;
+      padding: 18px;
+      font-family: sans-serif;
+      background: #0d0717;
+      color: #ffffff;
     }
-    .topbar {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 14px; background: var(--card);
-      border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 16px;
-      margin-bottom: 14px;
+    .card {
+      max-width: 440px;
+      margin: 16px auto;
+      background: #190f2b;
+      border: 1px solid #5e2ced;
+      border-radius: 16px;
+      padding: 18px;
     }
-    .back-btn {
-      background: var(--card-2); color: #e9d5ff;
-      border: 1px solid rgba(168, 85, 247, 0.5); border-radius: 10px;
-      padding: 7px 12px; font-size: 12px; font-weight: bold; cursor: pointer;
+    h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      color: #e9d8fd;
     }
-    .bal-badge {
-      background: rgba(168, 85, 247, 0.16); border: 1.5px solid var(--neon-purple);
-      color: #f3e8ff; padding: 6px 12px; border-radius: 18px;
-      font-weight: bold; font-size: 13px;
+    label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #cbb8ff;
     }
-    .box {
-      background: var(--card); border: 1.5px solid rgba(168, 85, 247, 0.38);
-      border-radius: 18px; padding: 14px; margin-bottom: 12px;
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 11px;
+      border-radius: 10px;
+      border: 1px solid #3c266e;
+      background: #0e071a;
+      color: #fff;
+      font-size: 15px;
     }
-    .box-title { font-size: 14px; font-weight: bold; color: #f3e8ff; margin-bottom: 10px; }
-    .pkg-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .pkg-card {
-      background: var(--card-2); border: 1.5px solid rgba(168, 85, 247, 0.45);
-      border-radius: 16px; padding: 12px; text-align: center; cursor: pointer;
+    .btn-primary {
+      width: 100%;
+      margin-top: 16px;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: #7c3aed;
+      color: #fff;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
     }
-    .pkg-card.selected {
-      border-color: var(--neon-cyan);
-      box-shadow: 0 0 12px rgba(34, 211, 238, 0.35);
+    .btn-back {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #4c2d8a;
+      border-radius: 12px;
+      background: transparent;
+      color: #d8c8ff;
+      font-size: 14px;
+      cursor: pointer;
     }
-    .pkg-gems { font-size: 15px; font-weight: bold; color: #fff; margin: 4px 0; }
-    .pkg-toman { font-size: 12px; color: #f472b6; font-weight: bold; }
-    .pkg-ton { font-size: 11px; color: var(--muted); margin-top: 2px; }
-    .btn {
-      width: 100%; border: none; border-radius: 12px; padding: 11px 12px;
-      background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
-      color: #fff; font-weight: bold; font-size: 12px; cursor: pointer;
-      margin-top: 8px;
-    }
-    .btn-ton { background: linear-gradient(90deg, #0891b2, #7c3aed); }
-    .card-strip {
-      background: #0c0a14; border: 1px dashed var(--neon-cyan);
-      border-radius: 12px; padding: 10px 12px; margin-bottom: 8px;
-      display: flex; justify-content: space-between; align-items: center; gap: 8px;
-    }
-    .btn-sm {
-      border: none; border-radius: 9px; padding: 6px 10px;
-      background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
-      color: #fff; font-weight: bold; font-size: 11px; cursor: pointer;
-    }
-    .hint { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <button class="back-btn" onclick="location.href='index.html'">↪ بازگشت</button>
-    <div style="font-weight:bold; font-size:14px;">💎 فروشگاه الماس</div>
-    <div class="bal-badge">💎 <span id="w-bal">0</span></div>
+  <div class="card">
+    <h2>واریز کارت‌به‌کارت</h2>
+    <label for="deposit-amount">مبلغ (تومان)</label>
+    <input id="deposit-amount" type="number" value="100000" min="1000" />
+
+    <label for="card-ref">۴ رقم آخر کارت یا کد پیگیری</label>
+    <input id="card-ref" type="text" placeholder="مثلاً 5892 یا کد پیگیری" />
+
+    <button id="wallet-card-submit" class="btn-primary" type="button" onclick="window.submitCardDeposit()">
+      ثبت درخواست واریز کارت‌به‌کارت
+    </button>
+    <button class="btn-back" type="button" onclick="window.location.href='index.html'">
+      بازگشت به صفحه اصلی
+    </button>
   </div>
 
-  <div class="box">
-    <div class="box-title">🛒 انتخاب بسته الماس</div>
-    <div class="pkg-grid">
-      <div class="pkg-card selected" data-gems="200" data-toman="85000" data-ton="0.4" onclick="choosePkg(this)">
-        <div>💎</div>
-        <div class="pkg-gems">200 الماس</div>
-        <div class="pkg-toman">85,000 تومان</div>
-        <div class="pkg-ton">~0.4 TON</div>
-      </div>
-      <div class="pkg-card" data-gems="450" data-toman="185000" data-ton="0.85" onclick="choosePkg(this)">
-        <div>💎💎</div>
-        <div class="pkg-gems">450 الماس</div>
-        <div class="pkg-toman">185,000 تومان</div>
-        <div class="pkg-ton">~0.85 TON</div>
-      </div>
-      <div class="pkg-card" data-gems="1000" data-toman="400000" data-ton="1.8" onclick="choosePkg(this)">
-        <div>🔥💎</div>
-        <div class="pkg-gems">1,000 الماس</div>
-        <div class="pkg-toman">400,000 تومان</div>
-        <div class="pkg-ton">~1.8 TON</div>
-      </div>
-      <div class="pkg-card" data-gems="2500" data-toman="950000" data-ton="4.2" onclick="choosePkg(this)">
-        <div>👑💎</div>
-        <div class="pkg-gems">2,500 الماس</div>
-        <div class="pkg-toman">950,000 تومان</div>
-        <div class="pkg-ton">~4.2 TON</div>
-      </div>
-    </div>
-    <div id="selected-summary" class="hint" style="color:#e9d5ff; font-weight:bold;">
-      بسته انتخابی: 200 الماس — 85,000 تومان
-    </div>
-  </div>
-
-  <div class="box">
-    <div class="box-title">💳 خرید با کارت به کارت</div>
-    <div class="card-strip">
-      <div>
-        <div dir="ltr" style="font-weight:bold; font-size:13px; color:#fff;">6277-6014-2080-7065</div>
-        <div style="font-size:11px; color:var(--muted); margin-top:2px;">مهدی لایقی</div>
-      </div>
-      <button class="btn-sm" onclick="copyCard()">کپی کارت</button>
-    </div>
-    <button class="btn" onclick="buyWithCard()">رفتن به ربات و تکمیل واریز کارت به کارت</button>
-    <div class="hint">وارد ربات می‌شوی، واریز می‌کنی و رسید می‌فرستی تا بعد از تایید حساب شارژ شود.</div>
-  </div>
-
-  <div class="box">
-    <div class="box-title">💠 خرید با کیف پول TON</div>
-    <div id="ton-btn-box"></div>
-    <div id="ton-status" class="hint">ولت متصل نیست.</div>
-    <button id="ton-buy-btn" class="btn btn-ton" style="display:none;" onclick="buyWithTon()">پرداخت بسته انتخابی با TON</button>
-  </div>
-
+  <script src="app.js"></script>
   <script>
-    const tg = window.Telegram?.WebApp;
-    if (tg) { tg.ready(); tg.expand(); }
-
-    const CARD_NUMBER = '6277601420807065';
-    const CARD_HOLDER = 'مهدی لایقی';
-    const TON_DEST_WALLET = 'UQAMHpeWXnFzkb_MsfnQptMVpLaocJcTlcALtSGmpJ2WnUYg';
-    const BOT_URL = 'https://t.me/Starsgameir_bot';
-
-    if (localStorage.getItem('gems_bal') === null) localStorage.setItem('gems_bal', '0');
-    document.getElementById('w-bal').innerText = localStorage.getItem('gems_bal') || '0';
-
-    let selectedPkg = { gems: 200, toman: 85000, ton: 0.4 };
-
-    function choosePkg(el) {
-      document.querySelectorAll('.pkg-card').forEach(c => c.classList.remove('selected'));
-      el.classList.add('selected');
-      selectedPkg = {
-        gems: parseInt(el.dataset.gems, 10),
-        toman: parseInt(el.dataset.toman, 10),
-        ton: parseFloat(el.dataset.ton)
-      };
-      document.getElementById('selected-summary').innerText =
-        `بسته انتخابی: ${selectedPkg.gems.toLocaleString()} الماس — ${selectedPkg.toman.toLocaleString()} تومان`;
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
     }
-
-    function copyCard() {
-      if (navigator.clipboard) navigator.clipboard.writeText(CARD_NUMBER).catch(() => {});
-      alert('شماره کارت کپی شد: 6277-6014-2080-7065');
-    }
-
-    function buyWithCard() {
-      const uname = localStorage.getItem('player_username') || '';
-      const payload = JSON.stringify({
-        action: 'card_buy_pkg',
-        gems: selectedPkg.gems,
-        toman: selectedPkg.toman,
-        card: CARD_NUMBER,
-        holder: CARD_HOLDER,
-        username: uname
-      });
-
-      if (tg) {
-        try { tg.sendData(payload); } catch (e) {}
-        setTimeout(() => {
-          try {
-            if (tg.openTelegramLink) {
-              tg.openTelegramLink(BOT_URL);
-            } else {
-              window.location.href = BOT_URL;
-            }
-          } catch (e) {
-            window.location.href = BOT_URL;
-          }
-        }, 120);
-      } else {
-        window.location.href = BOT_URL;
-      }
-    }
-
-    let tonUI = null;
-    let walletAddr = null;
-
-    function initTon() {
-      if (!window.TON_CONNECT_UI) return;
-      try {
-        tonUI = new TON_CONNECT_UI.TonConnectUI({
-          manifestUrl: 'https://mdikoke-arch.github.io/Dooz-mini/tonconnect-manifest.json',
-          buttonRootId: 'ton-btn-box'
-        });
-        tonUI.onStatusChange(w => {
-          if (w && w.account) {
-            walletAddr = w.account.address;
-            document.getElementById('ton-status').innerText = 'متصل: ' + walletAddr.slice(0, 6) + '...' + walletAddr.slice(-4);
-            document.getElementById('ton-buy-btn').style.display = 'block';
-          } else {
-            walletAddr = null;
-            document.getElementById('ton-status').innerText = 'ولت متصل نیست.';
-            document.getElementById('ton-buy-btn').style.display = 'none';
-          }
-        });
-      } catch (e) {}
-    }
-
-    async function buyWithTon() {
-      if (!tonUI || !walletAddr) return;
-      const nano = Math.round(selectedPkg.ton * 1e9).toString();
-      try {
-        const res = await tonUI.sendTransaction({
-          validUntil: Math.floor(Date.now() / 1000) + 300,
-          messages: [{ address: TON_DEST_WALLET, amount: nano }]
-        });
-        if (tg) {
-          try {
-            tg.sendData(JSON.stringify({
-              action: 'ton_buy_pkg',
-              gems: selectedPkg.gems,
-              ton_amount: selectedPkg.ton,
-              boc: res.boc,
-              wallet: walletAddr
-            }));
-          } catch (e) {}
-        }
-        alert('✅ تراکنش TON ارسال شد.');
-      } catch (e) {
-        alert('تراکنش لغو شد.');
-      }
-    }
-
-    initTon();
   </script>
 </body>
 </html>

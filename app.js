@@ -1,100 +1,106 @@
-const tg = window.Telegram?.WebApp;
-if (tg) {
-  tg.ready();
-  tg.expand();
-}
+(function () {
+  const BOT_USERNAME = "Starsgameir_bot";
 
-const WITHDRAW_RATE_PER_100 = 40000;
+  function getCardInputs() {
+    const inputs = Array.from(document.querySelectorAll("input, select"));
+    let amountEl =
+      document.getElementById("deposit-amount") ||
+      document.getElementById("card-amount") ||
+      document.getElementById("amount");
+    let refEl =
+      document.getElementById("card-ref") ||
+      document.getElementById("ref-code") ||
+      document.getElementById("tracking-code") ||
+      document.getElementById("last4");
 
-function updateWithdrawCalc() {
-  const amt = parseInt(document.getElementById('withdraw-amount')?.value || '0', 10);
-  const el = document.getElementById('withdraw-calc');
-  if (!el) return;
-  const toman = amt > 0 ? Math.floor((amt / 100) * WITHDRAW_RATE_PER_100) : 0;
-  el.innerText = `هر 100 الماس = 40,000 تومان | مبلغ دریافتی: ${toman.toLocaleString()} تومان`;
-}
+    if (!amountEl) {
+      amountEl = inputs.find((el) =>
+        /amount|price|toman|rial|مبلغ|واریز/i.test(
+          (el.id || "") + " " + (el.name || "") + " " + (el.placeholder || "")
+        )
+      );
+    }
+    if (!refEl) {
+      refEl = inputs.find((el) =>
+        /ref|track|code|card|پیگیری|کارت|شماره|رقم/i.test(
+          (el.id || "") + " " + (el.name || "") + " " + (el.placeholder || "")
+        )
+      );
+    }
+    return { amountEl, refEl };
+  }
 
-function loadState() {
-  const name = localStorage.getItem('player_name') || '';
-  const uname = localStorage.getItem('player_username') || '';
-  if (localStorage.getItem('gems_bal') === null) localStorage.setItem('gems_bal', '0');
+  window.submitCardDeposit = function (customAmount, customRef) {
+    const { amountEl, refEl } = getCardInputs();
+    const rawAmount =
+      customAmount !== undefined
+        ? String(customAmount)
+        : amountEl
+        ? amountEl.value
+        : "100000";
+    const rawRef =
+      customRef !== undefined ? String(customRef) : refEl ? refEl.value : "";
 
-  const gems = localStorage.getItem('gems_bal') || '0';
-  const wins = localStorage.getItem('stats_wins') || '0';
-  const losses = localStorage.getItem('stats_losses') || '0';
+    const refClean = rawRef.trim();
+    if (!refClean) {
+      alert("لطفاً ۴ رقم آخر کارت یا کد پیگیری را وارد کنید.");
+      if (refEl && typeof refEl.focus === "function") refEl.focus();
+      return false;
+    }
 
-  document.getElementById('top-gems').innerText = gems;
-  const pGems = document.getElementById('profile-gems');
-  if (pGems) pGems.innerText = gems;
-  document.getElementById('stat-wins').innerText = wins;
-  document.getElementById('stat-losses').innerText = losses;
+    const amountClean = rawAmount.replace(/[^0-9]/g, "") || "100000";
+    const safeRef = encodeURIComponent(refClean.replace(/\s+/g, "-"));
+    const payload = `card_${amountClean}_${safeRef}`;
+    const botUrl = `https://t.me/${BOT_USERNAME}?start=${payload}`;
 
-  if (name && uname) {
-    document.getElementById('top-name').innerText = name;
-    document.getElementById('top-username').innerText = '@' + uname.replace(/^@/, '');
-    document.getElementById('inp-name').value = name;
-    document.getElementById('inp-username').value = uname;
-    document.getElementById('profile-lock-alert').style.display = 'none';
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if (tg) {
+      try {
+        tg.HapticFeedback && tg.HapticFeedback.impactOccurred("medium");
+      } catch (e) {}
+      try {
+        tg.openTelegramLink(botUrl);
+        return true;
+      } catch (e) {}
+    }
+
+    window.open(botUrl, "_blank");
+    return true;
+  };
+
+  function attachCardListeners() {
+    const candidates = Array.from(
+      document.querySelectorAll("button, [role='button'], a.btn, .btn, input[type='button'], input[type='submit']")
+    );
+    candidates.forEach((el) => {
+      const text = (el.innerText || el.textContent || el.value || "").trim();
+      const meta = (
+        (el.getAttribute("onclick") || "") +
+        " " +
+        (el.id || "") +
+        " " +
+        (el.className || "")
+      ).toLowerCase();
+
+      const isCardAction =
+        /کارت|واریز|ثبت|تایید|card|deposit/i.test(text + " " + meta) &&
+        !/stars|ton|tonkeeper|استارز|کیف پول|wallet/i.test(text);
+
+      if (isCardAction && !el.dataset.cardDepositBound) {
+        el.dataset.cardDepositBound = "1";
+        el.addEventListener("click", function (ev) {
+          if (!el.getAttribute("onclick")) {
+            ev.preventDefault();
+            window.submitCardDeposit();
+          }
+        });
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", attachCardListeners);
   } else {
-    document.getElementById('profile-lock-alert').style.display = 'flex';
+    attachCardListeners();
   }
-  updateWithdrawCalc();
-}
-
-function selectCat(cat, btn) {
-  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.games-grid').forEach(g => g.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  document.getElementById('cat-' + cat)?.classList.add('active');
-}
-
-function saveUserProfile() {
-  const name = document.getElementById('inp-name').value.trim();
-  const uname = document.getElementById('inp-username').value.trim().replace(/^@/, '');
-  if (name.length < 2 || uname.length < 3) {
-    alert('لطفاً نام و یوزرنیم معتبر وارد کنید!');
-    return;
-  }
-  localStorage.setItem('player_name', name);
-  localStorage.setItem('player_username', uname);
-  loadState();
-  if (tg) {
-    try { tg.sendData(JSON.stringify({ action: 'save_profile', name, username: uname })); } catch (e) {}
-  }
-  alert('✅ پروفایل ثبت شد!');
-  switchTab('home', document.querySelector('[data-t=home]'));
-}
-
-function launchGame(file) {
-  const name = localStorage.getItem('player_name');
-  const uname = localStorage.getItem('player_username');
-  if (!name || !uname) {
-    alert('🔒 برای شروع بازی ابتدا نام و یوزرنیم خود را در پروفایل ثبت کنید!');
-    switchTab('profile', document.querySelector('[data-t=profile]'));
-    return;
-  }
-  window.location.href = file;
-}
-
-function switchTab(id, el) {
-  document.querySelectorAll('.tab-sec').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + id)?.classList.add('active');
-  if (el) el.classList.add('active');
-}
-
-function submitWithdraw() {
-  const amt = parseInt(document.getElementById('withdraw-amount').value, 10);
-  const dest = document.getElementById('withdraw-dest').value.trim();
-  const bal = parseInt(localStorage.getItem('gems_bal') || '0', 10);
-  if (!amt || amt < 100) { alert('حداقل مقدار برداشت ۱۰۰ الماس است.'); return; }
-  if (amt > bal) { alert('موجودی الماس شما کافی نیست.'); return; }
-  if (dest.length < 6) { alert('شماره کارت یا آدرس ولت معتبر وارد کنید.'); return; }
-  const toman = Math.floor((amt / 100) * WITHDRAW_RATE_PER_100);
-  if (tg) {
-    try { tg.sendData(JSON.stringify({ action: 'withdraw', amount: amt, toman, destination: dest })); } catch (e) {}
-  }
-  alert(`✅ درخواست برداشت ${amt} الماس (${toman.toLocaleString()} تومان) ثبت شد.`);
-}
-
-loadState();
+})();
