@@ -1,261 +1,36 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dooz-mini</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    * { box-sizing: border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; padding: 14px 14px 86px; background: #0a0612; color: #fff; }
-    .profile-header { display: flex; align-items: center; justify-content: space-between; background: #1b0f30; border: 1px solid #5b2fc9; border-radius: 18px; padding: 10px 14px; margin-bottom: 14px; cursor: pointer; }
-    .ph-right { display: flex; align-items: center; gap: 10px; }
-    .avatar { width: 42px; height: 42px; border-radius: 50%; background: #6d28d9; border: 2px solid #a78bfa; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 17px; overflow: hidden; }
-    .avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .gem-pill { background: #2a1452; border: 1px solid #8b5cf6; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: bold; }
-    .pane { display: none; }
-    .pane.active { display: block; }
-    .cats-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 14px; }
-    .cat-chip { white-space: nowrap; padding: 9px 14px; border-radius: 999px; border: 1px solid #4c2694; background: #160c28; color: #e9d5ff; font-size: 12px; font-weight: bold; cursor: pointer; }
-    .cat-chip.active { background: #7c3aed; color: #fff; }
-    .slots-grid, .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .game-slot { min-height: 110px; background: #160c27; border: 1.5px solid #4c2694; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-    .pack-card, .invite-card { background: #170d29; border: 1px solid #4c2694; border-radius: 16px; padding: 12px; text-align: center; cursor: pointer; }
-    .invite-card { text-align: right; margin-bottom: 12px; }
-    .invite-url { background: #0d0718; border: 1px dashed #6d28d9; border-radius: 10px; padding: 8px; font-size: 11px; word-break: break-all; margin: 8px 0; }
-    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .friend-row { display: flex; align-items: center; justify-content: space-between; background: #160c27; border: 1px solid #391d6b; border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; }
-    .mini-av { width: 34px; height: 34px; border-radius: 50%; background: #4c1d95; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-    .empty-box { background: #160c27; border: 1px dashed #391d6b; border-radius: 14px; padding: 18px; text-align: center; font-size: 12px; color: #a78bfa; }
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.82); z-index: 999; padding: 16px; }
-    .modal.open { display: flex; align-items: center; justify-content: center; }
-    .modal-box { width: 100%; max-width: 400px; background: #170d29; border: 1px solid #6d28d9; border-radius: 18px; padding: 16px; }
-    .stats-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; text-align: center; }
-    .stat-cell { background: #0f081c; border: 1px solid #3c1f70; border-radius: 12px; padding: 8px 4px; }
-    input { width: 100%; padding: 10px; margin-top: 8px; border-radius: 10px; border: 1px solid #4c2694; background: #0d0718; color: #fff; }
-    .btn { width: 100%; margin-top: 10px; padding: 10px; border: none; border-radius: 12px; background: #7c3aed; color: #fff; font-weight: bold; cursor: pointer; }
-    .btn-sec { width: 100%; margin-top: 8px; padding: 9px; border: 1px solid #5b2fc9; border-radius: 12px; background: transparent; color: #e9d5ff; cursor: pointer; }
-    .info-box { background: #0d0718; border: 1px solid #3c1f70; border-radius: 10px; padding: 8px; font-size: 12px; margin-top: 8px; word-break: break-all; }
-    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; display: grid; grid-template-columns: repeat(3, 1fr); background: #130922; border-top: 1px solid #4c2694; padding: 8px; z-index: 40; }
-    .nav-item { border: none; background: transparent; color: #a78bfa; font-size: 13px; font-weight: bold; padding: 9px 4px; border-radius: 12px; cursor: pointer; }
-    .nav-item.active { background: #2c1654; color: #fff; }
-  </style>
-</head>
-<body>
-  <div class="profile-header" onclick="appOpenProfile()">
-    <div class="ph-right">
-      <div id="header-avatar" class="avatar">S</div>
-      <div><div id="header-name" style="font-size:15px;font-weight:bold;">SavasH</div><div style="font-size:11px;color:#c4b5fd;">پروفایل، برد/باخت و برداشت</div></div>
-    </div>
-    <div class="gem-pill">💎 <span id="header-gems">750</span></div>
-  </div>
-  <div id="pane-games" class="pane active">
-    <div class="cats-row">
-      <button class="cat-chip active" type="button" onclick="appSelectCat(this,'card')">بازی‌های کارتی</button>
-      <button class="cat-chip" type="button" onclick="appSelectCat(this,'board')">بازی‌های تخته‌ای</button>
-      <button class="cat-chip" type="button" onclick="appSelectCat(this,'slot')">اسلات (بچرخون و جایزه بگیر)</button>
-    </div>
-    <div class="slots-grid">
-      <div id="slot-1" class="game-slot"><b>جایگاه بازی ۱</b><small style="color:#a78bfa;margin-top:4px;">خالی</small></div>
-      <div id="slot-2" class="game-slot"><b>جایگاه بازی ۲</b><small style="color:#a78bfa;margin-top:4px;">خالی</small></div>
-      <div id="slot-3" class="game-slot"><b>جایگاه بازی ۳</b><small style="color:#a78bfa;margin-top:4px;">خالی</small></div>
-      <div id="slot-4" class="game-slot"><b>جایگاه بازی ۴</b><small style="color:#a78bfa;margin-top:4px;">خالی</small></div>
-    </div>
-  </div>
-  <div id="pane-shop" class="pane">
-    <h3 style="margin:4px 0 12px;font-size:16px;">فروشگاه الماس</h3>
-    <div class="shop-grid">
-      <div class="pack-card" onclick="appOpenPack(200,50000,0.2)"><b>💎 ۲۰۰ الماس</b><div style="font-size:12px;color:#c4b5fd;margin:6px 0;">۵۰,۰۰۰ تومان / 0.2 TON</div><button class="btn" style="margin-top:0;padding:8px;" type="button">خرید بسته</button></div>
-      <div class="pack-card" onclick="appOpenPack(420,100000,0.4)"><b>💎 ۴۲۰ الماس</b><div style="font-size:12px;color:#c4b5fd;margin:6px 0;">۱۰۰,۰۰۰ تومان / 0.4 TON</div><button class="btn" style="margin-top:0;padding:8px;" type="button">خرید بسته</button></div>
-      <div class="pack-card" onclick="appOpenPack(900,200000,0.8)"><b>💎 ۹۰۰ الماس</b><div style="font-size:12px;color:#c4b5fd;margin:6px 0;">۲۰۰,۰۰۰ تومان / 0.8 TON</div><button class="btn" style="margin-top:0;padding:8px;" type="button">خرید بسته</button></div>
-      <div class="pack-card" onclick="appOpenPack(2500,500000,2.0)"><b>💎 ۲,۵۰۰ الماس</b><div style="font-size:12px;color:#c4b5fd;margin:6px 0;">۵۰۰,۰۰۰ تومان / 2.0 TON</div><button class="btn" style="margin-top:0;padding:8px;" type="button">خرید بسته</button></div>
-    </div>
-  </div>
-  <div id="pane-friends" class="pane">
-    <div class="invite-card">
-      <b>دعوت از دوستان</b>
-      <div style="font-size:11px;color:#c4b5fd;margin-top:3px;">لینک اختصاصی خودت را بفرست تا دوستان دعوت‌شده به لیست اضافه شوند</div>
-      <div id="invite-url-box" class="invite-url">https://t.me/Starsgameir_bot?start=ref_0</div>
-      <div class="row-2">
-        <button class="btn" style="margin-top:0;" type="button" onclick="appCopyLink()">کپی لینک</button>
-        <button class="btn-sec" style="margin-top:0;" type="button" onclick="appShareLink()">ارسال به دوست</button>
-      </div>
-    </div>
-    <div style="font-size:14px;font-weight:bold;margin-bottom:8px;">لیست دوستان دعوت‌شده</div>
-    <div id="friends-list"></div>
-  </div>
-  <div class="bottom-bar">
-    <button id="nav-shop" class="nav-item" type="button" onclick="appTab('shop')">فروشگاه</button>
-    <button id="nav-games" class="nav-item active" type="button" onclick="appTab('games')">بازی</button>
-    <button id="nav-friends" class="nav-item" type="button" onclick="appTab('friends')">دوستان</button>
-  </div>
-  <div id="profile-modal" class="modal">
-    <div class="modal-box">
-      <div style="display:flex;align-items:center;gap:10px;"><div id="prof-avatar" class="avatar">S</div><div><b id="prof-name">SavasH</b><div style="font-size:12px;color:#c4b5fd;">آمار بازی و تسویه</div></div></div>
-      <div class="stats-3">
-        <div class="stat-cell"><b id="prof-wins">14</b><div style="font-size:11px;color:#c4b5fd;">بردها</div></div>
-        <div class="stat-cell"><b id="prof-losses">6</b><div style="font-size:11px;color:#c4b5fd;">باخت‌ها</div></div>
-        <div class="stat-cell"><b id="prof-gems">750</b><div style="font-size:11px;color:#c4b5fd;">الماس</div></div>
-      </div>
-      <input id="withdraw-amount" type="number" placeholder="تعداد الماس یا مبلغ برداشت" />
-      <input id="withdraw-dest" type="text" placeholder="شماره کارت یا آدرس ولت TON" />
-      <button class="btn" type="button" onclick="appWithdraw()">ثبت درخواست برداشت</button>
-      <button class="btn-sec" type="button" onclick="appClose('profile-modal')">بستن</button>
-    </div>
-  </div>
-  <div id="buy-modal" class="modal">
-    <div class="modal-box">
-      <b id="buy-pack-title">خرید بسته الماس</b>
-      <div id="buy-pack-sub" style="font-size:12px;color:#c4b5fd;margin-top:4px;"></div>
-      <div class="row-2" style="margin-top:10px;">
-        <button class="btn" style="margin-top:0;" type="button" onclick="appPay('ton')">پرداخت با Tonkeeper</button>
-        <button class="btn" style="margin-top:0;background:#5b21b6;" type="button" onclick="appPay('card')">کارت‌به‌کارت</button>
-      </div>
-      <div id="card-step-box" style="display:none;">
-        <div id="card-info" class="info-box"></div>
-        <input id="buy-card-ref" type="text" placeholder="۴ رقم آخر کارت یا کد پیگیری" />
-        <button class="btn" type="button" onclick="appConfirmCard()">تایید کارت‌به‌کارت</button>
-      </div>
-      <div id="ton-step-box" style="display:none;">
-        <div id="ton-info" class="info-box"></div>
-        <button class="btn" type="button" onclick="appConfirmTon()">باز کردن Tonkeeper</button>
-      </div>
-      <button class="btn-sec" type="button" onclick="appClose('buy-modal')">انصراف</button>
-    </div>
-  </div>
-  <div id="friend-modal" class="modal">
-    <div class="modal-box">
-      <div style="display:flex;align-items:center;gap:10px;"><div id="fp-avatar" class="avatar">ف</div><div><b id="fp-name">دوست</b><div style="font-size:12px;color:#c4b5fd;">پروفایل دوست</div></div></div>
-      <div class="stats-3">
-        <div class="stat-cell"><b id="fp-wins">0</b><div style="font-size:11px;color:#c4b5fd;">بردها</div></div>
-        <div class="stat-cell"><b id="fp-losses">0</b><div style="font-size:11px;color:#c4b5fd;">باخت‌ها</div></div>
-        <div class="stat-cell"><b id="fp-gems">0</b><div style="font-size:11px;color:#c4b5fd;">الماس</div></div>
-      </div>
-      <button class="btn-sec" type="button" onclick="appClose('friend-modal')">بستن</button>
-    </div>
-  </div>
-  <script>
-    var BOT = "Starsgameir_bot", TON = "UQ_YOUR_TON_WALLET_ADDRESS_HERE", CARD = "6277-6014-2080-7065", OWNER = "مهدی لایقی";
-    var tg = window.Telegram && window.Telegram.WebApp;
-    if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
-    var u = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || { id: 8359766039, first_name: "SavasH", photo_url: "" };
-    var pack = null;
-    function el(id) { return document.getElementById(id); }
-    function vib(t) { try { if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(t || "light"); } catch (e) {} }
-    function goBot(p) {
-      vib("medium");
-      var url = "https://t.me/" + BOT + "?start=" + encodeURIComponent(p);
-      if (tg && tg.openTelegramLink) tg.openTelegramLink(url); else window.open(url, "_blank");
-    }
-    function loadInvites(ownerId) {
-      try { return JSON.parse(localStorage.getItem("savash_inv_" + ownerId) || "[]"); } catch (e) { return []; }
-    }
-    function saveInvites(ownerId, list) {
-      try { localStorage.setItem("savash_inv_" + ownerId, JSON.stringify(list)); } catch (e) {}
-    }
-    var sp = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || new URLSearchParams(location.search).get("start") || new URLSearchParams(location.search).get("tgWebAppStartParam") || "";
-    if (sp && sp.indexOf("ref_") === 0) {
-      var refId = sp.replace("ref_", "").trim();
-      if (refId && String(refId) !== String(u.id)) {
-        var cur = loadInvites(refId);
-        if (!cur.some(function (x) { return String(x.id) === String(u.id); })) {
-          cur.push({ id: u.id, name: u.first_name || "کاربر", wins: 0, losses: 0, gems: 0 });
-          saveInvites(refId, cur);
-        }
-      }
-    }
-    var friends = loadInvites(u.id);
-    function renderFriends() {
-      var box = el("friends-list");
-      if (!friends.length) {
-        box.innerHTML = '<div class="empty-box">هنوز کسی را دعوت نکرده‌اید. لینک دعوت خود را بفرستید.</div>';
-        return;
-      }
-      box.innerHTML = friends.map(function (f, i) {
-        return '<div class="friend-row" onclick="appFriend(' + i + ')"><b>' + f.gems + ' 💎</b><div style="display:flex;align-items:center;gap:10px;"><div style="text-align:right;"><b>' + f.name + '</b><div style="font-size:11px;color:#a78bfa;">کلیک برای مشاهده پروفایل</div></div><div class="mini-av">' + (f.name || "د").charAt(0) + '</div></div></div>';
-      }).join("");
-    }
-    window.appTab = function (t) {
-      vib("light");
-      ["games", "shop", "friends"].forEach(function (k) {
-        if (el("pane-" + k)) el("pane-" + k).classList.toggle("active", k === t);
-        if (el("nav-" + k)) el("nav-" + k).classList.toggle("active", k === t);
-      });
-      if (t === "friends") renderFriends();
-    };
-    window.appSelectCat = function (btn) {
-      vib("light");
-      document.querySelectorAll(".cat-chip").forEach(function (c) { c.classList.remove("active"); });
-      if (btn) btn.classList.add("active");
-    };
-    window.appOpenProfile = function () { vib("light"); if (el("profile-modal")) el("profile-modal").classList.add("open"); };
-    window.appClose = function (id) { if (el(id)) el(id).classList.remove("open"); };
-    window.appWithdraw = function () {
-      var a = el("withdraw-amount").value.trim(), d = el("withdraw-dest").value.trim();
-      if (!a || !d) { alert("مبلغ و شماره کارت یا ولت را وارد کنید."); return; }
-      goBot("withdraw_" + a + "_" + d.replace(/\s+/g, ""));
-    };
-    window.appOpenPack = function (g, tm, tn) {
-      vib("medium");
-      pack = { g: g, tm: tm, tn: tn };
-      el("buy-pack-title").textContent = "خرید بسته " + g + " الماس";
-      el("buy-pack-sub").textContent = Number(tm).toLocaleString("fa-IR") + " تومان یا " + tn + " TON";
-      el("card-step-box").style.display = "none";
-      el("ton-step-box").style.display = "none";
-      el("buy-modal").classList.add("open");
-    };
-    window.appPay = function (m) {
-      vib("light");
-      if (!pack) return;
-      el("card-step-box").style.display = m === "card" ? "block" : "none";
-      el("ton-step-box").style.display = m === "ton" ? "block" : "none";
-      if (m === "card") el("card-info").innerHTML = "کارت: <b>" + CARD + "</b><br/>نام: <b>" + OWNER + "</b><br/>مبلغ: <b>" + Number(pack.tm).toLocaleString("fa-IR") + " تومان</b>";
-      else el("ton-info").innerHTML = "مبلغ: <b>" + pack.tn + " TON</b><br/>ولت: " + TON;
-    };
-    window.appConfirmCard = function () {
-      var r = el("buy-card-ref").value.trim();
-      if (!pack) return;
-      if (!r) { alert("۴ رقم آخر کارت یا کد پیگیری را بزنید."); return; }
-      goBot("card_" + pack.tm + "_" + r + "_g" + pack.g);
-    };
-    window.appConfirmTon = function () {
-      if (!pack) return;
-      window.open("ton://transfer/" + TON + "?amount=" + Math.round(pack.tn * 1e9) + "&text=U" + u.id + "_G" + pack.g, "_blank");
-    };
-    window.appCopyLink = function () {
-      vib("medium");
-      var l = "https://t.me/" + BOT + "?start=ref_" + u.id;
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(l).then(function () { alert("کپی شد:\n" + l); }).catch(function () { prompt("لینک:", l); });
-      else prompt("لینک:", l);
-    };
-    window.appShareLink = function () {
-      vib("medium");
-      var l = "https://t.me/" + BOT + "?start=ref_" + u.id;
-      var s = "https://t.me/share/url?url=" + encodeURIComponent(l) + "&text=" + encodeURIComponent("بیا با هم بازی کنیم!");
-      if (tg && tg.openTelegramLink) tg.openTelegramLink(s); else window.open(s, "_blank");
-    };
-    window.appFriend = function (i) {
-      vib("light");
-      var f = friends[i];
-      if (!f) return;
-      el("fp-name").textContent = f.name;
-      el("fp-avatar").textContent = (f.name || "د").charAt(0);
-      el("fp-wins").textContent = f.wins;
-      el("fp-losses").textContent = f.losses;
-      el("fp-gems").textContent = f.gems;
-      el("friend-modal").classList.add("open");
-    };
-    var nm = u.first_name || "SavasH";
-    el("header-name").textContent = nm; el("prof-name").textContent = nm;
-    el("invite-url-box").textContent = "https://t.me/" + BOT + "?start=ref_" + u.id;
-    if (u.photo_url) {
-      el("header-avatar").innerHTML = '<img src="' + u.photo_url + '" alt="av" />';
-      el("prof-avatar").innerHTML = '<img src="' + u.photo_url + '" alt="av" />';
-    } else {
-      el("header-avatar").textContent = nm.charAt(0) || "S";
-      el("prof-avatar").textContent = nm.charAt(0) || "S";
-    }
-    renderFriends();
-  </script>
-</body>
-</html>
+<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Dooz-mini</title><script src="https://telegram.org/js/telegram-web-app.js"></script><style>*{box-sizing:border-box;font-family:sans-serif}body{margin:0;padding:14px 14px 80px;background:#0a0612;color:#fff}.card{background:#170d29;border:1px solid #5b2fc9;border-radius:16px;padding:14px;margin-bottom:12px}.url{background:#0d0718;border:1px dashed #6d28d9;border-radius:10px;padding:8px;font-size:11px;word-break:break-all;margin:8px 0}.btn{padding:10px;border:none;border-radius:10px;background:#7c3aed;color:#fff;font-weight:bold;cursor:pointer;width:100%}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.empty{background:#160c27;border:1px dashed #391d6b;border-radius:12px;padding:16px;text-align:center;color:#a78bfa;font-size:12px}.item{display:flex;justify-content:space-between;background:#160c27;border:1px solid #391d6b;border-radius:12px;padding:10px 12px;margin-bottom:8px}</style></head><body><div class="card"><b>دعوت از دوستان</b><div id="inv-link" class="url"></div><div class="row"><button class="btn" type="button" onclick="copyInv()">کپی لینک</button><button class="btn" style="background:#4c1d95" type="button" onclick="shareInv()">ارسال به دوست</button></div></div><b>لیست دوستان دعوت‌شده</b><div id="f-list" style="margin-top:8px;"></div><script>
+var BOT="Starsgameir_bot",tg=window.Telegram&&window.Telegram.WebApp;
+if(tg){try{tg.ready();tg.expand();}catch(e){}}
+var me=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user)||{id:8359766039,first_name:"SavasH"};
+var myLink="https://t.me/"+BOT+"?start=ref_"+me.id;
+document.getElementById("inv-link").textContent=myLink;
+function getRefId(){
+  var p=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.start_param)||"";
+  if(!p){var q=new URLSearchParams(location.search);p=q.get("start")||q.get("tgWebAppStartParam")||"";}
+  return p.indexOf("ref_")===0?p.slice(4).trim():"";
+}
+function loadF(id){try{return JSON.parse(localStorage.getItem("ref_list_"+id)||"[]");}catch(e){return[];}}
+function saveF(id,arr){try{localStorage.setItem("ref_list_"+id,JSON.stringify(arr));}catch(e){}}
+var rId=getRefId();
+if(rId&&String(rId)!==String(me.id)){
+  var arr=loadF(rId);
+  if(!arr.some(function(x){return String(x.id)===String(me.id);})){
+    arr.push({id:me.id,name:me.first_name||"کاربر",gems:0});
+    saveF(rId,arr);
+  }
+}
+function render(){
+  var list=loadF(me.id),box=document.getElementById("f-list");
+  if(!list.length){box.innerHTML='<div class="empty">هنوز کسی دعوت نشده است.</div>';return;}
+  box.innerHTML=list.map(function(x){return '<div class="item"><b>'+x.name+'</b><span>💎 '+x.gems+'</span></div>';}).join("");
+}
+window.copyInv=function(){
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(myLink).then(function(){alert("کپی شد");}).catch(function(){prompt("لینک:",myLink);});}
+  else prompt("لینک:",myLink);
+};
+window.shareInv=function(){
+  var u="https://t.me/share/url?url="+encodeURIComponent(myLink)+"&text="+encodeURIComponent("بیا تو ربات!");
+  if(tg&&tg.openTelegramLink)tg.openTelegramLink(u);else window.open(u,"_blank");
+};
+render();
+</script></body></html>
