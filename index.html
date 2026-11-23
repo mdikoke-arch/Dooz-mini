@@ -185,6 +185,21 @@
     if (u.first_name) el("h-nm").textContent = u.first_name;
     if (u.photo_url) el("h-av").innerHTML = '<img src="' + u.photo_url + '" alt="av"/>';
     el("h-gm").textContent = getGems();
+    fetch("./referrals.json", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (remote) {
+        var fromJson = (remote && remote[String(u.id)]) || [];
+        var local = loadF(u.id);
+        var merged = local.slice();
+        fromJson.forEach(function (x) {
+          if (!merged.some(function (m) { return String(m.id) === String(x.id); })) {
+            merged.push(x);
+          }
+        });
+        saveF(u.id, merged);
+        renderF();
+      })
+      .catch(function () {});
     renderF();
   </script>
 </body>
