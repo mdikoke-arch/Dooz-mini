@@ -405,6 +405,41 @@
     renderReqs();
     renderF();
 
+  
+    function syncFromGithubJson() {
+      fetch("./friends_sync.json", { cache: "no-store" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data) return;
+          var remoteReqs = (data.requests && data.requests[String(u.id)]) || [];
+          var localReqs = loadReqs(u.id);
+          remoteReqs.forEach(function (rq) {
+            if (!localReqs.some(function (x) { return String(x.fromId) === String(rq.fromId); })) {
+              localReqs.push(rq);
+            }
+          });
+          saveReqs(u.id, localReqs);
+
+          var remoteFriends = (data.friends && data.friends[String(u.id)]) || [];
+          var localFriends = loadF(u.id);
+          remoteFriends.forEach(function (fr) {
+            if (!localFriends.some(function (x) { return String(x.id) === String(fr.id); })) {
+              localFriends.push(fr);
+            }
+          });
+          saveF(u.id, localFriends);
+          renderReqs();
+          renderF();
+        })
+        .catch(function () {});
+    }
+    var _prevGoTab2 = window.goTab;
+    window.goTab = function (t) {
+      if (_prevGoTab2) _prevGoTab2(t);
+      if (t === "friends") syncFromGithubJson();
+    };
+    syncFromGithubJson();
+
   </script>
 </body>
 </html>
