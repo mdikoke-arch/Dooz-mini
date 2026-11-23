@@ -440,6 +440,54 @@
     };
     syncFromGithubJson();
 
+  
+    (function () {
+      var selectedFriendIndex = null;
+      var selectedFriendObj = null;
+
+      var prevOpenFr = window.openFr;
+      window.openFr = function (idx) {
+        var list = loadF(u.id) || [];
+        selectedFriendIndex = idx;
+        selectedFriendObj = list[idx] || null;
+        if (typeof prevOpenFr === "function") prevOpenFr(idx);
+      };
+
+      function doRemoveSelectedFriend() {
+        var list = loadF(u.id) || [];
+        if (selectedFriendObj) {
+          list = list.filter(function (item) {
+            var sameId = item.id !== undefined && selectedFriendObj.id !== undefined && String(item.id) === String(selectedFriendObj.id);
+            var sameHandle = item.handle && selectedFriendObj.handle && String(item.handle).toLowerCase() === String(selectedFriendObj.handle).toLowerCase();
+            var sameName = item.name && selectedFriendObj.name && String(item.name) === String(selectedFriendObj.name);
+            return !(sameId || sameHandle || sameName);
+          });
+        } else if (typeof selectedFriendIndex === "number" && selectedFriendIndex >= 0 && selectedFriendIndex < list.length) {
+          list.splice(selectedFriendIndex, 1);
+        }
+        saveF(u.id, list);
+        selectedFriendIndex = null;
+        selectedFriendObj = null;
+        if (typeof closeMod === "function") closeMod("fr-mod");
+        if (typeof renderF === "function") renderF();
+      }
+
+      window.removeFriend = doRemoveSelectedFriend;
+
+      var mod = document.getElementById("fr-mod");
+      if (mod) {
+        var btns = mod.querySelectorAll("button");
+        btns.forEach(function (b) {
+          if ((b.textContent || "").indexOf("حذف دوست") !== -1) {
+            b.onclick = function (ev) {
+              if (ev) ev.preventDefault();
+              doRemoveSelectedFriend();
+            };
+          }
+        });
+      }
+    })();
+
   </script>
 </body>
 </html>
