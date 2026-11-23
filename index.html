@@ -8,278 +8,223 @@
   <style>
     * { box-sizing: border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
     body { margin: 0; padding: 14px 14px 86px; background: #0a0612; color: #fff; }
-    .profile-header { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #1b0f30, #120921); border: 1px solid #5b2fc9; border-radius: 18px; padding: 10px 14px; margin-bottom: 14px; cursor: pointer; }
+    .profile-header { display: flex; align-items: center; justify-content: space-between; background: #1b0f30; border: 1px solid #5b2fc9; border-radius: 18px; padding: 10px 14px; margin-bottom: 14px; cursor: pointer; }
     .ph-right { display: flex; align-items: center; gap: 10px; }
-    .avatar { width: 44px; height: 44px; border-radius: 50%; background: #6d28d9; border: 2px solid #a78bfa; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; overflow: hidden; }
+    .avatar { width: 42px; height: 42px; border-radius: 50%; background: #6d28d9; border: 2px solid #a78bfa; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 17px; overflow: hidden; }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .ph-name { font-size: 15px; font-weight: bold; }
-    .ph-sub { font-size: 11px; color: #c4b5fd; margin-top: 2px; }
-    .gem-pill { background: #2a1452; border: 1px solid #8b5cf6; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: bold; color: #f5f3ff; }
+    .gem-pill { background: #2a1452; border: 1px solid #8b5cf6; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: bold; }
     .pane { display: none; }
     .pane.active { display: block; }
     .cats-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 14px; }
     .cat-chip { white-space: nowrap; padding: 9px 14px; border-radius: 999px; border: 1px solid #4c2694; background: #160c28; color: #e9d5ff; font-size: 12px; font-weight: bold; cursor: pointer; }
-    .cat-chip.active { background: #7c3aed; border-color: #c4b5fd; color: #fff; }
-    .slots-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .game-slot { min-height: 115px; background: #160c27; border: 1.5px solid #4c2694; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-    .slot-label { font-size: 13px; font-weight: bold; color: #ddd6fe; }
-    .slot-hint { font-size: 11px; color: #a78bfa; margin-top: 4px; }
-    .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .pack-card { background: #170d29; border: 1px solid #4c2694; border-radius: 16px; padding: 14px 10px; text-align: center; cursor: pointer; }
-    .pack-gems { font-size: 16px; font-weight: bold; color: #f3e8ff; margin-bottom: 6px; }
-    .pack-price { font-size: 12px; color: #c4b5fd; margin-bottom: 10px; }
-    .pack-btn { width: 100%; padding: 8px; border: none; border-radius: 10px; background: #7c3aed; color: #fff; font-size: 12px; font-weight: bold; }
-    .invite-card { background: #170d29; border: 1px solid #5b2fc9; border-radius: 16px; padding: 14px; margin-bottom: 12px; }
-    .invite-url { background: #0d0718; border: 1px dashed #6d28d9; border-radius: 10px; padding: 9px; font-size: 11px; color: #ddd6fe; word-break: break-all; margin: 8px 0; }
+    .cat-chip.active { background: #7c3aed; color: #fff; }
+    .slots-grid, .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .game-slot { min-height: 110px; background: #160c27; border: 1.5px solid #4c2694; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    .pack-card, .invite-card { background: #170d29; border: 1px solid #4c2694; border-radius: 16px; padding: 12px; text-align: center; cursor: pointer; }
+    .invite-card { text-align: right; margin-bottom: 12px; }
+    .invite-url { background: #0d0718; border: 1px dashed #6d28d9; border-radius: 10px; padding: 8px; font-size: 11px; word-break: break-all; margin: 8px 0; }
     .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .friend-row { display: flex; align-items: center; justify-content: space-between; background: #160c27; border: 1px solid #391d6b; border-radius: 14px; padding: 11px 12px; margin-bottom: 8px; cursor: pointer; }
-    .friend-left { display: flex; align-items: center; gap: 10px; }
-    .mini-av { width: 36px; height: 36px; border-radius: 50%; background: #4c1d95; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-    .friend-name { font-size: 14px; font-weight: bold; }
-    .friend-sub { font-size: 11px; color: #a78bfa; }
-    .friend-gems { font-size: 13px; font-weight: bold; color: #e9d5ff; }
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.82); z-index: 999; padding: 16px; overflow-y: auto; }
+    .friend-row { display: flex; align-items: center; justify-content: space-between; background: #160c27; border: 1px solid #391d6b; border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; }
+    .mini-av { width: 34px; height: 34px; border-radius: 50%; background: #4c1d95; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.82); z-index: 999; padding: 16px; }
     .modal.open { display: flex; align-items: center; justify-content: center; }
-    .modal-box { width: 100%; max-width: 420px; background: #170d29; border: 1px solid #6d28d9; border-radius: 18px; padding: 16px; }
+    .modal-box { width: 100%; max-width: 400px; background: #170d29; border: 1px solid #6d28d9; border-radius: 18px; padding: 16px; }
     .stats-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; text-align: center; }
-    .stat-cell { background: #0f081c; border: 1px solid #3c1f70; border-radius: 12px; padding: 10px 6px; }
-    .stat-num { font-size: 16px; font-weight: bold; color: #f3e8ff; }
-    .stat-lbl { font-size: 11px; color: #c4b5fd; margin-top: 3px; }
-    input { width: 100%; padding: 10px 12px; margin-top: 8px; border-radius: 10px; border: 1px solid #4c2694; background: #0d0718; color: #fff; font-size: 13px; }
-    .btn-full { width: 100%; margin-top: 10px; padding: 11px; border: none; border-radius: 12px; background: #7c3aed; color: #fff; font-size: 13px; font-weight: bold; cursor: pointer; }
-    .btn-sec { width: 100%; margin-top: 8px; padding: 10px; border: 1px solid #5b2fc9; border-radius: 12px; background: transparent; color: #e9d5ff; font-size: 13px; cursor: pointer; }
-    .info-line { background: #0d0718; border: 1px solid #3c1f70; border-radius: 10px; padding: 9px; font-size: 12px; margin-top: 8px; word-break: break-all; }
+    .stat-cell { background: #0f081c; border: 1px solid #3c1f70; border-radius: 12px; padding: 8px 4px; }
+    input { width: 100%; padding: 10px; margin-top: 8px; border-radius: 10px; border: 1px solid #4c2694; background: #0d0718; color: #fff; }
+    .btn { width: 100%; margin-top: 10px; padding: 10px; border: none; border-radius: 12px; background: #7c3aed; color: #fff; font-weight: bold; cursor: pointer; }
+    .btn-sec { width: 100%; margin-top: 8px; padding: 9px; border: 1px solid #5b2fc9; border-radius: 12px; background: transparent; color: #e9d5ff; cursor: pointer; }
+    .info-box { background: #0d0718; border: 1px solid #3c1f70; border-radius: 10px; padding: 8px; font-size: 12px; margin-top: 8px; word-break: break-all; }
     .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; display: grid; grid-template-columns: repeat(3, 1fr); background: #130922; border-top: 1px solid #4c2694; padding: 8px; z-index: 40; }
     .nav-item { border: none; background: transparent; color: #a78bfa; font-size: 13px; font-weight: bold; padding: 9px 4px; border-radius: 12px; cursor: pointer; }
     .nav-item.active { background: #2c1654; color: #fff; }
   </style>
 </head>
 <body>
-  <div id="profile-header-btn" class="profile-header" onclick="window.openProfileModal()">
+  <div class="profile-header" onclick="appOpenProfile()">
     <div class="ph-right">
       <div id="header-avatar" class="avatar">U</div>
-      <div><div id="header-name" class="ph-name">بازیکن</div><div class="ph-sub">پروفایل، برد/باخت و برداشت</div></div>
+      <div><div id="header-name" style="font-size:15px;font-weight:bold;">بازیکن</div><div style="font-size:11px;color:#c4b5fd;">پروفایل، برد/باخت و برداشت</div></div>
     </div>
     <div class="gem-pill">💎 <span id="header-gems">750</span></div>
   </div>
   <div id="pane-games" class="pane active">
     <div class="cats-row">
-      <button class="cat-chip active" type="button" data-cat="card" onclick="window.selectCategory('card')">بازی‌های کارتی</button>
-      <button class="cat-chip" type="button" data-cat="board" onclick="window.selectCategory('board')">بازی‌های تخته‌ای</button>
-      <button class="cat-chip" type="button" data-cat="slot" onclick="window.selectCategory('slot')">اسلات (بچرخون و جایزه بگیر)</button>
+      <button class="cat-chip active" type="button" onclick="appSelectCat(this,'card')">بازی‌های کارتی</button>
+      <button class="cat-chip" type="button" onclick="appSelectCat(this,'board')">بازی‌های تخته‌ای</button>
+      <button class="cat-chip" type="button" onclick="appSelectCat(this,'slot')">اسلات (بچرخون و جایزه بگیر)</button>
     </div>
     <div class="slots-grid">
-      <div id="slot-1" class="game-slot"><div class="slot-label">جایگاه بازی ۱</div><div class="slot-hint">خالی</div></div>
-      <div id="slot-2" class="game-slot"><div class="slot-label">جایگاه بازی ۲</div><div class="slot-hint">خالی</div></div>
-      <div id="slot-3" class="game-slot"><div class="slot-label">جایگاه بازی ۳</div><div class="slot-hint">خالی</div></div>
-      <div id="slot-4" class="game-slot"><div class="slot-label">جایگاه بازی ۴</div><div class="slot-hint">خالی</div></div>
+      <div id="slot-1" class="game-slot"><b>جایگاه بازی ۱</b><small style="color:#a78bfa;margin-top:4px;">خالی</small></div>
+      <div id="slot-2" class="game-slot"><b>جایگاه بازی ۲</b><small style="color:#a78bfa;margin-top:4px;">خالی</small></div>
+      <div id="slot-3" class="game-slot"><b>جایگاه بازی ۳</b><small style="color:#a78bfa;margin-top:4px;">خالی</small></div>
+      <div id="slot-4" class="game-slot"><b>جایگاه بازی ۴</b><small style="color:#a78bfa;margin-top:4px;">خالی</small></div>
     </div>
   </div>
   <div id="pane-shop" class="pane">
     <h3 style="margin:4px 0 12px;font-size:16px;">فروشگاه الماس</h3>
     <div class="shop-grid">
-      <div class="pack-card" onclick="window.openBuyPackModal(200,50000,0.2)"><div class="pack-gems">💎 ۲۰۰ الماس</div><div class="pack-price">۵۰,۰۰۰ تومان / 0.2 TON</div><button class="pack-btn" type="button">خرید بسته</button></div>
-      <div class="pack-card" onclick="window.openBuyPackModal(420,100000,0.4)"><div class="pack-gems">💎 ۴۲۰ الماس</div><div class="pack-price">۱۰۰,۰۰۰ تومان / 0.4 TON</div><button class="pack-btn" type="button">خرید بسته</button></div>
-      <div class="pack-card" onclick="window.openBuyPackModal(900,200000,0.8)"><div class="pack-gems">💎 ۹۰۰ الماس</div><div class="pack-price">۲۰۰,۰۰۰ تومان / 0.8 TON</div><button class="pack-btn" type="button">خرید بسته</button></div>
-      <div class="pack-card" onclick="window.openBuyPackModal(2500,500000,2.0)"><div class="pack-gems">💎 ۲,۵۰۰ الماس</div><div class="pack-price">۵۰۰,۰۰۰ تومان / 2.0 TON</div><button class="pack-btn" type="button">خرید بسته</button></div>
+      <div class="pack-card" onclick="appOpenPack(200,50000,0.2)"><b>💎 ۲۰۰ الماس</b><div style="font-size:12px;color:#c4b5fd;margin:6px 0;">۵۰,۰۰۰ تومان / 0.2 TON</div><button class="btn" style="margin-top:0;padding:8px;" type="button">خرید بسته</button></div>
+      <div class="pack-card" onclick="appOpenPack(420,100000,0.4)"><b>💎 ۴۲۰ الماس</b><div style="font-size:12px;color:#c4b5fd;margin:6px 0;">۱۰۰,۰۰۰ تومان / 0.4 TON</div><button class="btn" style="margin-top:0;padding:8px;" type="button">خرید بسته</button></div>
+      <div class="pack-card" onclick="appOpenPack(900,200000,0.8)"><b>💎 ۹۰۰ الماس</b><div style="font-size:12px;color:#c4b5fd;margin:6px 0;">۲۰۰,۰۰۰ تومان / 0.8 TON</div><button class="btn" style="margin-top:0;padding:8px;" type="button">خرید بسته</button></div>
+      <div class="pack-card" onclick="appOpenPack(2500,500000,2.0)"><b>💎 ۲,۵۰۰ الماس</b><div style="font-size:12px;color:#c4b5fd;margin:6px 0;">۵۰۰,۰۰۰ تومان / 2.0 TON</div><button class="btn" style="margin-top:0;padding:8px;" type="button">خرید بسته</button></div>
     </div>
   </div>
   <div id="pane-friends" class="pane">
     <div class="invite-card">
-      <div style="font-size:15px;font-weight:bold;">دعوت از دوستان</div>
-      <div style="font-size:12px;color:#c4b5fd;margin-top:4px;">لینک اختصاصی خودت را بفرست تا دوستانت به لیست اضافه شوند</div>
+      <b>دعوت از دوستان</b>
       <div id="invite-url-box" class="invite-url">https://t.me/Starsgameir_bot?start=ref_0</div>
       <div class="row-2">
-        <button id="copy-invite-btn" class="btn-full" type="button" style="margin-top:0;" onclick="window.copyInviteLink()">کپی لینک</button>
-        <button id="share-invite-btn" class="btn-sec" type="button" style="margin-top:0;" onclick="window.shareInviteLink()">ارسال به دوست</button>
+        <button class="btn" style="margin-top:0;" type="button" onclick="appCopyLink()">کپی لینک</button>
+        <button class="btn-sec" style="margin-top:0;" type="button" onclick="appShareLink()">ارسال به دوست</button>
       </div>
     </div>
     <div style="font-size:14px;font-weight:bold;margin-bottom:8px;">لیست دوستان (کلیک برای پروفایل)</div>
     <div id="friends-list"></div>
   </div>
   <div class="bottom-bar">
-    <button id="nav-shop" class="nav-item" type="button" onclick="window.switchMainTab('shop')">فروشگاه</button>
-    <button id="nav-games" class="nav-item active" type="button" onclick="window.switchMainTab('games')">بازی</button>
-    <button id="nav-friends" class="nav-item" type="button" onclick="window.switchMainTab('friends')">دوستان</button>
+    <button id="nav-shop" class="nav-item" type="button" onclick="appTab('shop')">فروشگاه</button>
+    <button id="nav-games" class="nav-item active" type="button" onclick="appTab('games')">بازی</button>
+    <button id="nav-friends" class="nav-item" type="button" onclick="appTab('friends')">دوستان</button>
   </div>
   <div id="profile-modal" class="modal">
     <div class="modal-box">
-      <div style="display:flex;align-items:center;gap:10px;"><div id="prof-avatar" class="avatar">U</div><div><div id="prof-name" style="font-size:16px;font-weight:bold;">بازیکن</div><div style="font-size:12px;color:#c4b5fd;">آمار بازی و تسویه</div></div></div>
+      <div style="display:flex;align-items:center;gap:10px;"><div id="prof-avatar" class="avatar">U</div><div><b id="prof-name">بازیکن</b><div style="font-size:12px;color:#c4b5fd;">آمار بازی و تسویه</div></div></div>
       <div class="stats-3">
-        <div class="stat-cell"><div id="prof-wins" class="stat-num">14</div><div class="stat-lbl">بردها</div></div>
-        <div class="stat-cell"><div id="prof-losses" class="stat-num">6</div><div class="stat-lbl">باخت‌ها</div></div>
-        <div class="stat-cell"><div id="prof-gems" class="stat-num">750</div><div class="stat-lbl">الماس</div></div>
+        <div class="stat-cell"><b id="prof-wins">14</b><div style="font-size:11px;color:#c4b5fd;">بردها</div></div>
+        <div class="stat-cell"><b id="prof-losses">6</b><div style="font-size:11px;color:#c4b5fd;">باخت‌ها</div></div>
+        <div class="stat-cell"><b id="prof-gems">750</b><div style="font-size:11px;color:#c4b5fd;">الماس</div></div>
       </div>
-      <div style="font-size:13px;font-weight:bold;margin-top:8px;">درخواست برداشت / پرداخت جایزه</div>
       <input id="withdraw-amount" type="number" placeholder="تعداد الماس یا مبلغ برداشت" />
-      <input id="withdraw-dest" type="text" placeholder="شماره کارت بانکی یا آدرس کیف‌پول TON" />
-      <button id="withdraw-submit-btn" class="btn-full" type="button" onclick="window.submitWithdraw()">ثبت درخواست برداشت</button>
-      <button id="close-profile-btn" class="btn-sec" type="button" onclick="window.closeModal('profile-modal')">بستن</button>
+      <input id="withdraw-dest" type="text" placeholder="شماره کارت یا آدرس ولت TON" />
+      <button class="btn" type="button" onclick="appWithdraw()">ثبت درخواست برداشت</button>
+      <button class="btn-sec" type="button" onclick="appClose('profile-modal')">بستن</button>
     </div>
   </div>
   <div id="buy-modal" class="modal">
     <div class="modal-box">
-      <div id="buy-pack-title" style="font-size:16px;font-weight:bold;">خرید بسته الماس</div>
-      <div id="buy-pack-sub" style="font-size:12px;color:#c4b5fd;margin-top:4px;">روش پرداخت را انتخاب کنید</div>
-      <div class="row-2" style="margin-top:12px;">
-        <button id="pay-method-ton" class="btn-full" type="button" style="margin-top:0;" onclick="window.choosePayMethod('ton')">پرداخت با Tonkeeper</button>
-        <button id="pay-method-card" class="btn-full" type="button" style="margin-top:0;background:#5b21b6;" onclick="window.choosePayMethod('card')">کارت‌به‌کارت</button>
+      <b id="buy-pack-title">خرید بسته الماس</b>
+      <div id="buy-pack-sub" style="font-size:12px;color:#c4b5fd;margin-top:4px;"></div>
+      <div class="row-2" style="margin-top:10px;">
+        <button class="btn" style="margin-top:0;" type="button" onclick="appPay('ton')">پرداخت با Tonkeeper</button>
+        <button class="btn" style="margin-top:0;background:#5b21b6;" type="button" onclick="appPay('card')">کارت‌به‌کارت</button>
       </div>
-      <div id="card-step-box" style="display:none;margin-top:10px;">
-        <div class="info-line">شماره کارت: <b id="card-num-display"></b><br/>به نام: <b id="card-owner-display"></b><br/>مبلغ قابل واریز: <b id="card-pay-amount"></b></div>
-        <input id="buy-card-ref" type="text" placeholder="۴ رقم آخر کارت یا کد پیگیری را وارد کنید" />
-        <button id="confirm-card-btn" class="btn-full" type="button" onclick="window.confirmCardPurchase()">تایید و ثبت کارت‌به‌کارت</button>
+      <div id="card-step-box" style="display:none;">
+        <div id="card-info" class="info-box"></div>
+        <input id="buy-card-ref" type="text" placeholder="۴ رقم آخر کارت یا کد پیگیری" />
+        <button class="btn" type="button" onclick="appConfirmCard()">تایید کارت‌به‌کارت</button>
       </div>
-      <div id="ton-step-box" style="display:none;margin-top:10px;">
-        <div class="info-line">مبلغ: <b id="ton-pay-amount"></b><br/>آدرس ولت TON: <span id="ton-addr-display"></span></div>
-        <button id="confirm-ton-btn" class="btn-full" type="button" onclick="window.confirmTonPurchase()">باز کردن Tonkeeper و پرداخت</button>
+      <div id="ton-step-box" style="display:none;">
+        <div id="ton-info" class="info-box"></div>
+        <button class="btn" type="button" onclick="appConfirmTon()">باز کردن Tonkeeper</button>
       </div>
-      <button id="close-buy-btn" class="btn-sec" type="button" onclick="window.closeModal('buy-modal')">انصراف</button>
+      <button class="btn-sec" type="button" onclick="appClose('buy-modal')">انصراف</button>
     </div>
   </div>
   <div id="friend-modal" class="modal">
     <div class="modal-box">
-      <div style="display:flex;align-items:center;gap:10px;"><div id="fp-avatar" class="avatar">ف</div><div><div id="fp-name" style="font-size:16px;font-weight:bold;">دوست</div><div style="font-size:12px;color:#c4b5fd;">پروفایل دوست</div></div></div>
+      <b id="fp-name">دوست</b>
       <div class="stats-3">
-        <div class="stat-cell"><div id="fp-wins" class="stat-num">0</div><div class="stat-lbl">بردها</div></div>
-        <div class="stat-cell"><div id="fp-losses" class="stat-num">0</div><div class="stat-lbl">باخت‌ها</div></div>
-        <div class="stat-cell"><div id="fp-gems" class="stat-num">0</div><div class="stat-lbl">الماس</div></div>
+        <div class="stat-cell"><b id="fp-wins">0</b><div style="font-size:11px;color:#c4b5fd;">بردها</div></div>
+        <div class="stat-cell"><b id="fp-losses">0</b><div style="font-size:11px;color:#c4b5fd;">باخت‌ها</div></div>
+        <div class="stat-cell"><b id="fp-gems">0</b><div style="font-size:11px;color:#c4b5fd;">الماس</div></div>
       </div>
-      <button id="close-friend-btn" class="btn-sec" type="button" onclick="window.closeModal('friend-modal')">بستن</button>
+      <button class="btn-sec" type="button" onclick="appClose('friend-modal')">بستن</button>
     </div>
   </div>
   <script>
-    (function () {
-      var BOT_USERNAME = "Starsgameir_bot";
-      var TON_WALLET = "UQ_YOUR_TON_WALLET_ADDRESS_HERE";
-      var CARD_NUMBER = "6277-6014-2080-7065";
-      var CARD_OWNER = "مهدی لایقی";
-      var tg = window.Telegram && window.Telegram.WebApp;
-      if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
-      var user = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || { id: 123456789, first_name: "بازیکن", username: "guest", photo_url: "" };
-      window.APP_STATE = {
-        user: user, gems: 750, wins: 14, losses: 6, selectedPack: null, selectedCat: "card",
-        friends: [
-          { id: 901, name: "امیرحسین", wins: 22, losses: 9, gems: 1450 },
-          { id: 902, name: "سارا", wins: 11, losses: 5, gems: 680 },
-          { id: 903, name: "رضا", wins: 31, losses: 12, gems: 2900 }
-        ]
-      };
-      function byId(id) { return document.getElementById(id); }
-      window.haptic = function (t) { try { if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(t || "light"); } catch (e) {} };
-      window.openBotLink = function (p) {
-        window.haptic("medium");
-        var u = "https://t.me/" + BOT_USERNAME + "?start=" + encodeURIComponent(p);
-        if (tg && tg.openTelegramLink) tg.openTelegramLink(u); else window.open(u, "_blank");
-      };
-      window.switchMainTab = function (tab) {
-        window.haptic("light");
-        ["games", "shop", "friends"].forEach(function (t) {
-          if (byId("pane-" + t)) byId("pane-" + t).classList.toggle("active", t === tab);
-          if (byId("nav-" + t)) byId("nav-" + t).classList.toggle("active", t === tab);
-        });
-      };
-      window.selectCategory = function (cat) {
-        window.haptic("light");
-        window.APP_STATE.selectedCat = cat;
-        var chips = document.querySelectorAll(".cat-chip");
-        for (var i = 0; i < chips.length; i++) chips[i].classList.toggle("active", chips[i].getAttribute("data-cat") === cat);
-      };
-      window.openProfileModal = function () { window.haptic("light"); if (byId("profile-modal")) byId("profile-modal").classList.add("open"); };
-      window.closeModal = function (id) { if (byId(id)) byId(id).classList.remove("open"); };
-      window.submitWithdraw = function () {
-        var a = byId("withdraw-amount") ? byId("withdraw-amount").value.trim() : "";
-        var d = byId("withdraw-dest") ? byId("withdraw-dest").value.trim() : "";
-        if (!a || !d) { alert("مبلغ و شماره کارت یا آدرس ولت را وارد کنید."); return; }
-        window.openBotLink("withdraw_" + a + "_" + d.replace(/\s+/g, ""));
-      };
-      window.openBuyPackModal = function (gems, toman, ton) {
-        window.haptic("medium");
-        window.APP_STATE.selectedPack = { gems: gems, toman: toman, ton: ton };
-        if (byId("buy-pack-title")) byId("buy-pack-title").textContent = "خرید بسته " + gems + " الماس";
-        if (byId("buy-pack-sub")) byId("buy-pack-sub").textContent = "مبلغ: " + Number(toman).toLocaleString("fa-IR") + " تومان یا " + ton + " TON";
-        if (byId("card-step-box")) byId("card-step-box").style.display = "none";
-        if (byId("ton-step-box")) byId("ton-step-box").style.display = "none";
-        if (byId("buy-modal")) byId("buy-modal").classList.add("open");
-      };
-      window.choosePayMethod = function (m) {
-        window.haptic("light");
-        var p = window.APP_STATE.selectedPack;
-        if (!p) return;
-        if (byId("card-step-box")) byId("card-step-box").style.display = m === "card" ? "block" : "none";
-        if (byId("ton-step-box")) byId("ton-step-box").style.display = m === "ton" ? "block" : "none";
-        if (m === "card") {
-          if (byId("card-num-display")) byId("card-num-display").textContent = CARD_NUMBER;
-          if (byId("card-owner-display")) byId("card-owner-display").textContent = CARD_OWNER;
-          if (byId("card-pay-amount")) byId("card-pay-amount").textContent = Number(p.toman).toLocaleString("fa-IR") + " تومان";
-        } else {
-          if (byId("ton-addr-display")) byId("ton-addr-display").textContent = TON_WALLET;
-          if (byId("ton-pay-amount")) byId("ton-pay-amount").textContent = p.ton + " TON";
-        }
-      };
-      window.confirmCardPurchase = function () {
-        var p = window.APP_STATE.selectedPack;
-        var r = byId("buy-card-ref") ? byId("buy-card-ref").value.trim() : "";
-        if (!p) return;
-        if (!r) { alert("لطفاً ۴ رقم آخر کارت یا کد پیگیری را وارد کنید."); return; }
-        window.openBotLink("card_" + p.toman + "_" + r + "_g" + p.gems);
-      };
-      window.confirmTonPurchase = function () {
-        var p = window.APP_STATE.selectedPack;
-        if (!p) return;
-        window.open("ton://transfer/" + TON_WALLET + "?amount=" + Math.round(p.ton * 1e9) + "&text=U" + user.id + "_G" + p.gems, "_blank");
-      };
-      window.copyInviteLink = function () {
-        window.haptic("medium");
-        var link = "https://t.me/" + BOT_USERNAME + "?start=ref_" + user.id;
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(link).then(function () { alert("لینک دعوت اختصاصی کپی شد:\n" + link); }).catch(function () { prompt("لینک دعوت شما:", link); });
-        } else prompt("لینک دعوت شما:", link);
-      };
-      window.shareInviteLink = function () {
-        window.haptic("medium");
-        var link = "https://t.me/" + BOT_USERNAME + "?start=ref_" + user.id;
-        var u = "https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent("بیا با هم بازی کنیم و الماس ببریم!");
-        if (tg && tg.openTelegramLink) tg.openTelegramLink(u); else window.open(u, "_blank");
-      };
-      window.showFriendProfile = function (i) {
-        window.haptic("light");
-        var f = window.APP_STATE.friends[i];
-        if (!f) return;
-        if (byId("fp-name")) byId("fp-name").textContent = f.name;
-        if (byId("fp-avatar")) byId("fp-avatar").textContent = f.name.charAt(0);
-        if (byId("fp-wins")) byId("fp-wins").textContent = f.wins;
-        if (byId("fp-losses")) byId("fp-losses").textContent = f.losses;
-        if (byId("fp-gems")) byId("fp-gems").textContent = f.gems;
-        if (byId("friend-modal")) byId("friend-modal").classList.add("open");
-      };
-      function initUI() {
-        var n = user.first_name || "بازیکن";
-        if (byId("header-name")) byId("header-name").textContent = n;
-        if (byId("header-gems")) byId("header-gems").textContent = window.APP_STATE.gems;
-        if (byId("prof-name")) byId("prof-name").textContent = n;
-        if (byId("prof-wins")) byId("prof-wins").textContent = window.APP_STATE.wins;
-        if (byId("prof-losses")) byId("prof-losses").textContent = window.APP_STATE.losses;
-        if (byId("prof-gems")) byId("prof-gems").textContent = window.APP_STATE.gems;
-        if (byId("invite-url-box")) byId("invite-url-box").textContent = "https://t.me/" + BOT_USERNAME + "?start=ref_" + user.id;
-        var av = byId("header-avatar"), pav = byId("prof-avatar");
-        if (user.photo_url) {
-          if (av) av.innerHTML = '<img src="' + user.photo_url + '" alt="avatar" />';
-          if (pav) pav.innerHTML = '<img src="' + user.photo_url + '" alt="avatar" />';
-        } else {
-          var ch = n.charAt(0) || "U";
-          if (av) av.textContent = ch;
-          if (pav) pav.textContent = ch;
-        }
-        var fl = byId("friends-list");
-        if (fl) {
-          fl.innerHTML = window.APP_STATE.friends.map(function (f, i) {
-            return '<div class="friend-row" onclick="window.showFriendProfile(' + i + ')"><div class="friend-left"><div class="mini-av">' + f.name.charAt(0) + '</div><div><div class="friend-name">' + f.name + '</div><div class="friend-sub">کلیک برای مشاهده پروفایل</div></div></div><div class="friend-gems">💎 ' + f.gems + '</div></div>';
-          }).join("");
-        }
-      }
-      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initUI); else initUI();
-    })();
+    var BOT = "Starsgameir_bot", TON = "UQ_YOUR_TON_WALLET_ADDRESS_HERE", CARD = "6277-6014-2080-7065", OWNER = "مهدی لایقی";
+    var tg = window.Telegram && window.Telegram.WebApp;
+    if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
+    var u = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || { id: 123456789, first_name: "بازیکن", photo_url: "" };
+    var friends = [
+      { name: "امیرحسین", wins: 22, losses: 9, gems: 1450 },
+      { name: "سارا", wins: 11, losses: 5, gems: 680 },
+      { name: "رضا", wins: 31, losses: 12, gems: 2900 }
+    ];
+    var pack = null;
+    function el(id) { return document.getElementById(id); }
+    function vib(t) { try { if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred(t || "light"); } catch (e) {} }
+    function goBot(p) {
+      vib("medium");
+      var url = "https://t.me/" + BOT + "?start=" + encodeURIComponent(p);
+      if (tg && tg.openTelegramLink) tg.openTelegramLink(url); else window.open(url, "_blank");
+    }
+    window.appTab = function (t) {
+      vib("light");
+      ["games", "shop", "friends"].forEach(function (k) {
+        if (el("pane-" + k)) el("pane-" + k).classList.toggle("active", k === t);
+        if (el("nav-" + k)) el("nav-" + k).classList.toggle("active", k === t);
+      });
+    };
+    window.appSelectCat = function (btn, cat) {
+      vib("light");
+      document.querySelectorAll(".cat-chip").forEach(function (c) { c.classList.remove("active"); });
+      if (btn) btn.classList.add("active");
+    };
+    window.appOpenProfile = function () { vib("light"); if (el("profile-modal")) el("profile-modal").classList.add("open"); };
+    window.appClose = function (id) { if (el(id)) el(id).classList.remove("open"); };
+    window.appWithdraw = function () {
+      var a = el("withdraw-amount").value.trim(), d = el("withdraw-dest").value.trim();
+      if (!a || !d) { alert("مبلغ و شماره کارت یا ولت را وارد کنید."); return; }
+      goBot("withdraw_" + a + "_" + d.replace(/\s+/g, ""));
+    };
+    window.appOpenPack = function (g, tm, tn) {
+      vib("medium");
+      pack = { g: g, tm: tm, tn: tn };
+      el("buy-pack-title").textContent = "خرید بسته " + g + " الماس";
+      el("buy-pack-sub").textContent = Number(tm).toLocaleString("fa-IR") + " تومان یا " + tn + " TON";
+      el("card-step-box").style.display = "none";
+      el("ton-step-box").style.display = "none";
+      el("buy-modal").classList.add("open");
+    };
+    window.appPay = function (m) {
+      vib("light");
+      if (!pack) return;
+      el("card-step-box").style.display = m === "card" ? "block" : "none";
+      el("ton-step-box").style.display = m === "ton" ? "block" : "none";
+      if (m === "card") el("card-info").innerHTML = "کارت: <b>" + CARD + "</b><br/>نام: <b>" + OWNER + "</b><br/>مبلغ: <b>" + Number(pack.tm).toLocaleString("fa-IR") + " تومان</b>";
+      else el("ton-info").innerHTML = "مبلغ: <b>" + pack.tn + " TON</b><br/>ولت: " + TON;
+    };
+    window.appConfirmCard = function () {
+      var r = el("buy-card-ref").value.trim();
+      if (!pack) return;
+      if (!r) { alert("۴ رقم آخر کارت یا کد پیگیری را بزنید."); return; }
+      goBot("card_" + pack.tm + "_" + r + "_g" + pack.g);
+    };
+    window.appConfirmTon = function () {
+      if (!pack) return;
+      window.open("ton://transfer/" + TON + "?amount=" + Math.round(pack.tn * 1e9) + "&text=U" + u.id + "_G" + pack.g, "_blank");
+    };
+    window.appCopyLink = function () {
+      vib("medium");
+      var l = "https://t.me/" + BOT + "?start=ref_" + u.id;
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(l).then(function () { alert("کپی شد:\n" + l); }).catch(function () { prompt("لینک:", l); });
+      else prompt("لینک:", l);
+    };
+    window.appShareLink = function () {
+      vib("medium");
+      var l = "https://t.me/" + BOT + "?start=ref_" + u.id;
+      var s = "https://t.me/share/url?url=" + encodeURIComponent(l) + "&text=" + encodeURIComponent("بیا با هم بازی کنیم!");
+      if (tg && tg.openTelegramLink) tg.openTelegramLink(s); else window.open(s, "_blank");
+    };
+    window.appFriend = function (i) {
+      vib("light");
+      var f = friends[i];
+      if (!f) return;
+      el("fp-name").textContent = f.name;
+      el("fp-wins").textContent = f.wins;
+      el("fp-losses").textContent = f.losses;
+      el("fp-gems").textContent = f.gems;
+      el("friend-modal").classList.add("open");
+    };
+    var nm = u.first_name || "بازیکن";
+    el("header-name").textContent = nm; el("prof-name").textContent = nm;
+    el("header-avatar").textContent = nm.charAt(0) || "U"; el("prof-avatar").textContent = nm.charAt(0) || "U";
+    el("invite-url-box").textContent = "https://t.me/" + BOT + "?start=ref_" + u.id;
+    el("friends-list").innerHTML = friends.map(function (f, i) {
+      return '<div class="friend-row" onclick="appFriend(' + i + ')"><div style="display:flex;align-items:center;gap:10px;"><div class="mini-av">' + f.name.charAt(0) + '</div><div><b>' + f.name + '</b><div style="font-size:11px;color:#a78bfa;">پروفایل دوست</div></div></div><b>💎 ' + f.gems + '</b></div>';
+    }).join("");
   </script>
 </body>
 </html>
