@@ -94,7 +94,7 @@
       background: var(--gold); color: #11130f; font-size: 16px; font-weight: 900; cursor: pointer;
     }
     #screen-play { background: #10130f; justify-content: flex-start; }
-    .play-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .play-header { text-align: center; margin-bottom: 4px; }
     .turn-pill {
       display: inline-block; margin: 0 auto 10px; padding: 5px 16px; border-radius: 999px;
       background: #262214; border: 1px solid rgba(250,204,21,0.35);
@@ -113,7 +113,7 @@
     .board-wrap {
       width: 100%; aspect-ratio: 1 / 1;
       border: 2px solid #c99b2e; border-radius: 8px;
-      overflow: hidden; background: #1a1e18; margin: 8px 0 14px;
+      overflow: hidden; background: #1a1e18; margin: 8px 0 12px;
       box-shadow: 0 10px 28px rgba(0,0,0,0.5);
     }
     .board-8x8 { width: 100%; height: 100%; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); }
@@ -151,6 +151,32 @@
     }
     .coord-r { position: absolute; top: 2px; left: 3px; font-size: 9px; opacity: 0.85; font-weight: 800; pointer-events: none; z-index: 1; }
     .coord-c { position: absolute; bottom: 1px; right: 3px; font-size: 9px; opacity: 0.85; font-weight: 800; pointer-events: none; z-index: 1; }
+    .exit-red-btn {
+      width: 100%; border: none; border-radius: 12px; padding: 11px;
+      background: #dc2626; color: #ffffff; font-size: 14px; font-weight: 800;
+      cursor: pointer; margin-top: 6px; box-shadow: 0 6px 18px rgba(220, 38, 38, 0.35);
+    }
+    .exit-red-btn:active { transform: scale(0.98); background: #b91c1c; }
+    .confirm-backdrop {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.78);
+      display: none; align-items: center; justify-content: center; padding: 18px; z-index: 60;
+    }
+    .confirm-backdrop.open { display: flex; }
+    .confirm-box {
+      width: 100%; max-width: 360px; background: #191c18;
+      border: 1px solid var(--border); border-radius: 18px; padding: 20px 16px;
+      text-align: center; box-shadow: 0 14px 36px rgba(0,0,0,0.6);
+    }
+    .confirm-title { font-size: 16px; font-weight: 800; margin-bottom: 18px; color: #f9fafb; }
+    .confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn-yes {
+      border: none; border-radius: 12px; padding: 11px;
+      background: #dc2626; color: #fff; font-weight: 800; font-size: 14px; cursor: pointer;
+    }
+    .btn-no {
+      border: 1px solid var(--border); border-radius: 12px; padding: 11px;
+      background: #252924; color: #f3f4f6; font-weight: 800; font-size: 14px; cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -213,8 +239,8 @@
 
         <div class="setup-label">رنگ صفحه</div>
         <div class="theme-grid" id="themeGrid">
-          <button type="button" class="theme-item" data-theme="bing">
-            <div class="mini-board" id="mb-bing"></div><span>بینگ</span>
+          <button type="button" class="theme-item" data-theme="gram">
+            <div class="mini-board" id="mb-gram"></div><span>gram</span>
           </button>
           <button type="button" class="theme-item" data-theme="blue">
             <div class="mini-board" id="mb-blue"></div><span>آبی</span>
@@ -235,9 +261,7 @@
   <section class="screen" id="screen-play">
     <div>
       <div class="play-header">
-        <button type="button" class="circle-btn" id="restartChessBtn">◩</button>
         <div style="font-size:20px;font-weight:900;color:var(--gold);">شطرنج</div>
-        <button type="button" class="circle-btn" id="exitPlayBtn">⇥</button>
       </div>
       <div style="text-align:center;">
         <div class="turn-pill" id="turnBadge">نوبت شماست</div>
@@ -256,8 +280,20 @@
         <div style="font-weight:800;font-size:14px;" id="meName">کاربر</div>
         <div class="p-avatar" id="meAvatar">ک</div>
       </div>
+
+      <button type="button" class="exit-red-btn" id="openExitConfirmBtn">خروج</button>
     </div>
   </section>
+
+  <div class="confirm-backdrop" id="exitConfirmModal">
+    <div class="confirm-box">
+      <div class="confirm-title">آیا مایل به خروج هستید؟</div>
+      <div class="confirm-actions">
+        <button type="button" class="btn-yes" id="confirmExitYes">بله</button>
+        <button type="button" class="btn-no" id="confirmExitNo">خیر</button>
+      </div>
+    </div>
+  </div>
   <script>
     const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
     if (tg) { tg.ready(); tg.expand(); }
@@ -276,7 +312,7 @@
       green: { light: "#d6e2c2", dark: "#769656", textLight: "#658447", textDark: "#e3ecd2" },
       brown: { light: "#f0d9b5", dark: "#b58863", textLight: "#a1724c", textDark: "#f5e3c6" },
       blue:  { light: "#dee3e6", dark: "#8ca2ad", textLight: "#6e8794", textDark: "#eef2f4" },
-      bing:  { light: "#e5e7eb", dark: "#14532d", textLight: "#14532d", textDark: "#e5e7eb" }
+      gram:  { light: "#e5e7eb", dark: "#14532d", textLight: "#14532d", textDark: "#e5e7eb" }
     };
 
     const INIT_BOARD = [
@@ -452,8 +488,7 @@
     function evaluateTurnPosition() {
       const moves = getAllLegalMoves(board, whiteTurn);
       const inCheck = isKingInCheck(board, whiteTurn);
-      const humanIsWhite = cfg.color === "white";
-      const isHumanTurn = (humanIsWhite && whiteTurn) || (!humanIsWhite && !whiteTurn);
+      const isHumanTurn = (humanIsWhite() && whiteTurn) || (!humanIsWhite() && !whiteTurn);
 
       if (moves.length === 0) {
         ended = true;
@@ -536,8 +571,7 @@
       ended = false;
       renderBoard();
       const canContinue = evaluateTurnPosition();
-      const humanIsWhite = cfg.color === "white";
-      const isHumanTurn = (humanIsWhite && whiteTurn) || (!humanIsWhite && !whiteTurn);
+      const isHumanTurn = (humanIsWhite() && whiteTurn) || (!humanIsWhite() && !whiteTurn);
       if (canContinue && !isHumanTurn) scheduleBotMove();
     }
 
@@ -570,10 +604,11 @@
         const alive = evaluateTurnPosition();
         if (alive) {
           const pName = PIECE_FA[pick.piece.toLowerCase()] || "مهره";
-          const checkTag = isKingInCheck(board, humanIsWhite()) ? " — کیش!" : "";
+          const checkNow = isKingInCheck(board, humanIsWhite());
+          const checkTag = checkNow ? " — کیش!" : "";
           setTurnBadge(
             `ربات ${pName} را از ${sqName(pick.from[0], pick.from[1])} به ${sqName(pick.to[0], pick.to[1])} برد${checkTag} — نوبت شماست`,
-            isKingInCheck(board, humanIsWhite())
+            checkNow
           );
         }
       }, 750);
@@ -673,11 +708,17 @@
       resetGame();
     });
 
-    document.getElementById("restartChessBtn").addEventListener("click", resetGame);
-    document.getElementById("exitPlayBtn").addEventListener("click", () => {
+    document.getElementById("openExitConfirmBtn").addEventListener("click", () => {
+      document.getElementById("exitConfirmModal").classList.add("open");
+    });
+
+    document.getElementById("confirmExitNo").addEventListener("click", () => {
+      document.getElementById("exitConfirmModal").classList.remove("open");
+    });
+
+    document.getElementById("confirmExitYes").addEventListener("click", () => {
       if (botTimer) { clearTimeout(botTimer); botTimer = null; }
-      showScreen("screen-setup");
-      document.getElementById("modeSheet").classList.add("open");
+      window.location.href = "index.html";
     });
 
     buildMiniBoards();
