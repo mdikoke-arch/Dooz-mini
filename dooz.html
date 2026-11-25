@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>دوز</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root{--bg:#090512;--card:#140c24;--neon:#a855f7;--neon2:#ec4899;--txt:#f5f3ff;--bd:rgba(168,85,247,.28)}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+    html,body{margin:0;padding:0;overflow-x:hidden;background:radial-gradient(circle at top,#241046 0%,var(--bg) 72%);color:var(--txt);font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
+    .screen{display:none;min-height:100vh;padding:16px;max-width:460px;margin:0 auto}.screen.active{display:flex;flex-direction:column;justify-content:center}
+    .box{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:20px 16px;box-shadow:0 0 28px rgba(168,85,247,.18)}
+    .title{text-align:center;font-size:22px;font-weight:900;color:#e9d5ff;margin-bottom:6px;text-shadow:0 0 14px rgba(168,85,247,.55)}
+    .bal{text-align:center;font-size:13px;font-weight:800;color:#facc15;margin-bottom:18px}
+    .stakes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+    .stake-btn{border:1px solid var(--bd);border-radius:12px;padding:12px 6px;background:#1e1236;color:#f3e8ff;font-size:14px;font-weight:900;cursor:pointer}
+    .stake-btn.active{background:linear-gradient(135deg,var(--neon),var(--neon2));color:#fff;border-color:transparent;box-shadow:0 0 16px rgba(236,72,153,.45)}
+    .start-btn{width:100%;border:none;border-radius:14px;padding:13px;background:linear-gradient(135deg,var(--neon),var(--neon2));color:#fff;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 0 20px rgba(168,85,247,.4)}
+    .err-msg{display:none;margin-top:10px;text-align:center;color:#fca5a5;background:#3b1418;border:1px solid #f87171;border-radius:10px;padding:8px 10px;font-size:13px;font-weight:800}
+    .status{text-align:center;margin:0 auto 10px;padding:6px 14px;border-radius:999px;background:#1c1033;border:1px solid var(--bd);color:#f3e8ff;font-size:12px;font-weight:800;display:inline-block}
+    .status.alert{background:#3b0d1e;border-color:#fb7185;color:#fecdd3}
+    .strip{display:flex;align-items:center;justify-content:space-between;margin:6px 0;font-size:13px;font-weight:800}
+    .grid-3x3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+    .cell{aspect-ratio:1/1;border-radius:16px;background:#1e1236;border:1.5px solid var(--bd);color:#fff;font-size:38px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 0 0 16px rgba(168,85,247,.12)}
+    .cell.x{color:#f472b6;text-shadow:0 0 14px rgba(244,114,182,.75)}
+    .cell.o{color:#38bdf8;text-shadow:0 0 14px rgba(56,189,248,.75)}
+    .cell.win{background:#31144d;border-color:#facc15;box-shadow:0 0 18px rgba(250,204,21,.45)}
+    .exit-btn{width:100%;border:none;border-radius:12px;padding:11px;background:#e11d48;color:#fff;font-size:14px;font-weight:800;cursor:pointer;margin-top:8px}
+  </style>
+</head>
+<body>
+  <section class="screen active" id="scr-lobby">
+    <div class="box">
+      <div class="title">❌⭕ دوز شرطی</div>
+      <div class="bal" id="balTxt">💎 ۰ الماس</div>
+      <div class="stakes">
+        <button type="button" class="stake-btn active" data-stake="100">100 💎</button>
+        <button type="button" class="stake-btn" data-stake="200">200 💎</button>
+        <button type="button" class="stake-btn" data-stake="300">300 💎</button>
+      </div>
+      <button type="button" class="start-btn" id="startBtn">شروع بازی</button>
+      <div class="err-msg" id="errMsg">موجودی برای بازی کافی نیست</div>
+    </div>
+  </section>
+  <section class="screen" id="scr-game">
+    <div class="box">
+      <div class="title">❌⭕ دوز</div>
+      <div style="text-align:center"><div class="status" id="statusTxt">در حال اتصال...</div></div>
+      <div class="strip"><span id="oppTxt">حریف</span><span id="potTxt"></span></div>
+      <div class="grid-3x3" id="board3"></div>
+      <div class="strip"><span id="meTxt">کاربر</span><span id="gameBalTxt"></span></div>
+      <button type="button" class="exit-btn" id="exitBtn">خروج</button>
+    </div>
+  </section>
+  <script>
+    const DB_URL="https://savash-c4207-default-rtdb.europe-west1.firebasedatabase.app",KEY="mini_games_state_v1",FEE=.1;
+    const WINS=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    const tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;if(tg){tg.ready();tg.expand()}
+    const u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user,myId=(u&&u.id)?String(u.id):("u_"+Math.random().toString(36).slice(2,8));
+    const state=(()=>{const d={name:(u&&u.first_name)||"کاربر",gems:0};try{const r=localStorage.getItem(KEY);return r?{...d,...JSON.parse(r),name:d.name}:d}catch(_){return d}})();
+    let stake=100,activeStake=0,roomId=null,seq=0,myMark="X",ended=false,settled=false,poll=null,cells=Array(9).fill(""),turn="X",winLine=[];
+    const saveState=()=>{localStorage.setItem(KEY,JSON.stringify(state));refreshUI()};
+    function refreshUI(){const t=`💎 ${state.gems} الماس`;document.getElementById("balTxt").textContent=t;document.getElementById("gameBalTxt").textContent=t;document.getElementById("meTxt").textContent=state.name;document.getElementById("potTxt").textContent=activeStake?`شرط: ${activeStake} 💎`:"";}
+    function showErr(){const m="موجودی برای بازی کافی نیست",e=document.getElementById("errMsg");e.textContent=m;e.style.display="block";try{if(tg&&tg.showPopup)tg.showPopup({title:"خطا",message:m,buttons:[{type:"ok"}]});else alert(m)}catch(_){alert(m)}}
+    const payout=()=>Math.round(activeStake*2*(1-FEE));
+    function checkWin(b){for(const l of WINS){const[a,c,d]=l;if(b[a]&&b[a]===b[c]&&b[a]===b[d])return{w:b[a],l}}return b.every(Boolean)?{w:"draw",l:[]}:null}
+    function finish(w){if(settled||!activeStake)return;settled=true;if(w==="draw"){state.gems+=activeStake;saveState()}else if(w===myMark){state.gems+=payout();saveState()}}
+    function setSt(txt,al=false){const e=document.getElementById("statusTxt");e.textContent=txt;e.classList.toggle("alert",al)}
+    function evalBoard(){const res=checkWin(cells);if(res){ended=true;winLine=res.l;render();finish(res.w);
+      if(res.w==="draw")setSt(`مساوی شد! (+${activeStake} 💎 برگشت)`);
+      else if(res.w===myMark)setSt(`بردی! (+${payout()} 💎)`,true);
+      else setSt("حریف برنده شد!",true);return false}
+      setSt(turn===myMark?`نوبت شماست (${myMark})`:`نوبت حریف (${turn})...`);return true}
+    function render(){const el=document.getElementById("board3");el.innerHTML="";cells.forEach((v,i)=>{const d=document.createElement("div");d.className="cell "+(v==="X"?"x":v==="O"?"o":"")+(winLine.includes(i)?" win":"");d.textContent=v;d.addEventListener("click",()=>playCell(i));el.appendChild(d)})}
+    const stopPoll=()=>{if(poll){clearInterval(poll);poll=null}};
+    async function fb(path,m="GET",body=null){const u=`${DB_URL.replace(/\/+$/,"")}/${path}.json`,o={method:m,headers:{"Content-Type":"application/json"}};if(body!==null)o.body=JSON.stringify(body);const r=await fetch(u,o);return r.ok?r.json():null}
+    function resetBoard(){cells=Array(9).fill("");turn="X";ended=false;settled=false;winLine=[];seq=0;render();evalBoard()}
+    async function matchmake(st){
+      stopPoll();roomId=null;document.getElementById("oppTxt").textContent="حریف: در حال جستجو...";setSt(`جستجوی حریف دوز (${st} 💎)...`);
+      const qN=`dooz_q_${st}`,rN=`dooz_r_${st}`,q=await fb(qN);
+      if(q)for(const[k,v]of Object.entries(q))if(v&&v.h&&v.h!==myId&&!v.g&&(Date.now()-(v.ts||0))<180000){
+        myMark="O";roomId=v.id;await fb(`${qN}/${k}`,"PATCH",{g:myId,gn:state.name});await fb(`${rN}/${roomId}`,"PATCH",{g:myId,gn:state.name});
+        document.getElementById("oppTxt").textContent="حریف: "+(v.hn||"بازیکن");resetBoard();syncLoop(rN);return}
+      roomId=`dz_${st}_${myId}_${Date.now().toString(36)}`;myMark="X";const qK="q_"+myId;
+      await fb(`${qN}/${qK}`,"PUT",{h:myId,hn:state.name,id:roomId,ts:Date.now()});
+      await fb(`${rN}/${roomId}`,"PUT",{h:myId,hn:state.name,g:null,gn:null,seq:0,mv:null});
+      poll=setInterval(async()=>{if(ended)return;const d=await fb(`${rN}/${roomId}`);if(d&&d.g){stopPoll();await fb(`${qN}/${qK}`,"DELETE");document.getElementById("oppTxt").textContent="حریف: "+(d.gn||"بازیکن");resetBoard();syncLoop(rN)}},1500);
+    }
+    function syncLoop(rN){stopPoll();poll=setInterval(async()=>{if(!roomId||ended)return;const d=await fb(`${rN}/${roomId}`);if(!d||!d.mv||d.mv.by===myId||(d.seq||0)<=seq)return;seq=d.seq;const idx=d.mv.idx;if(!cells[idx]){cells[idx]=d.mv.mk;turn=d.mv.mk==="X"?"O":"X";render();evalBoard()}},1200)}
+    async function sendMove(idx){if(!roomId||!activeStake)return;seq+=1;await fb(`dooz_r_${activeStake}/${roomId}`,"PATCH",{seq,mv:{idx,mk:myMark,by:myId,ts:Date.now()}})}
+    function playCell(i){if(ended||turn!==myMark||cells[i])return;cells[i]=myMark;turn=myMark==="X"?"O":"X";render();sendMove(i);evalBoard()}
+    document.querySelectorAll(".stake-btn").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".stake-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");stake=Number(b.dataset.stake);document.getElementById("errMsg").style.display="none"}));
+    document.getElementById("startBtn").addEventListener("click",()=>{if(state.gems<stake){showErr();return}document.getElementById("errMsg").style.display="none";state.gems-=stake;activeStake=stake;saveState();document.getElementById("scr-lobby").classList.remove("active");document.getElementById("scr-game").classList.add("active");matchmake(stake)});
+    document.getElementById("exitBtn").addEventListener("click",()=>{stopPoll();activeStake=0;refreshUI();document.getElementById("scr-game").classList.remove("active");document.getElementById("scr-lobby").classList.add("active")});
+    refreshUI();render();
+  </script>
+</body>
+</html>
