@@ -20,9 +20,6 @@
     .mode-card.solo{background:#262925}.mode-card.pub{background:linear-gradient(135deg,#1b6b45,#12482e);border-color:rgba(52,211,153,.35)}.mode-card.friends{background:linear-gradient(135deg,#5d4b18,#3d3110);border-color:rgba(250,204,21,.35)}
     .mode-title{font-size:16px;font-weight:800;margin-bottom:3px}.mode-desc{font-size:12px;color:#e5e7eb;line-height:1.45}
     .pill-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(0,0,0,.35);margin-right:6px}.mode-ico{font-size:24px}
-    .stake-box{display:none;margin-bottom:10px;padding:12px;border-radius:16px;background:#141713;border:1px solid rgba(52,211,153,.35)}.stake-box.open{display:block}
-    .stake-title{font-size:13px;font-weight:800;color:#6ee7b7;margin-bottom:10px;text-align:center}.stake-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    .stake-btn{border:1px solid rgba(250,204,21,.35);border-radius:12px;padding:11px 6px;background:#232822;color:var(--gold);font-size:13px;font-weight:900;cursor:pointer}
     #screen-setup{background:var(--green-bg);justify-content:flex-start}.top-bar-simple{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
     .page-gold-title{text-align:center;font-size:22px;font-weight:900;color:var(--gold);margin:2px 0 16px}.setup-box{background:#171a16;border:1px solid var(--border);border-radius:20px;padding:18px 16px;box-shadow:0 12px 32px rgba(0,0,0,.45)}
     .setup-label{text-align:center;font-size:15px;font-weight:700;margin:14px 0 10px;color:#f3f4f6}.setup-label:first-child{margin-top:0}
@@ -53,14 +50,6 @@
       <div class="sheet-sub">چطوری می‌خوای بازی کنی؟</div>
       <button type="button" class="mode-card solo" id="btnSolo"><div><div class="mode-title">تک‌نفره</div><div class="mode-desc">همین حالا با ربات‌ها بازی کن؛ منتظر کسی نمی‌مونی</div></div><div class="mode-ico">🤖</div></button>
       <button type="button" class="mode-card pub" id="btnPublic"><div><div class="mode-title">اتاق عمومی <span class="pill-badge">شرط ۱۰۰، ۲۰۰، ۳۰۰ 💎</span></div><div class="mode-desc">با بازیکن‌های تصادفی هم‌میز شو؛ بازی خودش شروع می‌شه</div></div><div class="mode-ico">⚡</div></button>
-      <div class="stake-box" id="publicStakeBox">
-        <div class="stake-title">مبلغ شرط را انتخاب کنید:</div>
-        <div class="stake-grid">
-          <button type="button" class="stake-btn" data-stake="100">۱۰۰ الماس</button>
-          <button type="button" class="stake-btn" data-stake="200">۲۰۰ الماس</button>
-          <button type="button" class="stake-btn" data-stake="300">۳۰۰ الماس</button>
-        </div>
-      </div>
       <button type="button" class="mode-card friends" id="btnFriends"><div><div class="mode-title">با دوستام <span class="pill-badge">میزبان: خودت</span></div><div class="mode-desc">میزبان خودتی؛ دوستات رو دعوت کن و هر وقت آماده بودی شروع کن</div></div><div class="mode-ico">🔒</div></button>
     </div>
   </div>
@@ -68,10 +57,16 @@
     <div class="top-bar-simple"><button type="button" class="circle-btn" id="backToModeBtn">→</button><div style="font-size:12px;color:#d1fae5;font-weight:700;" id="setupGemTxt">💎 ۰ الماس</div></div>
     <div class="page-gold-title">شطرنج</div>
     <div class="setup-box">
-      <div class="setup-label">♟ سطح حریفت رو انتخاب کن</div>
-      <div class="level-bar"><button type="button" class="level-btn" data-lvl="easy">آسان</button><button type="button" class="level-btn active" data-lvl="medium">متوسط</button><button type="button" class="level-btn" data-lvl="hard">سخت</button></div>
-      <div class="setup-label">رنگ مهره‌ها</div>
-      <div class="color-row"><button type="button" class="color-card" data-col="black"><span>♟</span><span>سیاه</span></button><button type="button" class="color-card active" data-col="white"><span>♔</span><span>سفید</span></button></div>
+      <div id="soloControls">
+        <div class="setup-label">♟ سطح حریفت رو انتخاب کن</div>
+        <div class="level-bar"><button type="button" class="level-btn" data-lvl="easy">آسان</button><button type="button" class="level-btn active" data-lvl="medium">متوسط</button><button type="button" class="level-btn" data-lvl="hard">سخت</button></div>
+        <div class="setup-label">رنگ مهره‌ها</div>
+        <div class="color-row"><button type="button" class="color-card" data-col="black"><span>♟</span><span>سیاه</span></button><button type="button" class="color-card active" data-col="white"><span>♔</span><span>سفید</span></button></div>
+      </div>
+      <div id="publicControls" style="display:none;">
+        <div class="setup-label">💎 مبلغ شرط رو انتخاب کن</div>
+        <div class="level-bar"><button type="button" class="stake-btn active" data-stake="100">۱۰۰ الماس</button><button type="button" class="stake-btn" data-stake="200">۲۰۰ الماس</button><button type="button" class="stake-btn" data-stake="300">۳۰۰ الماس</button></div>
+      </div>
       <div class="setup-label">رنگ صفحه</div>
       <div class="theme-grid" id="themeGrid">
         <button type="button" class="theme-item" data-theme="gram"><div class="mini-board" id="mb-gram"></div><span>gram</span></button>
@@ -104,7 +99,7 @@
     const THEMES={green:{light:"#d6e2c2",dark:"#769656",textLight:"#658447",textDark:"#e3ecd2"},brown:{light:"#f0d9b5",dark:"#b58863",textLight:"#a1724c",textDark:"#f5e3c6"},blue:{light:"#dee3e6",dark:"#8ca2ad",textLight:"#6e8794",textDark:"#eef2f4"},gram:{light:"#e5e7eb",dark:"#14532d",textLight:"#14532d",textDark:"#e5e7eb"}};
     const INIT_BOARD=[["r","n","b","q","k","b","n","r"],["p","p","p","p","p","p","p","p"],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["P","P","P","P","P","P","P","P"],["R","N","B","Q","K","B","N","R"]];
     const GLYPHS={K:"♔",Q:"♕",R:"♖",B:"♗",N:"♘",P:"♙",k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"},PIECE_FA={p:"پیاده",n:"اسب",b:"فیل",r:"رخ",q:"وزیر",k:"شاه"},PIECE_VAL={p:1,n:3,b:3,r:5,q:9,k:0};
-    let matchMode="solo",currentStake=0,cfg={level:"medium",color:"white",theme:"green"},board=[],selected=null,targets=[],lastMove=null,whiteTurn=true,botThinking=false,ended=false,botTimer=null,pollTimer=null,roomId=null,lastSyncedSeq=0,mySideIsWhite=true,rewardSettled=false;
+    let matchMode="solo",selectedStake=100,currentStake=0,cfg={level:"medium",color:"white",theme:"green"},board=[],selected=null,targets=[],lastMove=null,whiteTurn=true,botThinking=false,ended=false,botTimer=null,pollTimer=null,roomId=null,lastSyncedSeq=0,mySideIsWhite=true,rewardSettled=false;
     const isW=p=>!!p&&p===p.toUpperCase(),isB=p=>!!p&&p===p.toLowerCase(),inside=(r,c)=>r>=0&&r<8&&c>=0&&c<8,sqName=(r,c)=>`${"abcdefgh"[c]}${8-r}`,cloneBoard=b=>b.map(row=>[...row]);
     function buildMiniBoards(){Object.keys(THEMES).forEach(k=>{const mb=document.getElementById("mb-"+k);if(!mb)return;mb.innerHTML="";for(let i=0;i<9;i++){const d=document.createElement("div");d.style.background=i%2===0?THEMES[k].light:THEMES[k].dark;mb.appendChild(d)}})}
     function syncHeaderInfo(){const n=state.name||"کاربر";document.getElementById("meName").textContent=n;document.getElementById("meAvatar").textContent=n.trim().charAt(0).toUpperCase()||"ک";document.getElementById("setupGemTxt").textContent=`💎 ${state.gems} الماس`}
@@ -165,15 +160,19 @@
     function handleSq(r,c){if(ended||botThinking)return;const mine=(mySideIsWhite&&whiteTurn)||(!mySideIsWhite&&!whiteTurn);if(!mine)return;if(selected&&targets.some(([tr,tc])=>tr===r&&tc===c)){const[sr,sc]=selected,p=board[sr][sc];board=applyMoveOnBoard(board,sr,sc,r,c);selected=null;targets=[];lastMove={from:[sr,sc],to:[r,c]};whiteTurn=!whiteTurn;renderBoard();if(matchMode==="public")pushMoveToRoom([sr,sc],[r,c],p);if(evaluateTurnPosition()&&matchMode==="solo")scheduleBotMove();return}const p=board[r][c];if(p&&(mySideIsWhite?isW(p):isB(p))){selected=[r,c];targets=getLegalMoves(board,r,c)}else{selected=null;targets=[]}renderBoard()}
     const showScreen=id=>{document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")};
     document.getElementById("closeSheetBtn").addEventListener("click",()=>{document.getElementById("modeSheet").classList.remove("open");window.location.href="index.html"});
-    document.getElementById("btnSolo").addEventListener("click",()=>{stopPolling();matchMode="solo";currentStake=0;roomId=null;setOpponentLabel("ربات");document.getElementById("modeSheet").classList.remove("open");syncHeaderInfo();showScreen("screen-setup")});
-    document.getElementById("btnPublic").addEventListener("click",()=>document.getElementById("publicStakeBox").classList.toggle("open"));
-    document.querySelectorAll(".stake-btn").forEach(btn=>btn.addEventListener("click",()=>{const st=Number(btn.dataset.stake);if(state.gems<st){notifyInsufficient();return}state.gems-=st;saveGems();currentStake=st;matchMode="public";document.getElementById("publicStakeBox").classList.remove("open");document.getElementById("modeSheet").classList.remove("open");syncHeaderInfo();showScreen("screen-play");resetGame();joinPublicQueue(st)}));
+    document.getElementById("btnSolo").addEventListener("click",()=>{stopPolling();matchMode="solo";currentStake=0;roomId=null;setOpponentLabel("ربات");document.getElementById("soloControls").style.display="block";document.getElementById("publicControls").style.display="none";document.getElementById("modeSheet").classList.remove("open");syncHeaderInfo();showScreen("screen-setup")});
+    document.getElementById("btnPublic").addEventListener("click",()=>{stopPolling();matchMode="public";roomId=null;setOpponentLabel("حریف تصادفی");document.getElementById("soloControls").style.display="none";document.getElementById("publicControls").style.display="block";document.getElementById("modeSheet").classList.remove("open");syncHeaderInfo();showScreen("screen-setup")});
+    document.querySelectorAll(".stake-btn").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".stake-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");selectedStake=Number(b.dataset.stake)}));
     document.getElementById("btnFriends").addEventListener("click",()=>{if(tg&&tg.showPopup)tg.showPopup({title:"با دوستام",message:"دعوت از دوستان به زودی فعال می‌شود.",buttons:[{type:"ok"}]})});
     document.getElementById("backToModeBtn").addEventListener("click",()=>{stopPolling();document.getElementById("modeSheet").classList.add("open")});
     document.querySelectorAll(".level-btn").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".level-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");cfg.level=b.dataset.lvl}));
     document.querySelectorAll(".color-card").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".color-card").forEach(x=>x.classList.remove("active"));b.classList.add("active");cfg.color=b.dataset.col}));
     document.querySelectorAll(".theme-item").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".theme-item").forEach(x=>x.classList.remove("active"));b.classList.add("active");cfg.theme=b.dataset.theme}));
-    document.getElementById("startMatchBtn").addEventListener("click",()=>{stopPolling();matchMode="solo";currentStake=0;setOpponentLabel("ربات");syncHeaderInfo();showScreen("screen-play");resetGame()});
+    document.getElementById("startMatchBtn").addEventListener("click",()=>{
+      if(matchMode==="public"){
+        if(state.gems<selectedStake){notifyInsufficient();return}
+        state.gems-=selectedStake;saveGems();currentStake=selectedStake;showScreen("screen-play");resetGame();joinPublicQueue(selectedStake);return}
+      stopPolling();matchMode="solo";currentStake=0;setOpponentLabel("ربات");syncHeaderInfo();showScreen("screen-play");resetGame()});
     document.getElementById("openExitConfirmBtn").addEventListener("click",()=>document.getElementById("exitConfirmModal").classList.add("open"));
     document.getElementById("confirmExitNo").addEventListener("click",()=>document.getElementById("exitConfirmModal").classList.remove("open"));
     document.getElementById("confirmExitYes").addEventListener("click",()=>{stopPolling();if(botTimer){clearTimeout(botTimer);botTimer=null}window.location.href="index.html"});
