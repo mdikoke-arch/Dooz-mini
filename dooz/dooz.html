@@ -156,5 +156,57 @@
     document.getElementById("goBack").onclick=()=>{location.href="../index.html"};
     render();syncRoom();setInterval(syncRoom,1500);
   </script>
+<script>
+(function(){
+  if (window.__savashSfxLoaded) return;
+  window.__savashSfxLoaded = true;
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  let ctx = null;
+  function ensureCtx(){
+    if (!AudioCtx) return null;
+    if (!ctx) ctx = new AudioCtx();
+    if (ctx.state === "suspended") ctx.resume().catch(()=>{});
+    return ctx;
+  }
+  window.playSfx = function(kind){
+    const c = ensureCtx();
+    if (!c) return;
+    const now = c.currentTime;
+    const osc = c.createOscillator();
+    const gain = c.createGain();
+    osc.connect(gain);
+    gain.connect(c.destination);
+    if (kind === "o") {
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(780, now + 0.09);
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+      osc.start(now); osc.stop(now + 0.11);
+    } else if (kind === "win") {
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(587.33, now);
+      osc.frequency.setValueAtTime(880, now + 0.1);
+      gain.gain.setValueAtTime(0.16, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+      osc.start(now); osc.stop(now + 0.26);
+    } else {
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(420, now);
+      osc.frequency.exponentialRampToValueAtTime(260, now + 0.06);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+      osc.start(now); osc.stop(now + 0.07);
+    }
+  };
+  document.addEventListener("pointerdown", function(e){
+    const el = e.target && e.target.closest ? e.target.closest("button, .btn, .cell, [role='button']") : null;
+    if (!el) return;
+    const txt = (el.innerText || "").trim();
+    if (txt === "O") window.playSfx("o");
+    else window.playSfx("click");
+  }, { passive: true, capture: true });
+})();
+</script>
 </body>
 </html>
