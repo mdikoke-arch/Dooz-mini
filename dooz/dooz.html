@@ -43,7 +43,7 @@
     const u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user;
     const uid=qs.get("uid")||((u&&u.id)?String(u.id):"guest");
     const roomId=qs.get("room")||"dooz_demo";
-    const mySym=(qs.get("sym")==="O")?"O":"X";
+    const mySym=(qs.get("sym")==="1")?"O":"X";
     let st=(()=>{const d={name:(u&&u.first_name)||"کاربر",sav:0};try{return{...d,...JSON.parse(localStorage.getItem(K)||"{}"),name:d.name}}catch(_){return d}})();
     let room=null,sending=false;
     const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
