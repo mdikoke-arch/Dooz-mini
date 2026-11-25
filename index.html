@@ -3,297 +3,79 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Dooz Mini</title>
+  <title>ساواش گیم | SAV</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    :root {
-      --bg: #07050c;
-      --card: #120d1f;
-      --card-2: #1b1330;
-      --border: rgba(168, 85, 247, 0.28);
-      --neon: #a855f7;
-      --neon-bright: #d8b4fe;
-      --text: #f5f3ff;
-      --muted: #9e93bd;
-    }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-    body {
-      margin: 0; padding: 0 0 78px 0;
-      font-family: system-ui, -apple-system, sans-serif;
-      background: radial-gradient(circle at top, #1d0e38 0%, var(--bg) 60%);
-      color: var(--text); min-height: 100vh;
-    }
-    .app { max-width: 460px; margin: 0 auto; padding: 14px; }
-    .topbar {
-      display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
-      padding: 10px 14px; box-shadow: 0 0 24px rgba(168, 85, 247, 0.14); margin-bottom: 14px;
-    }
-    .user-box { display: flex; flex-direction: column; gap: 2px; }
-    .user-name { font-weight: 700; font-size: 14px; color: var(--neon-bright); }
-    .user-sub { font-size: 11px; color: var(--muted); }
-    .gem-pill {
-      background: rgba(168, 85, 247, 0.16); border: 1px solid rgba(168, 85, 247, 0.5);
-      color: #fff; padding: 6px 12px; border-radius: 999px; font-weight: 700; font-size: 13px;
-      box-shadow: 0 0 14px rgba(168, 85, 247, 0.35);
-    }
-    .panel {
-      display: none; background: var(--card); border: 1px solid var(--border);
-      border-radius: 18px; padding: 14px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
-    }
-    .panel.active { display: block; }
-    .section-title { margin: 0 0 10px 0; font-size: 15px; font-weight: 700; color: var(--neon-bright); }
-    .bet-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
-    .bet-btn {
-      background: var(--card-2); color: var(--text); border: 1px solid var(--border);
-      border-radius: 12px; padding: 8px 4px; font-size: 12px; font-weight: 700; cursor: pointer;
-    }
-    .bet-btn.active {
-      background: var(--neon); color: #fff; border-color: var(--neon-bright);
-      box-shadow: 0 0 14px rgba(168, 85, 247, 0.6);
-    }
-    .status-box {
-      text-align: center; font-size: 13px; padding: 10px; border-radius: 12px;
-      background: var(--card-2); border: 1px solid rgba(255, 255, 255, 0.06);
-      margin-bottom: 12px; min-height: 40px; display: flex; align-items: center; justify-content: center;
-    }
-    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
-    .cell {
-      aspect-ratio: 1 / 1; background: var(--card-2); border: 1.5px solid var(--border);
-      border-radius: 16px; font-size: 32px; font-weight: 800; color: var(--text);
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-    }
-    .cell:active { transform: scale(0.95); }
-    .cell.x { color: #e879f9; text-shadow: 0 0 14px rgba(232, 121, 249, 0.65); }
-    .cell.o { color: #38bdf8; text-shadow: 0 0 14px rgba(56, 189, 248, 0.65); }
-    .primary-btn {
-      width: 100%; padding: 12px; border: none; border-radius: 14px;
-      background: linear-gradient(135deg, #9333ea, #c026d3); color: #fff;
-      font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
-    }
-    .list-item {
-      display: flex; align-items: center; justify-content: space-between; padding: 12px;
-      border-radius: 14px; background: var(--card-2); border: 1px solid rgba(255, 255, 255, 0.06);
-      margin-bottom: 8px; font-size: 13px;
-    }
-    .small-btn {
-      background: var(--neon); color: #fff; border: none; border-radius: 10px;
-      padding: 7px 12px; font-size: 12px; font-weight: 700; cursor: pointer;
-    }
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; background: #0d0818;
-      border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(3, 1fr);
-      padding: 8px 6px calc(8px + env(safe-area-inset-bottom)); z-index: 20;
-    }
-    .nav-btn {
-      background: transparent; border: none; color: var(--muted);
-      font-size: 12px; font-weight: 700; padding: 6px; border-radius: 10px; cursor: pointer;
-    }
-    .nav-btn.active { color: #fff; background: rgba(168, 85, 247, 0.22); }
+    :root{--bg:#090512;--card:#140c24;--neon:#a855f7;--neon2:#ec4899;--gold:#facc15;--txt:#f5f3ff;--mut:#a78bfa;--bd:rgba(168,85,247,.26)}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+    html,body{margin:0;padding:0;overflow-x:hidden;background:radial-gradient(circle at top,#241046 0%,var(--bg) 72%);color:var(--txt);font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
+    .app{max-width:460px;margin:0 auto;padding:14px 14px 86px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:10px 14px;margin-bottom:14px}
+    .user-box{display:flex;align-items:center;gap:10px}
+    .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--neon),var(--neon2));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff}
+    .uname{font-size:14px;font-weight:800}.uid{font-size:11px;color:var(--mut)}
+    .sav-pill{display:flex;align-items:center;gap:7px;background:#1e1236;border:1px solid rgba(250,204,21,.45);padding:6px 12px;border-radius:999px;font-weight:900;font-size:14px;color:var(--gold)}
+    .sav-coin{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fef08a,#eab308 65%,#a16207);border:1.5px solid #fffbeb;color:#422006;font-size:11px;font-weight:900;display:inline-flex;align-items:center;justify-content:center}
+    .hero{background:linear-gradient(135deg,#2b1254,#170b2e);border:1px solid var(--bd);border-radius:20px;padding:16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .hero h2{margin:0 0 4px;font-size:17px;font-weight:900}.hero p{margin:0;font-size:12px;color:#c4b5fd}
+    .daily-btn{border:none;border-radius:12px;padding:10px 12px;background:linear-gradient(135deg,#facc15,#f59e0b);color:#1f1300;font-weight:900;font-size:12px;cursor:pointer}
+    .daily-btn:disabled{opacity:.5}
+    .sec-title{font-size:15px;font-weight:900;color:#e9d5ff;margin:10px 2px}
+    .games-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .g-card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px 12px;text-align:center;cursor:pointer}
+    .g-card.live{border-color:rgba(236,72,153,.55);box-shadow:0 0 20px rgba(168,85,247,.2)}
+    .g-card.soon{opacity:.62;cursor:default}
+    .g-ico{font-size:34px;margin-bottom:6px}.g-name{font-size:15px;font-weight:900;margin-bottom:4px}
+    .g-tag{display:inline-block;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(168,85,247,.2);color:#e9d5ff}
+    .g-card.live .g-tag{background:linear-gradient(135deg,var(--neon),var(--neon2));color:#fff}
   </style>
 </head>
 <body>
   <div class="app">
-    <div class="topbar">
+    <header class="topbar">
       <div class="user-box">
-        <div class="user-name" id="playerName">بازیکن</div>
-        <div class="user-sub" id="playerStats">برد: 0 | باخت: 0</div>
+        <div class="avatar" id="avTxt">ک</div>
+        <div><div class="uname" id="nameTxt">کاربر</div><div class="uid" id="idTxt">ID: ---</div></div>
       </div>
-      <div class="gem-pill" id="gemBalance">💎 500</div>
+      <div class="sav-pill"><span class="sav-coin">S</span><span id="savBal">0 SAV</span></div>
+    </header>
+    <div class="hero">
+      <div><h2>میدان رقابت ساواش</h2><p>با کوین SAV شرط ببند و جایزه ببر</p></div>
+      <button type="button" class="daily-btn" id="dailyBtn">🎁 +15 SAV</button>
     </div>
-    <section class="panel active" id="tab-play">
-      <h2 class="section-title">دوز شرطی (مقابل ربات)</h2>
-      <div class="bet-row" id="betRow">
-        <button type="button" class="bet-btn active" data-bet="50">50 💎</button>
-        <button type="button" class="bet-btn" data-bet="100">100 💎</button>
-        <button type="button" class="bet-btn" data-bet="250">250 💎</button>
-        <button type="button" class="bet-btn" data-bet="500">500 💎</button>
-      </div>
-      <div class="status-box" id="statusBox">شرط را انتخاب کن و حرکت اول (X) را بزن</div>
-      <div class="board" id="board"></div>
-      <button type="button" class="primary-btn" id="restartBtn">شروع دست جدید</button>
-    </section>
-    <section class="panel" id="tab-shop">
-      <h2 class="section-title">فروشگاه الماس</h2>
-      <div class="list-item">
-        <span>بسته تست رایگان روزانه (+200 💎)</span>
-        <button type="button" class="small-btn" id="claimFreeBtn">دریافت</button>
-      </div>
-      <div class="list-item">
-        <span>بسته 500 الماس</span>
-        <button type="button" class="small-btn" data-pack="500">+500</button>
-      </div>
-      <div class="list-item">
-        <span>بسته 1500 الماس</span>
-        <button type="button" class="small-btn" data-pack="1500">+1500</button>
-      </div>
-    </section>
-    <section class="panel" id="tab-rank">
-      <h2 class="section-title">جدول امتیازات</h2>
-      <div id="rankList"></div>
-    </section>
+    <div class="sec-title">🎮 بازی‌ها</div>
+    <div class="games-grid">
+      <div class="g-card live" id="openDooz"><div class="g-ico">❌⭕</div><div class="g-name">دوز</div><div class="g-tag">100-300 SAV</div></div>
+      <div class="g-card live" id="openChess"><div class="g-ico">♟️</div><div class="g-name">شطرنج</div><div class="g-tag">100-300 SAV</div></div>
+      <div class="g-card soon"><div class="g-ico">🃏</div><div class="g-name">حکم</div><div class="g-tag">به زودی</div></div>
+      <div class="g-card soon"><div class="g-ico">🎲</div><div class="g-name">تخته نرد</div><div class="g-tag">به زودی</div></div>
+    </div>
   </div>
-  <nav class="bottom-nav">
-    <button type="button" class="nav-btn active" data-tab="play">🎮 بازی</button>
-    <button type="button" class="nav-btn" data-tab="shop">💎 شاپ</button>
-    <button type="button" class="nav-btn" data-tab="rank">🏆 رنکینگ</button>
-  </nav>
   <script>
-    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-    if (tg) { tg.ready(); tg.expand(); }
-
-    const STORAGE_KEY = "dooz_mini_state_v1";
-    const WIN_LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-
-    function haptic(type = "impact") {
-      try {
-        if (!tg || !tg.HapticFeedback) return;
-        if (type === "success" || type === "error") tg.HapticFeedback.notificationOccurred(type);
-        else tg.HapticFeedback.impactOccurred("light");
-      } catch (_) {}
+    const DB_URL="https://savash-c4207-default-rtdb.europe-west1.firebasedatabase.app",K="savash_coin_state_v1";
+    const tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
+    if(tg){tg.ready();tg.expand()}
+    const u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user;
+    const uid=(u&&u.id)?String(u.id):("u_"+(localStorage.getItem("savash_gid")||(()=>{const g=Math.random().toString(36).slice(2,8);localStorage.setItem("savash_gid",g);return g})()));
+    let st=(()=>{const d={name:(u&&u.first_name)||"کاربر",sav:0,lastDaily:""};try{return{...d,...JSON.parse(localStorage.getItem(K)||"{}"),name:d.name}}catch(_){return d}})();
+    function save(){localStorage.setItem(K,JSON.stringify(st));render()}
+    function render(){
+      const t=Number(st.sav||0).toLocaleString("en-US")+" SAV";
+      document.getElementById("nameTxt").textContent=st.name;document.getElementById("idTxt").textContent="ID: "+uid;
+      document.getElementById("avTxt").textContent=(st.name||"ک").trim().charAt(0).toUpperCase();
+      document.getElementById("savBal").textContent=t;
+      const td=new Date().toISOString().slice(0,10),b=document.getElementById("dailyBtn");
+      b.disabled=(st.lastDaily===td);b.textContent=(st.lastDaily===td)?"✅ دریافت شد":"🎁 +15 SAV";
     }
-
-    function loadState() {
-      const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
-      const defaultName = tgUser ? (tgUser.first_name || "بازیکن") : "بازیکن";
-      const fallback = { name: defaultName, gems: 500, wins: 0, losses: 0, bet: 50 };
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? { ...fallback, ...JSON.parse(raw), name: defaultName } : fallback;
-      } catch (_) { return fallback; }
-    }
-
-    let state = loadState();
-    let grid = Array(9).fill(null);
-    let roundActive = false;
-    let locked = false;
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      renderHeader();
-      renderLeaderboard();
-    }
-
-    function renderHeader() {
-      document.getElementById("playerName").textContent = state.name;
-      document.getElementById("playerStats").textContent = `برد: ${state.wins} | باخت: ${state.losses}`;
-      document.getElementById("gemBalance").textContent = `💎 ${state.gems}`;
-    }
-
-    function renderLeaderboard() {
-      const rows = [
-        { name: state.name + " (شما)", gems: state.gems },
-        { name: "Savash_Pro", gems: 1850 },
-        { name: "NeonKing", gems: 1200 },
-        { name: "RiskMaster", gems: 820 }
-      ].sort((a, b) => b.gems - a.gems);
-      document.getElementById("rankList").innerHTML = rows
-        .map((r, i) => `<div class="list-item"><span>#${i + 1} ${r.name}</span><strong>💎 ${r.gems}</strong></div>`)
-        .join("");
-    }
-
-    function checkWinner(b) {
-      for (const [a, c, d] of WIN_LINES) {
-        if (b[a] && b[a] === b[c] && b[a] === b[d]) return b[a];
-      }
-      return b.every(Boolean) ? "DRAW" : null;
-    }
-
-    function renderBoard() {
-      const boardEl = document.getElementById("board");
-      boardEl.innerHTML = "";
-      grid.forEach((val, idx) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "cell" + (val === "X" ? " x" : val === "O" ? " o" : "");
-        btn.textContent = val || "";
-        btn.addEventListener("click", () => onCellClick(idx));
-        boardEl.appendChild(btn);
-      });
-    }
-    function startNewRound() {
-      if (state.gems < state.bet) {
-        document.getElementById("statusBox").textContent = "موجودی الماس برای این شرط کافی نیست!";
-        haptic("error"); return;
-      }
-      state.gems -= state.bet;
-      saveState();
-      grid = Array(9).fill(null);
-      roundActive = true; locked = false;
-      renderBoard();
-      document.getElementById("statusBox").textContent = `شرط ${state.bet} 💎 ثبت شد — نوبت تو (X)`;
-      haptic("impact");
-    }
-
-    function finishRound(result) {
-      roundActive = false; locked = false;
-      if (result === "X") {
-        const reward = state.bet * 2;
-        state.gems += reward; state.wins += 1; saveState();
-        document.getElementById("statusBox").textContent = `🎉 بردی! ${reward} 💎 دریافت کردی`;
-        haptic("success");
-      } else if (result === "O") {
-        state.losses += 1; saveState();
-        document.getElementById("statusBox").textContent = `💀 باختی! شرط ${state.bet} 💎 از دست رفت`;
-        haptic("error");
-      } else {
-        state.gems += state.bet; saveState();
-        document.getElementById("statusBox").textContent = `🤝 مساوی شد! شرط ${state.bet} 💎 برگشت`;
-        haptic("impact");
-      }
-    }
-
-    function aiMove() {
-      const empty = grid.map((v, i) => (v ? null : i)).filter((v) => v !== null);
-      if (!empty.length) return;
-      grid[empty[Math.floor(Math.random() * empty.length)]] = "O";
-      renderBoard();
-      const res = checkWinner(grid);
-      if (res) finishRound(res);
-      else { locked = false; document.getElementById("statusBox").textContent = "نوبت تو (X)"; }
-    }
-
-    function onCellClick(idx) {
-      if (!roundActive) { startNewRound(); if (!roundActive || grid[idx]) return; }
-      if (locked || grid[idx]) return;
-      grid[idx] = "X"; renderBoard(); haptic("impact");
-      const res = checkWinner(grid);
-      if (res) { finishRound(res); return; }
-      locked = true;
-      document.getElementById("statusBox").textContent = "ربات در حال فکر کردن...";
-      setTimeout(aiMove, 260);
-    }
-
-    document.querySelectorAll(".bet-btn").forEach((btn) => {
-      btn.classList.toggle("active", Number(btn.dataset.bet) === state.bet);
-      btn.addEventListener("click", () => {
-        if (roundActive) return;
-        document.querySelectorAll(".bet-btn").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        state.bet = Number(btn.dataset.bet); saveState(); haptic("impact");
-      });
-    });
-
-    document.getElementById("restartBtn").addEventListener("click", startNewRound);
-    document.getElementById("claimFreeBtn").addEventListener("click", () => {
-      state.gems += 200; saveState(); haptic("success");
-      document.getElementById("claimFreeBtn").textContent = "دریافت شد ✅";
-    });
-    document.querySelectorAll("[data-pack]").forEach((btn) => {
-      btn.addEventListener("click", () => { state.gems += Number(btn.dataset.pack); saveState(); haptic("success"); });
-    });
-    document.querySelectorAll(".nav-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const target = btn.dataset.tab;
-        document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
-        document.getElementById("tab-" + target).classList.add("active");
-        haptic("impact");
-      });
-    });
-
-    renderHeader(); renderBoard(); renderLeaderboard();
+    async function pull(){try{const r=await fetch(`${DB_URL}/users/${uid}/sav.json`),v=await r.json();if(typeof v==="number"){st.sav=v;save()}}catch(_){}}
+    document.getElementById("dailyBtn").onclick=async()=>{
+      const td=new Date().toISOString().slice(0,10);if(st.lastDaily===td)return;
+      st.sav=(Number(st.sav)||0)+15;st.lastDaily=td;save();
+      try{await fetch(`${DB_URL}/users/${uid}/sav.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(st.sav)})}catch(_){}
+    };
+    document.getElementById("openDooz").onclick=()=>{location.href="dooz/dooz.html"};
+    document.getElementById("openChess").onclick=()=>{location.href="chess.html"};
+    render();pull();
   </script>
 </body>
 </html>
