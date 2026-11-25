@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>دوز شرطی | SAV</title>
+  <title>میز دوز دونفره | SAV</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root{--bg:#090512;--card:#140c24;--card2:#1c1133;--neon:#a855f7;--neon2:#ec4899;--gold:#facc15;--ok:#34d399;--err:#f87171;--txt:#f5f3ff;--mut:#a78bfa;--bd:rgba(168,85,247,.26)}
@@ -13,36 +13,26 @@
     .top{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:10px 14px;margin-bottom:12px}
     .back{border:none;border-radius:10px;padding:7px 12px;background:#241342;color:#f3e8ff;font-weight:800;cursor:pointer}
     .bal{color:var(--gold);font-weight:900;font-size:14px}
-    .box{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;margin-bottom:12px;text-align:center}
-    .sub{font-size:12px;color:var(--mut)}
-    .bets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
-    .bet-btn{border:1px solid var(--bd);border-radius:12px;padding:10px 6px;background:var(--card2);color:#fff;font-weight:900;cursor:pointer}
-    .bet-btn.active{border-color:var(--gold);background:linear-gradient(135deg,#3b166e,#1d0d38);color:var(--gold)}
+    .box{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;text-align:center}
+    .sub{font-size:12px;color:var(--mut);margin-bottom:8px}
     .board{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:14px auto}
     .cell{aspect-ratio:1/1;border:1px solid var(--bd);border-radius:16px;background:var(--card2);font-size:34px;font-weight:900;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
-    .cell.x{color:#f472b6}.cell.o{color:#38bdf8}.cell.win{border-color:var(--gold);box-shadow:0 0 16px rgba(250,204,21,.28)}
+    .cell.x{color:#f472b6}.cell.o{color:#38bdf8}
     .status{min-height:24px;font-size:13px;font-weight:800;color:var(--ok);margin-top:8px}
     .status.err{color:var(--err)}
-    .play-btn{width:100%;margin-top:10px;border:none;border-radius:12px;padding:11px;background:linear-gradient(135deg,var(--neon),var(--neon2));color:#fff;font-weight:900;font-size:14px;cursor:pointer}
   </style>
 </head>
 <body>
   <div class="app">
     <div class="top">
-      <button type="button" class="back" id="goBack">← بازگشت</button>
-      <div>❌⭕ دوز شرطی</div>
+      <button type="button" class="back" id="goBack">← لابی</button>
+      <div>❌⭕ میز دوز</div>
       <div class="bal" id="savShow">0 SAV</div>
     </div>
     <div class="box">
-      <div class="sub" id="feeInfo">انتخاب شرط (۱۰٪ کارمزد از کل جایزه برنده • جایزه خالص: 180 SAV)</div>
-      <div class="bets">
-        <button type="button" class="bet-btn active" data-bet="100">100 SAV</button>
-        <button type="button" class="bet-btn" data-bet="200">200 SAV</button>
-        <button type="button" class="bet-btn" data-bet="300">300 SAV</button>
-      </div>
-      <button type="button" class="play-btn" id="startBtn">شروع دست جدید</button>
+      <div class="sub" id="roomInfo">در حال اتصال به میز...</div>
       <div class="board" id="board"></div>
-      <div class="status" id="status">یک مبلغ شرط انتخاب کن و شروع بزن</div>
+      <div class="status" id="status">منتظر اتصال هر دو بازیکن...</div>
     </div>
   </div>
   <script>
@@ -51,99 +41,120 @@
     if(tg){tg.ready();tg.expand()}
     const qs=new URLSearchParams(location.search);
     const u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user;
-    const uid=qs.get("uid")||((u&&u.id)?String(u.id):("u_"+(localStorage.getItem("savash_gid")||"guest")));
+    const uid=qs.get("uid")||((u&&u.id)?String(u.id):"guest");
+    const roomId=qs.get("room")||"dooz_demo";
+    const mySym=(qs.get("sym")==="O")?"O":"X";
     let st=(()=>{const d={name:(u&&u.first_name)||"کاربر",sav:0};try{return{...d,...JSON.parse(localStorage.getItem(K)||"{}"),name:d.name}}catch(_){return d}})();
-    let bet=Number(qs.get("bet")||100);
-    if(![100,200,300].includes(bet))bet=100;
-    let grid=Array(9).fill(""),winLine=[],active=false,locked=false;
+    let room=null,sending=false;
     const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 
-    function setStatus(txt,isErr=false){
-      const el=document.getElementById("status");
-      el.textContent=txt;el.className=isErr?"status err":"status";
-    }
+    async function fbGet(p){const r=await fetch(`${DB_URL}${p}.json`);return r.json()}
+    async function fbPut(p,d){await fetch(`${DB_URL}${p}.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)})}
+    async function fbPatch(p,d){await fetch(`${DB_URL}${p}.json`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)})}
+
     function drawBal(){
       document.getElementById("savShow").textContent=Number(st.sav||0).toLocaleString("en-US")+" SAV";
-      document.getElementById("feeInfo").textContent=`انتخاب شرط (۱۰٪ کارمزد کل • جایزه خالص: ${Math.round(bet*2*0.9)} SAV)`;
     }
-    async function pullSav(){
+
+    function calcWinner(g){
+      for(const[a,b,c]of lines){
+        if(g[a]&&g[a]===g[b]&&g[a]===g[c])return g[a];
+      }
+      if(g.every(Boolean))return "draw";
+      return "";
+    }
+
+    function render(){
+      drawBal();
+      const b=room&&Array.isArray(room.board)?room.board:Array(9).fill("");
+      const el=document.getElementById("board");el.innerHTML="";
+      for(let i=0;i<9;i++){
+        const v=b[i]||"";
+        const btn=document.createElement("button");btn.type="button";
+        btn.className="cell"+(v==="X"?" x":v==="O"?" o":"");
+        btn.textContent=v;
+        btn.onclick=()=>playAt(i);
+        el.appendChild(btn);
+      }
+      const amt=Number((room&&room.bet)||qs.get("bet")||100);
+      const prize=Math.round(amt*2*0.9);
+      document.getElementById("roomInfo").textContent=`نماد تو: ${mySym} • شرط: ${amt} SAV • جایزه خالص: ${prize} SAV`;
+
+      const stEl=document.getElementById("status");
+      if(!room){stEl.textContent="در حال بارگذاری میز...";stEl.className="status";return}
+      if(!room.guestId){
+        stEl.textContent="منتظر قبول دعوت دوستت در لابی...";
+        stEl.className="status";
+        return;
+      }
+      if(room.winner==="X"||room.winner==="O"){
+        stEl.className=room.winner===mySym?"status":"status err";
+        stEl.textContent=(room.winner===mySym)?`🏆 بردی! +${prize} SAV به موجودی‌ات رفت`:`❌ حریف (${room.winner}) برد!`;
+        return;
+      }
+      if(room.winner==="draw"){
+        stEl.className="status";
+        stEl.textContent=`🤝 مساوی شد! ${amt} SAV برگشت`;
+        return;
+      }
+      if(room.turn===mySym){
+        stEl.className="status";
+        stEl.textContent=`نوبت توست (${mySym}) — یک خانه بزن`;
+      }else{
+        stEl.className="status err";
+        stEl.textContent=`نوبت حریف (${room.turn}) است...`;
+      }
+    }
+
+    async function settlePayout(r){
+      if(!r||r.payoutDone)return;
+      const amt=Number(r.bet||100);
+      const prize=Math.round(amt*2*0.9);
+      if(r.winner===mySym){
+        st.sav=Number(st.sav||0)+prize;
+        localStorage.setItem(K,JSON.stringify(st));
+        await fbPut(`/users/${uid}/sav`,st.sav);
+        await fbPatch(`/rooms/${roomId}`,{payoutDone:true});
+      }else if(r.winner==="draw"){
+        st.sav=Number(st.sav||0)+amt;
+        localStorage.setItem(K,JSON.stringify(st));
+        await fbPut(`/users/${uid}/sav`,st.sav);
+        await fbPatch(`/rooms/${roomId}`,{payoutDone:true});
+      }
+    }
+
+    async function syncRoom(){
       try{
-        const r=await fetch(`${DB_URL}/users/${uid}/sav.json`),v=await r.json();
-        if(typeof v==="number"){st.sav=v;localStorage.setItem(K,JSON.stringify(st));drawBal()}
+        const s=await fbGet(`/users/${uid}/sav`);
+        if(typeof s==="number"){st.sav=s;localStorage.setItem(K,JSON.stringify(st))}
+      }catch(_){}
+      try{
+        const r=await fbGet(`/rooms/${roomId}`);
+        if(r){
+          room=r;
+          if(room.winner&&!room.payoutDone){await settlePayout(room)}
+          render();
+        }
       }catch(_){}
     }
-    async function saveSav(){
-      localStorage.setItem(K,JSON.stringify(st));drawBal();
-      try{await fetch(`${DB_URL}/users/${uid}/sav.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(Number(st.sav||0))})}catch(_){}
+
+    async function playAt(i){
+      if(sending||!room||!room.guestId||room.winner)return;
+      if(room.turn!==mySym)return;
+      const b=Array.isArray(room.board)?[...room.board]:Array(9).fill("");
+      if(b[i])return;
+      sending=true;
+      b[i]=mySym;
+      const w=calcWinner(b);
+      const nextTurn=(mySym==="X")?"O":"X";
+      try{
+        await fbPatch(`/rooms/${roomId}`,{board:b,turn:nextTurn,winner:w});
+        await syncRoom();
+      }finally{sending=false}
     }
-    function checkResult(g){
-      for(const line of lines){
-        const[a,b,c]=line;
-        if(g[a]&&g[a]===g[b]&&g[a]===g[c])return{winner:g[a],line};
-      }
-      if(g.every(Boolean))return{winner:"draw",line:[]};
-      return null;
-    }
-    function renderBoard(){
-      const el=document.getElementById("board");el.innerHTML="";
-      grid.forEach((v,i)=>{
-        const btn=document.createElement("button");btn.type="button";
-        const isWin=winLine.includes(i);
-        btn.className="cell"+(v==="X"?" x":v==="O"?" o":"")+(isWin?" win":"");
-        btn.textContent=v;btn.onclick=()=>onCell(i);el.appendChild(btn);
-      });
-    }
-    async function finishMatch(res){
-      active=false;
-      if(res.winner==="X"){
-        winLine=res.line;renderBoard();
-        const prize=Math.round((bet*2)*0.9);
-        st.sav=Number(st.sav||0)+prize;await saveSav();
-        setStatus(`🏆 بردی! +${prize} SAV به موجودی‌ات اضافه شد`);
-      }else if(res.winner==="draw"){
-        st.sav=Number(st.sav||0)+bet;await saveSav();
-        setStatus(`🤝 مساوی شد! ${bet} SAV برگشت`);
-      }else{
-        winLine=res.line;renderBoard();
-        setStatus(`❌ حریف برد! ${bet} SAV از شرط کسر شد`,true);
-      }
-    }
-    function pickSmartMove(){
-      const empty=grid.map((v,i)=>v===""?i:-1).filter(i=>i>=0);
-      if(!empty.length)return null;
-      for(const i of empty){const c=[...grid];c[i]="O";if(checkResult(c)?.winner==="O")return i}
-      for(const i of empty){const c=[...grid];c[i]="X";if(checkResult(c)?.winner==="X")return i}
-      if(grid[4]==="")return 4;
-      return empty[Math.floor(Math.random()*empty.length)];
-    }
-    async function aiMove(){
-      const pick=pickSmartMove();if(pick===null)return;
-      grid[pick]="O";renderBoard();
-      const res=checkResult(grid);if(res)await finishMatch(res);
-    }
-    async function onCell(i){
-      if(!active||locked||grid[i])return;
-      grid[i]="X";renderBoard();
-      const res=checkResult(grid);if(res){await finishMatch(res);return}
-      locked=true;setTimeout(async()=>{await aiMove();locked=false},220);
-    }
-    document.querySelectorAll(".bet-btn").forEach(b=>{
-      const v=Number(b.dataset.bet);
-      b.classList.toggle("active",v===bet);
-      b.onclick=()=>{
-        if(active){setStatus("در میانه بازی نمی‌توانی مبلغ شرط را تغییر دهی.",true);return}
-        document.querySelectorAll(".bet-btn").forEach(x=>x.classList.remove("active"));
-        b.classList.add("active");bet=v;drawBal();
-      };
-    });
-    document.getElementById("startBtn").onclick=async()=>{
-      if(Number(st.sav||0)<bet){setStatus(`موجودی SAV برای شرط ${bet} SAV کافی نیست.`,true);return}
-      st.sav=Number(st.sav||0)-bet;await saveSav();
-      grid=Array(9).fill("");winLine=[];active=true;locked=false;renderBoard();
-      setStatus(`میز ${bet} SAV شروع شد — نوبت تو (X)`);
-    };
+
     document.getElementById("goBack").onclick=()=>{location.href="../index.html"};
-    drawBal();renderBoard();pullSav();
+    render();syncRoom();setInterval(syncRoom,1500);
   </script>
 </body>
 </html>
