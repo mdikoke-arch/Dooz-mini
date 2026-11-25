@@ -89,3 +89,111 @@
     <div class="confirm-title">آیا مایل به خروج هستید؟</div>
     <div class="confirm-actions"><button type="button" class="btn-yes" id="confirmExitYes">بله</button><button type="button" class="btn-no" id="confirmExitNo">خیر</button></div>
   </div></div>
+  <script>
+    const FIREBASE_DB_URL="https://savash-c4207-default-rtdb.europe-west1.firebasedatabase.app";
+    const STATE_KEY="mini_games_state_v1",FEE_RATE=.1;
+    const tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
+    if(tg){tg.ready();tg.expand()}
+    const tgUser=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user;
+    const myId=(tgUser&&tgUser.id)?String(tgUser.id):("u_"+Math.random().toString(36).slice(2,8));
+    const state=(()=>{const d={name:(tgUser&&tgUser.first_name)||"کاربر",gems:0};try{const r=localStorage.getItem(STATE_KEY);return r?{...d,...JSON.parse(r),name:d.name}:d}catch(_){return d}})();
+    function saveGems(){localStorage.setItem(STATE_KEY,JSON.stringify(state));syncHeaderInfo()}
+    function notifyInsufficient(){const m="موجودی کافی نمی‌باشد";if(tg&&tg.showPopup)tg.showPopup({title:"خطا",message:m,buttons:[{type:"ok"}]});else alert(m)}
+    const THEMES={
+      green:{light:"#d6e2c2",dark:"#769656",textLight:"#658447",textDark:"#e3ecd2"},
+      brown:{light:"#f0d9b5",dark:"#b58863",textLight:"#a1724c",textDark:"#f5e3c6"},
+      blue:{light:"#dee3e6",dark:"#8ca2ad",textLight:"#6e8794",textDark:"#eef2f4"},
+      gram:{light:"#e5e7eb",dark:"#14532d",textLight:"#14532d",textDark:"#e5e7eb"}
+    };
+    const INIT_BOARD=[
+      ["r","n","b","q","k","b","n","r"],["p","p","p","p","p","p","p","p"],
+      ["","","","","","","",""],["","","","","","","",""],
+      ["","","","","","","",""],["","","","","","","",""],
+      ["P","P","P","P","P","P","P","P"],["R","N","B","Q","K","B","N","R"]
+    ];
+    const GLYPHS={K:"♔",Q:"♕",R:"♖",B:"♗",N:"♘",P:"♙",k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"};
+    const PIECE_FA={p:"پیاده",n:"اسب",b:"فیل",r:"رخ",q:"وزیر",k:"شاه"};
+    const PIECE_VAL={p:1,n:3,b:3,r:5,q:9,k:0};
+    let matchMode="solo",selectedStake=100,currentStake=0,cfg={level:"medium",color:"white",theme:"green"};
+    let board=[],selected=null,targets=[],lastMove=null,whiteTurn=true,botThinking=false,ended=false,botTimer=null,pollTimer=null,roomId=null,lastSyncedSeq=0,mySideIsWhite=true,rewardSettled=false;
+    const isW=p=>!!p&&p===p.toUpperCase(),isB=p=>!!p&&p===p.toLowerCase();
+    const inside=(r,c)=>r>=0&&r<8&&c>=0&&c<8,sqName=(r,c)=>`${"abcdefgh"[c]}${8-r}`,cloneBoard=b=>b.map(row=>[...row]);
+    function buildMiniBoards(){Object.keys(THEMES).forEach(k=>{const mb=document.getElementById("mb-"+k);if(!mb)return;mb.innerHTML="";for(let i=0;i<9;i++){const d=document.createElement("div");d.style.background=i%2===0?THEMES[k].light:THEMES[k].dark;mb.appendChild(d)}})}
+    function syncHeaderInfo(){const n=state.name||"کاربر";document.getElementById("meName").textContent=n;document.getElementById("meAvatar").textContent=n.trim().charAt(0).toUpperCase()||"ک";document.getElementById("setupGemTxt").textContent=`💎 ${state.gems} الماس`}
+    function setOpponentLabel(o){const c=(o||"حریف تصادفی").trim();document.getElementById("oppName").textContent=c;document.getElementById("oppAvatar").textContent=c.charAt(0).toUpperCase()||"ح"}
+    function findKing(b,w){const t=w?"K":"k";for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(b[r][c]===t)return[r,c];return null}
+    function getPseudoMoves(b,r,c){const p=b[r][c];if(!p)return[];const w=isW(p),en=x=>!!x&&(w?isB(x):isW(x)),out=[];const sl=dirs=>{for(const[dr,dc]of dirs){let nr=r+dr,nc=c+dc;while(inside(nr,nc)){if(!b[nr][nc])out.push([nr,nc]);else{if(en(b[nr][nc]))out.push([nr,nc]);break}nr+=dr;nc+=dc}}};const t=p.toLowerCase();
+      if(t==="p"){const d=w?-1:1,sr=w?6:1;if(inside(r+d,c)&&!b[r+d][c]){out.push([r+d,c]);if(r===sr&&!b[r+2*d][c])out.push([r+2*d,c])}for(const dc of[-1,1])if(inside(r+d,c+dc)&&en(b[r+d][c+dc]))out.push([r+d,c+dc])}
+      else if(t==="n"){for(const[dr,dc]of[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]){const nr=r+dr,nc=c+dc;if(inside(nr,nc)&&(!b[nr][nc]||en(b[nr][nc])))out.push([nr,nc])}}
+      else if(t==="b")sl([[-1,-1],[-1,1],[1,-1],[1,1]]);else if(t==="r")sl([[-1,0],[1,0],[0,-1],[0,1]]);else if(t==="q")sl([[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]]);
+      else if(t==="k"){for(const[dr,dc]of[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]){const nr=r+dr,nc=c+dc;if(inside(nr,nc)&&(!b[nr][nc]||en(b[nr][nc])))out.push([nr,nc])}}return out}
+    function isSquareAttacked(b,tr,tc,w){for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=b[r][c];if(p&&((w&&isW(p))||(!w&&isB(p)))&&getPseudoMoves(b,r,c).some(([mr,mc])=>mr===tr&&mc===tc))return true}return false}
+    function isKingInCheck(b,w){const k=findKing(b,w);return k?isSquareAttacked(b,k[0],k[1],!w):false}
+    function applyMoveOnBoard(b,fr,fc,tr,tc){const nb=cloneBoard(b);let p=nb[fr][fc];if(p==="P"&&tr===0)p="Q";if(p==="p"&&tr===7)p="q";nb[tr][tc]=p;nb[fr][fc]="";return nb}
+    function getLegalMoves(b,r,c){const p=b[r][c];if(!p)return[];const w=isW(p);return getPseudoMoves(b,r,c).filter(([tr,tc])=>!isKingInCheck(applyMoveOnBoard(b,r,c,tr,tc),w))}
+    function getAllLegalMoves(b,w){const a=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=b[r][c];if(p&&(w?isW(p):isB(p)))for(const[tr,tc]of getLegalMoves(b,r,c))a.push({from:[r,c],to:[tr,tc],cap:b[tr][tc],piece:p})}return a}
+    function setTurnBadge(t,al=false){const b=document.getElementById("turnBadge");b.textContent=t;b.classList.toggle("check-alert",al)}
+    function winPayout(){return Math.round(currentStake*2*(1-FEE_RATE))}
+    function settlePublicResult(winnerSide){
+      if(matchMode!=="public"||rewardSettled||!currentStake)return;rewardSettled=true;
+      if(winnerSide==="draw"){state.gems+=currentStake;saveGems()}
+      else if((winnerSide==="white"&&mySideIsWhite)||(winnerSide==="black"&&!mySideIsWhite)){state.gems+=winPayout();saveGems()}
+    }
+    function evaluateTurnPosition(){
+      const moves=getAllLegalMoves(board,whiteTurn),inCheck=isKingInCheck(board,whiteTurn),isMyTurn=(mySideIsWhite&&whiteTurn)||(!mySideIsWhite&&!whiteTurn);
+      if(!moves.length){ended=true;botThinking=false;
+        if(inCheck){settlePublicResult(whiteTurn?"black":"white");setTurnBadge(!isMyTurn?`کیش‌مات! برنده شدید (+${winPayout()} 💎)`:"کیش‌مات! حریف برنده شد",true)}
+        else{settlePublicResult("draw");setTurnBadge(`پات! مساوی شد (+${currentStake} 💎 برگشت)`)}return false}
+      setTurnBadge(isMyTurn?(inCheck?"کیش! شاهت در تهدیده — نوبت شماست":"نوبت شماست"):(inCheck?"کیش دادی! در انتظار حریف...":(matchMode==="public"?"نوبت حریف...":"ربات در حال فکر کردن...")),inCheck);return true}
+    function renderBoard(){
+      const el=document.getElementById("chessBoard"),th=THEMES[cfg.theme]||THEMES.green,wK=isKingInCheck(board,true)?findKing(board,true):null,bK=isKingInCheck(board,false)?findKing(board,false):null;
+      el.innerHTML="";for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+        const sq=document.createElement("div"),light=(r+c)%2===0,isSel=selected&&selected[0]===r&&selected[1]===c,isTgt=targets.some(([tr,tc])=>tr===r&&tc===c);
+        const isLast=lastMove&&((lastMove.from[0]===r&&lastMove.from[1]===c)||(lastMove.to[0]===r&&lastMove.to[1]===c)),isChk=(wK&&wK[0]===r&&wK[1]===c)||(bK&&bK[0]===r&&bK[1]===c);
+        sq.className="sq"+(isSel?" sel":"")+(isTgt?" tgt":"")+(isLast?" last-move":"")+(isChk?" in-check":"");
+        sq.style.background=light?th.light:th.dark;sq.style.color=light?th.textLight:th.textDark;
+        if(c===0){const rl=document.createElement("span");rl.className="coord-r";rl.textContent=String(8-r);sq.appendChild(rl)}
+        if(r===7){const cl=document.createElement("span");cl.className="coord-c";cl.textContent="abcdefgh"[c];sq.appendChild(cl)}
+        const p=board[r][c];if(p){const sp=document.createElement("span");sp.className="piece-glyph "+(isW(p)?"piece-white":"piece-black");sp.textContent=GLYPHS[p];sq.appendChild(sp)}
+        sq.addEventListener("click",()=>handleSq(r,c));el.appendChild(sq)}
+    }
+    function stopPolling(){if(pollTimer){clearInterval(pollTimer);pollTimer=null}}
+    async function fbReq(path,method="GET",body=null){const base=FIREBASE_DB_URL.replace(/\/+$/,""),opt={method,headers:{"Content-Type":"application/json"}};if(body!==null)opt.body=JSON.stringify(body);const r=await fetch(`${base}/${path}.json`,opt);return r.ok?r.json():null}
+    async function joinPublicQueue(stake){
+      stopPolling();roomId=null;lastSyncedSeq=0;setOpponentLabel("در حال اتصال...");setTurnBadge(`جستجوی حریف شرطی (${stake} 💎)...`);
+      const qN=`chess_public_queue_${stake}`,rN=`chess_rooms_${stake}`,q=await fbReq(qN);
+      if(q)for(const[k,it]of Object.entries(q))if(it&&it.hostId&&it.hostId!==myId&&!it.guestId&&(Date.now()-(it.ts||0))<180000){
+        mySideIsWhite=false;roomId=it.roomId;await fbReq(`${qN}/${k}`,"PATCH",{guestId:myId,guestName:state.name});await fbReq(`${rN}/${roomId}`,"PATCH",{guestId:myId,guestName:state.name,status:"ready"});
+        setOpponentLabel(it.hostName||"بازیکن تصادفی");resetGame();startRoomSync(rN);return}
+      roomId=`room_${stake}_${myId}_${Date.now().toString(36)}`;mySideIsWhite=true;const qK="q_"+myId;
+      await fbReq(`${qN}/${qK}`,"PUT",{hostId:myId,hostName:state.name,roomId,stake,ts:Date.now()});
+      await fbReq(`${rN}/${roomId}`,"PUT",{hostId:myId,hostName:state.name,guestId:null,guestName:null,stake,seq:0,lastMove:null,status:"waiting"});
+      pollTimer=setInterval(async()=>{if(matchMode!=="public"||ended)return;const d=await fbReq(`${rN}/${roomId}`);if(d&&d.guestId){stopPolling();await fbReq(`${qN}/${qK}`,"DELETE");setOpponentLabel(d.guestName||"بازیکن تصادفی");resetGame();startRoomSync(rN)}},1500);
+    }
+    function startRoomSync(rN){stopPolling();pollTimer=setInterval(async()=>{if(matchMode!=="public"||!roomId||ended)return;const d=await fbReq(`${rN}/${roomId}`);if(!d||!d.lastMove||d.lastMove.by===myId||(d.seq||0)<=lastSyncedSeq)return;lastSyncedSeq=d.seq;const m=d.lastMove;board=applyMoveOnBoard(board,m.from[0],m.from[1],m.to[0],m.to[1]);lastMove={from:m.from,to:m.to};whiteTurn=!whiteTurn;selected=null;targets=[];renderBoard();if(evaluateTurnPosition()){const chk=isKingInCheck(board,mySideIsWhite);setTurnBadge(`حریف ${PIECE_FA[m.piece.toLowerCase()]||"مهره"} را از ${sqName(m.from[0],m.from[1])} به ${sqName(m.to[0],m.to[1])} برد${chk?" — کیش!":""} — نوبت شماست`,chk)}},1200)}
+    async function pushMoveToRoom(fr,to,piece){if(!roomId||!currentStake)return;lastSyncedSeq+=1;await fbReq(`chess_rooms_${currentStake}/${roomId}`,"PATCH",{seq:lastSyncedSeq,lastMove:{from:fr,to,piece,by:myId,ts:Date.now()}})}
+    function resetGame(){if(botTimer){clearTimeout(botTimer);botTimer=null}board=INIT_BOARD.map(r=>[...r]);selected=null;targets=[];lastMove=null;whiteTurn=true;botThinking=false;ended=false;rewardSettled=false;mySideIsWhite=matchMode==="public"?mySideIsWhite:cfg.color==="white";renderBoard();const ok=evaluateTurnPosition(),mine=(mySideIsWhite&&whiteTurn)||(!mySideIsWhite&&!whiteTurn);if(matchMode==="solo"&&ok&&!mine)scheduleBotMove()}
+    function scheduleBotMove(){if(ended||matchMode!=="solo")return;botThinking=true;botTimer=setTimeout(()=>{botTimer=null;if(ended)return;const mv=getAllLegalMoves(board,!mySideIsWhite);if(!mv.length){evaluateTurnPosition();return}const sc=mv.map(m=>({...m,score:(m.cap?(PIECE_VAL[m.cap.toLowerCase()]||1)*3:0)+(isKingInCheck(applyMoveOnBoard(board,m.from[0],m.from[1],m.to[0],m.to[1]),mySideIsWhite)?4:0)+Math.random()*1.5})).sort((a,b)=>b.score-a.score);const pk=sc[Math.floor(Math.random()*Math.min(cfg.level==="hard"?1:cfg.level==="medium"?3:sc.length,sc.length))];board=applyMoveOnBoard(board,pk.from[0],pk.from[1],pk.to[0],pk.to[1]);lastMove={from:pk.from,to:pk.to};whiteTurn=!whiteTurn;botThinking=false;renderBoard();if(evaluateTurnPosition()){const chk=isKingInCheck(board,mySideIsWhite);setTurnBadge(`ربات ${PIECE_FA[pk.piece.toLowerCase()]||"مهره"} را از ${sqName(pk.from[0],pk.from[1])} به ${sqName(pk.to[0],pk.to[1])} برد${chk?" — کیش!":""} — نوبت شماست`,chk)}},750)}
+    function handleSq(r,c){if(ended||botThinking)return;const mine=(mySideIsWhite&&whiteTurn)||(!mySideIsWhite&&!whiteTurn);if(!mine)return;if(selected&&targets.some(([tr,tc])=>tr===r&&tc===c)){const[sr,sc]=selected,p=board[sr][sc];board=applyMoveOnBoard(board,sr,sc,r,c);selected=null;targets=[];lastMove={from:[sr,sc],to:[r,c]};whiteTurn=!whiteTurn;renderBoard();if(matchMode==="public")pushMoveToRoom([sr,sc],[r,c],p);if(evaluateTurnPosition()&&matchMode==="solo")scheduleBotMove();return}const p=board[r][c];if(p&&(mySideIsWhite?isW(p):isB(p))){selected=[r,c];targets=getLegalMoves(board,r,c)}else{selected=null;targets=[]}renderBoard()}
+    function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
+    document.getElementById("closeSheetBtn").addEventListener("click",()=>{document.getElementById("modeSheet").classList.remove("open");window.location.href="index.html"});
+    document.getElementById("btnSolo").addEventListener("click",()=>{stopPolling();matchMode="solo";currentStake=0;roomId=null;setOpponentLabel("ربات");document.getElementById("soloControls").style.display="block";document.getElementById("publicControls").style.display="none";document.getElementById("modeSheet").classList.remove("open");syncHeaderInfo();showScreen("screen-setup")});
+    document.getElementById("btnPublic").addEventListener("click",()=>{stopPolling();matchMode="public";roomId=null;setOpponentLabel("حریف تصادفی");document.getElementById("soloControls").style.display="none";document.getElementById("publicControls").style.display="block";document.getElementById("modeSheet").classList.remove("open");syncHeaderInfo();showScreen("screen-setup")});
+    document.querySelectorAll(".stake-btn").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".stake-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");selectedStake=Number(b.dataset.stake)}));
+    document.getElementById("btnFriends").addEventListener("click",()=>{if(tg&&tg.showPopup)tg.showPopup({title:"با دوستام",message:"دعوت از دوستان به زودی فعال می‌شود.",buttons:[{type:"ok"}]})});
+    document.getElementById("backToModeBtn").addEventListener("click",()=>{stopPolling();document.getElementById("modeSheet").classList.add("open")});
+    document.querySelectorAll(".level-btn").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".level-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");cfg.level=b.dataset.lvl}));
+    document.querySelectorAll(".color-card").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".color-card").forEach(x=>x.classList.remove("active"));b.classList.add("active");cfg.color=b.dataset.col}));
+    document.querySelectorAll(".theme-item").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".theme-item").forEach(x=>x.classList.remove("active"));b.classList.add("active");cfg.theme=b.dataset.theme}));
+    document.getElementById("startMatchBtn").addEventListener("click",()=>{
+      if(matchMode==="public"){
+        if(state.gems<selectedStake){notifyInsufficient();return}
+        state.gems-=selectedStake;saveGems();currentStake=selectedStake;showScreen("screen-play");resetGame();joinPublicQueue(selectedStake);return}
+      stopPolling();matchMode="solo";currentStake=0;setOpponentLabel("ربات");syncHeaderInfo();showScreen("screen-play");resetGame()});
+    document.getElementById("openExitConfirmBtn").addEventListener("click",()=>document.getElementById("exitConfirmModal").classList.add("open"));
+    document.getElementById("confirmExitNo").addEventListener("click",()=>document.getElementById("exitConfirmModal").classList.remove("open"));
+    document.getElementById("confirmExitYes").addEventListener("click",()=>{stopPolling();if(botTimer){clearTimeout(botTimer);botTimer=null}window.location.href="index.html"});
+    buildMiniBoards();syncHeaderInfo();board=INIT_BOARD.map(r=>[...r]);renderBoard();
+  </script>
+</body>
+</html>
