@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>دوز شرطی | SAV</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root{--bg:#090512;--card:#140c24;--neon:#a855f7;--neon2:#ec4899;--gold:#facc15;--txt:#f5f3ff;--mut:#a78bfa;--bd:rgba(168,85,247,.26)}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+    html,body{margin:0;padding:0;overflow-x:hidden;background:radial-gradient(circle at top,#241046 0%,var(--bg) 72%);color:var(--txt);font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
+    .app{max-width:440px;margin:0 auto;padding:14px}
+    .top{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:10px 14px;margin-bottom:12px}
+    .back{border:none;border-radius:10px;padding:7px 12px;background:#241342;color:#f3e8ff;font-weight:800;cursor:pointer}
+    .bal{color:var(--gold);font-weight:900;font-size:14px}
+    .box{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;margin-bottom:12px;text-align:center}
+    .bets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+    .bet-btn{border:1px solid var(--bd);border-radius:12px;padding:10px 6px;background:#1c1133;color:#fff;font-weight:900;cursor:pointer}
+    .bet-btn.active{border-color:var(--gold);background:linear-gradient(135deg,#3b166e,#1d0d38);color:var(--gold)}
+    .board{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:12px auto}
+    .cell{aspect-ratio:1/1;border:1px solid var(--bd);border-radius:16px;background:#1c1133;font-size:34px;font-weight:900;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .cell.x{color:#f472b6}.cell.o{color:#38bdf8}
+    .status{min-height:24px;font-size:13px;font-weight:800;color:#e9d5ff;margin-top:8px}
+    .play-btn{width:100%;margin-top:10px;border:none;border-radius:12px;padding:11px;background:linear-gradient(135deg,var(--neon),var(--neon2));color:#fff;font-weight:900;font-size:14px;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="top">
+      <button type="button" class="back" id="goBack">← بازگشت</button>
+      <div>❌⭕ دوز شرطی</div>
+      <div class="bal" id="savShow">0 SAV</div>
+    </div>
+    <div class="box">
+      <div style="font-size:13px;color:var(--mut)">انتخاب میز (۱۰٪ کارمزد از کل جایزه برنده)</div>
+      <div class="bets">
+        <button type="button" class="bet-btn active" data-bet="100">100 SAV</button>
+        <button type="button" class="bet-btn" data-bet="200">200 SAV</button>
+        <button type="button" class="bet-btn" data-bet="300">300 SAV</button>
+      </div>
+      <button type="button" class="play-btn" id="startBtn">شروع دست جدید</button>
+      <div class="board" id="board"></div>
+      <div class="status" id="status">یک میز انتخاب کن و شروع بزن</div>
+    </div>
+  </div>
+  <script>
+    const DB_URL="https://savash-c4207-default-rtdb.europe-west1.firebasedatabase.app",K="savash_coin_state_v1";
+    const tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
+    if(tg){tg.ready();tg.expand()}
+    const u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user;
+    const uid=(u&&u.id)?String(u.id):("u_"+(localStorage.getItem("savash_gid")||"guest"));
+    let st=(()=>{const d={name:(u&&u.first_name)||"کاربر",sav:0,lastDaily:""};try{return{...d,...JSON.parse(localStorage.getItem(K)||"{}"),name:d.name}}catch(_){return d}})();
+    let bet=100,grid=Array(9).fill(""),active=false,locked=false;
+    const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    function drawBal(){document.getElementById("savShow").textContent=Number(st.sav||0).toLocaleString("en-US")+" SAV"}
+    async function saveSav(){
+      localStorage.setItem(K,JSON.stringify(st));drawBal();
+      try{await fetch(`${DB_URL}/users/${uid}/sav.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(Number(st.sav||0))})}catch(_){}
+    }
+    function winner(g){for(const[a,b,c]of lines)if(g[a]&&g[a]===g[b]&&g[a]===g[c])return g[a];return g.every(Boolean)?"draw":null}
+    function renderBoard(){
+      const el=document.getElementById("board");el.innerHTML="";
+      grid.forEach((v,i)=>{
+        const btn=document.createElement("button");btn.type="button";
+        btn.className="cell"+(v==="X"?" x":v==="O"?" o":"");btn.textContent=v;
+        btn.onclick=()=>onCell(i);el.appendChild(btn);
+      });
+    }
+    async function finishMatch(res){
+      active=false;const stEl=document.getElementById("status");
+      if(res==="X"){
+        const prize=Math.round((bet*2)*0.9);
+        st.sav=Number(st.sav||0)+prize;await saveSav();
+        stEl.textContent=`🏆 بردی! +${prize} SAV دریافت کردی`;
+      }else if(res==="draw"){
+        st.sav=Number(st.sav||0)+bet;await saveSav();
+        stEl.textContent=`🤝 مساوی شد! ${bet} SAV برگشت`;
+      }else{
+        await saveSav();
+        stEl.textContent=`❌ باختی! ${bet} SAV کسر شد`;
+      }
+    }
+    function aiMove(){
+      const empty=grid.map((v,i)=>v===""?i:-1).filter(i=>i>=0);
+      if(!empty.length)return;
+      const pick=empty[Math.floor(Math.random()*empty.length)];
+      grid[pick]="O";renderBoard();
+      const w=winner(grid);if(w)finishMatch(w);
+    }
+    async function onCell(i){
+      if(!active||locked||grid[i])return;
+      grid[i]="X";renderBoard();
+      const w=winner(grid);if(w){await finishMatch(w);return}
+      locked=true;setTimeout(()=>{aiMove();locked=false},220);
+    }
+    document.querySelectorAll(".bet-btn").forEach(b=>b.onclick=()=>{
+      document.querySelectorAll(".bet-btn").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");bet=Number(b.dataset.bet);
+    });
+    document.getElementById("startBtn").onclick=async()=>{
+      if(Number(st.sav||0)<bet){document.getElementById("status").textContent="موجودی برای بازی کافی نیست";return}
+      st.sav=Number(st.sav||0)-bet;await saveSav();
+      grid=Array(9).fill("");active=true;locked=false;renderBoard();
+      document.getElementById("status").textContent=`میز ${bet} SAV باز شد — نوبت تو (X)`;
+    };
+    document.getElementById("goBack").onclick=()=>{location.href="../index.html"};
+    drawBal();renderBoard();
+  </script>
+</body>
+</html>
