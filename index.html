@@ -118,6 +118,12 @@
     async function fbPut(p,d){await fetch(`${DB_URL}${p}.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)})}
     async function fbPatch(p,d){await fetch(`${DB_URL}${p}.json`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)})}
 
+    function enterGameRoom(gameName,roomId,amt,role){
+      const targetUrl=(gameName==="شطرنج")?"chess.html":"dooz/dooz.html";
+      const q=`?room=${encodeURIComponent(roomId)}&bet=${encodeURIComponent(amt)}&role=${encodeURIComponent(role)}&uid=${encodeURIComponent(uid)}`;
+      location.href=targetUrl+q;
+    }
+
     function renderTop(){
       document.getElementById("nameTxt").textContent=st.name;
       document.getElementById("idTxt").textContent="ID: "+uid;
@@ -161,7 +167,7 @@
       entries.forEach(([iid,inv])=>{
         const row=document.createElement("div");row.className="item";
         const amt=Number(inv.bet||100);
-        row.innerHTML=`<div><div style="font-size:13px;font-weight:800">${inv.game||"بازی"} • از ${inv.fromName||inv.fromId}</div><div class="item-meta">شرط: ${amt} SAV • جایزه خالص: ${Math.round(amt*2*0.9)} SAV</div></div><button type="button" class="btn btn-ok btn-sm">قبول</button>`;
+        row.innerHTML=`<div><div style="font-size:13px;font-weight:800">${inv.game||"بازی"} • از ${inv.fromName||inv.fromId}</div><div class="item-meta">شرط: ${amt} SAV • جایزه خالص: ${Math.round(amt*2*0.9)} SAV</div></div><button type="button" class="btn btn-ok btn-sm">قبول و ورود</button>`;
         row.querySelector("button").onclick=()=>acceptBetInvite(iid,inv);
         wrap.appendChild(row);
       });
@@ -206,25 +212,31 @@
 
     async function sendBetInvite(fid,fname){
       if(Number(st.sav||0)<bet){setMsg(`موجودی SAV برای دعوت ${bet} SAV کافی نیست.`,true);return}
+      const roomId=`room_${uid}_${fid}_${Date.now()}`;
       const iid="inv_"+Date.now();
       try{
-        await fbPut(`/invites/${fid}/${iid}`,{fromId:uid,fromName:st.name,game:selectedGame,bet:bet,status:"pending",createdAt:Date.now()});
-        setMsg(`⚔️ دعوت ${selectedGame} (${bet} SAV) برای ${fname} فرستاده شد.`);
+        await fbPut(`/rooms/${roomId}`,{game:selectedGame,bet:bet,hostId:uid,guestId:fid,status:"waiting",createdAt:Date.now()});
+        await fbPut(`/invites/${fid}/${iid}`,{roomId:roomId,fromId:uid,fromName:st.name,game:selectedGame,bet:bet,status:"pending",createdAt:Date.now()});
+        st.sav=Number(st.sav||0)-bet;
+        localStorage.setItem(K,JSON.stringify(st));
+        await fbPut(`/users/${uid}/sav`,st.sav);
+        enterGameRoom(selectedGame,roomId,bet,"host");
       }catch(_){setMsg("ارسال دعوت ناموفق بود.",true)}
     }
 
     async function acceptBetInvite(iid,inv){
       const amt=Number(inv.bet||100);
+      const roomId=inv.roomId||("room_"+(inv.fromId||"p1")+"_"+uid);
+      const gameName=inv.game||"دوز";
       if(Number(st.sav||0)<amt){setMsg(`موجودی SAV برای قبول دعوت (${amt} SAV) کافی نیست.`,true);return}
       st.sav=Number(st.sav||0)-amt;
       localStorage.setItem(K,JSON.stringify(st));
       try{
         await fbPut(`/users/${uid}/sav`,st.sav);
         await fbPatch(`/invites/${uid}/${iid}`,{status:"accepted",acceptedBy:uid,acceptedAt:Date.now()});
-        renderTop();
-        setMsg(`✅ دعوت ${inv.game||"بازی"} (${amt} SAV) قبول شد.`);
-        refreshAll();
-      }catch(_){setMsg("خطا در قبول دعوت.",true)}
+        await fbPatch(`/rooms/${roomId}`,{guestId:uid,status:"active",startedAt:Date.now()});
+        enterGameRoom(gameName,roomId,amt,"guest");
+      }catch(_){setMsg("خطا در ورود به میز بازی.",true)}
     }
 
     document.querySelectorAll(".game-card").forEach(c=>c.onclick=()=>{
