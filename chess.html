@@ -75,6 +75,7 @@
         <button type="button" class="theme-item active" data-theme="green"><div class="mini-board" id="mb-green"></div><span>سبز</span></button>
       </div>
       <button type="button" class="start-gold-btn" id="startMatchBtn">شروع بازی</button>
+      <div id="lowGemMsg" style="display:none;margin-top:10px;text-align:center;color:#fca5a5;background:#3b1418;border:1px solid #f87171;border-radius:10px;padding:8px 10px;font-size:13px;font-weight:800;">موجودی برای بازی کافی نیست</div>
     </div>
   </div></section>
   <section class="screen" id="screen-play"><div>
@@ -195,5 +196,36 @@
     document.getElementById("confirmExitYes").addEventListener("click",()=>{stopPolling();if(botTimer){clearTimeout(botTimer);botTimer=null}window.location.href="index.html"});
     buildMiniBoards();syncHeaderInfo();board=INIT_BOARD.map(r=>[...r]);renderBoard();
   </script>
+
+<script>
+(function(){
+  const btn = document.getElementById("startMatchBtn");
+  const msgEl = document.getElementById("lowGemMsg");
+  if (!btn || !msgEl) return;
+  btn.addEventListener("click", function(e){
+    const activeStake = document.querySelector(".stake-btn.active");
+    const pubVis = document.getElementById("publicControls");
+    const isPub = pubVis && getComputedStyle(pubVis).display !== "none";
+    const need = isPub && activeStake ? Number(activeStake.dataset.stake || 100) : 0;
+    const gemTxt = (document.getElementById("setupGemTxt") || {}).textContent || "";
+    const curGems = Number((gemTxt.match(/\d+/) || [0])[0]);
+    if (isPub && curGems < need) {
+      e.stopImmediatePropagation();
+      msgEl.textContent = "موجودی برای بازی کافی نیست";
+      msgEl.style.display = "block";
+      try {
+        if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.showPopup === "function") {
+          window.Telegram.WebApp.showPopup({ title: "خطا", message: "موجودی برای بازی کافی نیست", buttons: [{ type: "ok" }] });
+        } else {
+          alert("موجودی برای بازی کافی نیست");
+        }
+      } catch (_) { alert("موجودی برای بازی کافی نیست"); }
+    } else {
+      msgEl.style.display = "none";
+    }
+  }, true);
+})();
+</script>
+
 </body>
 </html>
