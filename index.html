@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>ساواش | دوز و دوستان</title>
+  <title>دوز و دوستان</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root{--bg:#090512;--card:#140c24;--card2:#1c1133;--neon:#a855f7;--neon2:#ec4899;--gold:#facc15;--ok:#34d399;--err:#f87171;--txt:#f5f3ff;--mut:#a78bfa;--bd:rgba(168,85,247,.26)}
@@ -29,7 +29,6 @@
     .inp{flex:1;background:var(--card2);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;color:#fff;font-size:13px;outline:none}
     .btn{border:none;border-radius:12px;padding:10px 14px;font-weight:900;font-size:12px;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--neon),var(--neon2))}
     .btn-gold{background:linear-gradient(135deg,#facc15,#f59e0b);color:#1d1200}
-    .btn-ok{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
     .btn-sm{padding:7px 10px;font-size:11px;border-radius:10px}
     .list{display:flex;flex-direction:column;gap:8px}
     .item{background:var(--card2);border:1px solid rgba(168,85,247,.18);border-radius:14px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -53,7 +52,7 @@
 
     <section class="view active" id="view-lobby">
       <div class="box">
-        <div class="title"><span>🏛️ لابی ساواش</span><span style="font-size:11px;color:var(--mut)">انتخاب بازی</span></div>
+        <div class="title"><span id="lobbyTitle">کاربر</span><span style="font-size:11px;color:var(--mut)">انتخاب بازی</span></div>
         <div class="game-pick" id="doozPick">
           <div class="g-ico">❌⭕</div>
           <div class="g-name">دوز</div>
@@ -70,11 +69,6 @@
         </div>
         <div class="title" style="margin-top:8px"><span>👥 دعوت دوست به میز دوز</span></div>
         <div class="list" id="lobbyFriendsList"></div>
-      </div>
-
-      <div class="box">
-        <div class="title"><span>📩 دعوت‌های دریافتی</span></div>
-        <div class="list" id="invitesList"></div>
       </div>
     </section>
 
@@ -107,8 +101,9 @@
     if(tg){tg.ready();tg.expand()}
     const u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user;
     const uid=(u&&u.id)?String(u.id):("u_"+(localStorage.getItem("savash_gid")||(()=>{const g=Math.random().toString(36).slice(2,8);localStorage.setItem("savash_gid",g);return g})()));
-    let st=(()=>{const d={name:(u&&u.first_name)||"کاربر",sav:0};try{return{...d,...JSON.parse(localStorage.getItem(K)||"{}"),name:d.name}}catch(_){return d}})();
-    let bet=100,friendsMap={},invitesMap={},busyInvite=false;
+    const profileName=(u&&[u.first_name,u.last_name].filter(Boolean).join(" ").trim())||"کاربر";
+    let st=(()=>{const d={name:profileName,sav:0};try{return{...d,...JSON.parse(localStorage.getItem(K)||"{}"),name:profileName}}catch(_){return d}})();
+    let bet=100,friendsMap={},busyInvite=false;
 
     function setMsg(t,isErr=false){
       const el=document.getElementById("statusMsg");
@@ -119,11 +114,12 @@
     async function fbPatch(p,d){const r=await fetch(`${DB_URL}${p}.json`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)});if(!r.ok)throw new Error("PATCH "+r.status)}
 
     function goDoozRoom(roomId,amt,sym){
-      location.href=`dooz/dooz.html?room=${encodeURIComponent(roomId)}&bet=${encodeURIComponent(amt)}&sym=${encodeURIComponent(sym)}&uid=${encodeURIComponent(uid)}`;
+      location.href=`./dooz/dooz.html?room=${encodeURIComponent(roomId)}&bet=${encodeURIComponent(amt)}&sym=${encodeURIComponent(sym)}&uid=${encodeURIComponent(uid)}`;
     }
 
     function renderTop(){
       document.getElementById("nameTxt").textContent=st.name;
+      document.getElementById("lobbyTitle").textContent=st.name;
       document.getElementById("idTxt").textContent="ID: "+uid;
       document.getElementById("avTxt").textContent=(st.name||"ک").trim().charAt(0).toUpperCase();
       document.getElementById("savBal").textContent=Number(st.sav||0).toLocaleString("en-US")+" SAV";
@@ -154,20 +150,6 @@
       });
     }
 
-    function renderInvites(){
-      const wrap=document.getElementById("invitesList");
-      const entries=Object.entries(invitesMap||{}).filter(([,v])=>v&&v.status==="pending");
-      if(!entries.length){wrap.innerHTML='<div class="item-meta">دعوت بازی شرطی جدیدی نداری.</div>';return}
-      wrap.innerHTML="";
-      entries.forEach(([iid,inv])=>{
-        const row=document.createElement("div");row.className="item";
-        const amt=Number(inv.bet||100);
-        row.innerHTML=`<div><div style="font-size:13px;font-weight:800">دوز • از ${inv.fromName||inv.fromId}</div><div class="item-meta">شرط: ${amt} SAV • جایزه خالص: ${Math.round(amt*2*0.9)} SAV</div></div><button type="button" class="btn btn-ok btn-sm">قبول و بازی</button>`;
-        row.querySelector("button").onclick=()=>acceptBetInvite(iid,inv);
-        wrap.appendChild(row);
-      });
-    }
-
     function switchView(v){
       document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
       document.querySelectorAll(".nav-btn").forEach(x=>x.classList.remove("active"));
@@ -186,8 +168,7 @@
       }catch(_){}
       renderTop();
       try{friendsMap=(await fbGet(`/friends/${uid}`))||{}}catch(_){friendsMap={}}
-      try{invitesMap=(await fbGet(`/invites/${uid}`))||{}}catch(_){invitesMap={}}
-      renderFriends();renderInvites();
+      renderFriends();
     }
 
     async function addFriend(){
@@ -212,7 +193,7 @@
       if(Number(st.sav||0)<bet){setMsg(`موجودی SAV برای دعوت ${bet} SAV کافی نیست.`,true);return}
       busyInvite=true;
       const roomId=`dooz_${uid}_${cleanFid}_${Date.now()}`;
-      const iid="inv_"+Date.now();
+      const outId="out_"+Date.now();
       const prevSav=Number(st.sav||0);
       try{
         st.sav=prevSav-bet;
@@ -222,8 +203,10 @@
           bet:bet,hostId:uid,guestId:cleanFid,turn:"X",
           board:["","","","","","","","",""],winner:"",payoutDone:false,createdAt:Date.now()
         });
-        await fbPut(`/invites/${cleanFid}/${iid}`,{
-          roomId:roomId,fromId:uid,fromName:st.name,bet:bet,status:"pending",createdAt:Date.now()
+        await fbPut(`/bot_outbox/${outId}`,{
+          toId:cleanFid,fromId:uid,fromName:st.name,toName:fname,
+          roomId:roomId,bet:bet,prize:Math.round(bet*2*0.9),
+          sent:false,createdAt:Date.now()
         });
         try{await fbPut(`/users/${uid}/sav`,st.sav)}catch(_){}
         goDoozRoom(roomId,bet,"X");
@@ -233,30 +216,6 @@
         renderTop();
         busyInvite=false;
         setMsg("خطا در ارسال دعوت: "+(e.message||"اتصال را بررسی کن"),true);
-      }
-    }
-
-    async function acceptBetInvite(iid,inv){
-      if(busyInvite)return;
-      const amt=Number(inv.bet||100);
-      const roomId=inv.roomId||("dooz_"+(inv.fromId||"p1")+"_"+uid);
-      if(Number(st.sav||0)<amt){setMsg(`موجودی SAV برای قبول دعوت (${amt} SAV) کافی نیست.`,true);return}
-      busyInvite=true;
-      const prevSav=Number(st.sav||0);
-      try{
-        st.sav=prevSav-amt;
-        localStorage.setItem(K,JSON.stringify(st));
-        renderTop();
-        await fbPatch(`/invites/${uid}/${iid}`,{status:"accepted",acceptedBy:uid,acceptedAt:Date.now()});
-        await fbPatch(`/rooms/${roomId}`,{guestId:uid,joinedAt:Date.now()});
-        try{await fbPut(`/users/${uid}/sav`,st.sav)}catch(_){}
-        goDoozRoom(roomId,amt,"O");
-      }catch(e){
-        st.sav=prevSav;
-        localStorage.setItem(K,JSON.stringify(st));
-        renderTop();
-        busyInvite=false;
-        setMsg("خطا در ورود به میز: "+(e.message||"اتصال را بررسی کن"),true);
       }
     }
 
