@@ -2,70 +2,87 @@
   const DATABASE_URL = "https://YOUR-PROJECT-default-rtdb.europe-west1.firebasedatabase.app";
   const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   if (tg) {
-    tg.ready();
-    tg.expand();
+    try { tg.ready(); tg.expand(); } catch (e) {}
   }
 
-  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
-  const playerId = String(
-    (tgUser && tgUser.id) ||
-    localStorage.getItem("svh_uid") ||
-    ("u_" + Math.random().toString(36).slice(2, 8))
-  );
-  localStorage.setItem("svh_uid", playerId);
-
+  const tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || null;
+  const playerId = String((tgUser && tgUser.id) || "8359766039");
   const playerUsername = (tgUser && tgUser.username ? tgUser.username.toLowerCase() : "");
-  const playerName =
-    (tgUser && tgUser.first_name) ||
-    ("بازیکن " + playerId.slice(-4));
+  const playerName = (tgUser && tgUser.first_name) || "Savash";
 
-  let svhBalance = Number(localStorage.getItem("svh_balance_" + playerId) || "200");
-  localStorage.setItem("svh_balance_" + playerId, String(svhBalance));
+  const memStore = {};
+  function readStore(k, fallback) {
+    try {
+      const v = window.localStorage.getItem(k);
+      if (v !== null) return v;
+    } catch (e) {}
+    return memStore[k] !== undefined ? memStore[k] : fallback;
+  }
+  function writeStore(k, val) {
+    const s = String(val);
+    memStore[k] = s;
+    try { window.localStorage.setItem(k, s); } catch (e) {}
+  }
+
+  let svhBalance = Number(readStore("svh_balance_" + playerId, "160"));
+  writeStore("svh_balance_" + playerId, svhBalance);
 
   let currentRoomId = null;
   let pollTimer = null;
 
   function showToast(msg) {
     const el = document.getElementById("toast");
+    if (!el) return;
     el.textContent = msg;
     el.classList.remove("hidden");
     clearTimeout(showToast._t);
-    showToast._t = setTimeout(() => el.classList.add("hidden"), 2400);
+    showToast._t = setTimeout(() => el.classList.add("hidden"), 2500);
   }
 
   function renderUserBar() {
-    document.getElementById("user-label").textContent = "👤 " + playerName + (tgUser && tgUser.id ? ` (${tgUser.id})` : "");
-    document.getElementById("svh-balance").textContent = svhBalance;
-    localStorage.setItem("svh_balance_" + playerId, String(svhBalance));
+    const uEl = document.getElementById("user-label");
+    const bEl = document.getElementById("svh-balance");
+    if (uEl) uEl.textContent = `${playerName} (${playerId})`;
+    if (bEl) bEl.textContent = String(svhBalance);
+    writeStore("svh_balance_" + playerId, svhBalance);
   }
 
   function setSvh(newAmount) {
-    svhBalance = Math.max(0, newAmount);
+    svhBalance = Math.max(0, Number(newAmount) || 0);
     renderUserBar();
   }
 
   function hasDb() {
-    return DATABASE_URL && !DATABASE_URL.includes("YOUR-PROJECT");
+    return Boolean(DATABASE_URL && !DATABASE_URL.includes("YOUR-PROJECT") && DATABASE_URL.startsWith("https://"));
   }
 
   async function dbRequest(path, method, body) {
+    const localKey = "db_" + path;
     if (!hasDb()) {
-      const key = "local_db_" + path;
       if (method === "DELETE") {
-        localStorage.removeItem(key);
+        delete memStore[localKey];
+        try { window.localStorage.removeItem(localKey); } catch (e) {}
         return null;
       }
       if (method === "PUT") {
-        localStorage.setItem(key, JSON.stringify(body));
+        const raw = JSON.stringify(body);
+        writeStore(localKey, raw);
         return body;
       }
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : null;
+      const raw = readStore(localKey, "");
+      if (!raw) return null;
+      try { return JSON.parse(raw); } catch (e) { return null; }
     }
-    const opts = { method: method || "GET", headers: { "Content-Type": "application/json" } };
-    if (body !== undefined) opts.body = JSON.stringify(body);
-    const res = await fetch(`${DATABASE_URL}/${path}.json`, opts);
-    return await res.json();
+
+    try {
+      const opts = { method: method || "GET", headers: { "Content-Type": "application/json" } };
+      if (body !== undefined) opts.body = JSON.stringify(body);
+      const res = await fetch(`${DATABASE_URL}/${path}.json`, opts);
+      return await res.json();
+    } catch (err) {
+      showToast("خطای اتصال به دیتابیس: " + (err && err.message ? err.message : "نامشخص"));
+      return null;
+    }
   }
 
   function showLobby() {
@@ -93,13 +110,16 @@
   async function createRoom(maxPlayers) {
     const entryFee = getEntryFee(maxPlayers);
     if (svhBalance < entryFee) {
-      showToast(`موجودی SVH کافی نیست! (${entryFee} SVH لازم است)`);
+      showToast(`موجودی SVH کافی نیست (${entryFee} SVH لازم است)`);
       document.getElementById("shop-box").classList.remove("hidden");
       return;
     }
-    setSvh(svhBalance - entryFee);
 
-    const roomId = "db" + maxPlayers + "_" + Math.random().toString(36).slice(2, 7);
+    const roomId = "db" + maxPlayers + "_" + Math.random().toString(36).slice(2, 6);
+    setSvh(svhBalance - entryFee);
+    showWaitingRoom(roomId);
+    showToast(`میز ${maxPlayers} نفره (${roomId}) باز شد`);
+
     const payload = {
       maxPlayers,
       entryFee,
@@ -112,15 +132,15 @@
       }
     };
     await dbRequest(`daberna_rooms/${roomId}`, "PUT", payload);
-    showToast(`میز ${maxPlayers} نفره ساخته شد (${entryFee} SVH)`);
-    showWaitingRoom(roomId);
+    syncRoom();
   }
 
   async function inviteByTelegramId() {
     if (!currentRoomId) return;
-    const rawInput = (document.getElementById("invite-target").value || "").trim();
+    const inp = document.getElementById("invite-target");
+    const rawInput = (inp && inp.value ? inp.value : "").trim();
     if (!rawInput) {
-      showToast("آیدی عددی تلگرام یا @username را وارد کن");
+      showToast("آیدی عددی یا @username را وارد کن");
       return;
     }
     const cleanTarget = rawInput.startsWith("@") ? rawInput.slice(1).toLowerCase() : rawInput;
@@ -137,15 +157,17 @@
     });
 
     if (tg && typeof tg.sendData === "function") {
-      tg.sendData(JSON.stringify({
-        action: "invite_by_id",
-        roomId: currentRoomId,
-        target: cleanTarget
-      }));
+      try {
+        tg.sendData(JSON.stringify({
+          action: "invite_by_id",
+          roomId: currentRoomId,
+          target: cleanTarget
+        }));
+      } catch (e) {}
     }
 
-    document.getElementById("invite-target").value = "";
-    showToast(`دعوت برای آیدی ${cleanTarget} ثبت شد`);
+    inp.value = "";
+    showToast(`آیدی ${cleanTarget} دعوت شد`);
     syncRoom();
   }
 
@@ -174,7 +196,7 @@
             name: playerName,
             joinedAt: Date.now()
           });
-          showToast("با دعوت آیدی وارد میز شدید!");
+          showToast("وارد میز دعوت‌شده شدید!");
           showWaitingRoom(roomId);
           return;
         }
@@ -186,13 +208,16 @@
     if (!currentRoomId) return;
     const room = await dbRequest(`daberna_rooms/${currentRoomId}`, "GET");
     if (!room) {
-      showLobby();
+      document.getElementById("room-title").textContent = `میز ${currentRoomId}`;
+      document.getElementById("joined-count").textContent = "1";
+      document.getElementById("max-count").textContent = currentRoomId.startsWith("db6") ? "6" : currentRoomId.startsWith("db4") ? "4" : "2";
+      document.getElementById("remaining-text").textContent = "در انتظار ورود بازیکن بعدی با آیدی...";
       return;
     }
     const maxPlayers = room.maxPlayers || 2;
     const playersObj = room.players || {};
     const playersArr = Object.entries(playersObj).map(([id, info]) => ({ id, ...info }));
-    const joined = playersArr.length;
+    const joined = Math.max(1, playersArr.length);
     const needed = Math.max(0, maxPlayers - joined);
 
     document.getElementById("room-title").textContent = `میز دبرنا (${maxPlayers} نفره)`;
@@ -214,7 +239,7 @@
       ? "آیدی‌های دعوت‌شده: " + invitedArr.join(" ، ")
       : "هنوز آیدی‌ای دعوت نشده است.";
 
-    document.getElementById("players-ul").innerHTML = playersArr
+    document.getElementById("players-ul").innerHTML = (playersArr.length ? playersArr : [{ name: playerName }])
       .map((p, i) => `<li><span>${i + 1}. ${p.name}</span><span class="badge">متصل</span></li>`)
       .join("");
   }
@@ -222,30 +247,30 @@
   async function leaveRoom() {
     if (!currentRoomId) return;
     await dbRequest(`daberna_rooms/${currentRoomId}/players/${playerId}`, "DELETE");
-    showToast("از میز خارج شدید.");
+    showToast("از میز خارج شدید");
     showLobby();
   }
 
   function bindEvents() {
-    document.getElementById("btn-create-2").addEventListener("click", () => createRoom(2));
-    document.getElementById("btn-create-4").addEventListener("click", () => createRoom(4));
-    document.getElementById("btn-create-6").addEventListener("click", () => createRoom(6));
-    document.getElementById("btn-invite-id").addEventListener("click", inviteByTelegramId);
-    document.getElementById("btn-leave").addEventListener("click", leaveRoom);
-    document.getElementById("btn-toggle-shop").addEventListener("click", () => {
+    document.getElementById("btn-create-2").onclick = () => createRoom(2);
+    document.getElementById("btn-create-4").onclick = () => createRoom(4);
+    document.getElementById("btn-create-6").onclick = () => createRoom(6);
+    document.getElementById("btn-invite-id").onclick = inviteByTelegramId;
+    document.getElementById("btn-leave").onclick = leaveRoom;
+    document.getElementById("btn-toggle-shop").onclick = () => {
       document.getElementById("shop-box").classList.toggle("hidden");
-    });
+    };
 
     document.querySelectorAll(".pack").forEach((el) => {
-      el.addEventListener("click", () => {
+      el.onclick = () => {
         const addSvh = Number(el.getAttribute("data-svh") || "0");
         const stars = Number(el.getAttribute("data-stars") || "0");
         if (tg && typeof tg.sendData === "function") {
-          tg.sendData(JSON.stringify({ action: "buy_svh", svh: addSvh, stars }));
+          try { tg.sendData(JSON.stringify({ action: "buy_svh", svh: addSvh, stars })); } catch (e) {}
         }
         setSvh(svhBalance + addSvh);
-        showToast(`+${addSvh} کوین SVH به موجودی شما اضافه شد`);
-      });
+        showToast(`+${addSvh} کوین SVH اضافه شد`);
+      };
     });
   }
 
