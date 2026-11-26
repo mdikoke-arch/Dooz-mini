@@ -84,8 +84,14 @@
     pollTimer = setInterval(syncRoom, 1500);
   }
 
+  function getEntryFee(maxPlayers) {
+    if (maxPlayers === 6) return 30;
+    if (maxPlayers === 4) return 20;
+    return 10;
+  }
+
   async function createRoom(maxPlayers) {
-    const entryFee = maxPlayers === 6 ? 30 : 20;
+    const entryFee = getEntryFee(maxPlayers);
     if (svhBalance < entryFee) {
       showToast(`موجودی SVH کافی نیست! (${entryFee} SVH لازم است)`);
       document.getElementById("shop-box").classList.remove("hidden");
@@ -160,8 +166,8 @@
         const t = String(item.target).toLowerCase();
         return t === String(playerId).toLowerCase() || (playerUsername && t === playerUsername);
       });
-      if (isInvited && Object.keys(players).length < (room.maxPlayers || 4)) {
-        const fee = room.entryFee || 20;
+      if (isInvited && Object.keys(players).length < (room.maxPlayers || 2)) {
+        const fee = room.entryFee || 10;
         if (svhBalance >= fee) {
           setSvh(svhBalance - fee);
           await dbRequest(`daberna_rooms/${roomId}/players/${playerId}`, "PUT", {
@@ -183,7 +189,7 @@
       showLobby();
       return;
     }
-    const maxPlayers = room.maxPlayers || 4;
+    const maxPlayers = room.maxPlayers || 2;
     const playersObj = room.players || {};
     const playersArr = Object.entries(playersObj).map(([id, info]) => ({ id, ...info }));
     const joined = playersArr.length;
@@ -221,6 +227,7 @@
   }
 
   function bindEvents() {
+    document.getElementById("btn-create-2").addEventListener("click", () => createRoom(2));
     document.getElementById("btn-create-4").addEventListener("click", () => createRoom(4));
     document.getElementById("btn-create-6").addEventListener("click", () => createRoom(6));
     document.getElementById("btn-invite-id").addEventListener("click", inviteByTelegramId);

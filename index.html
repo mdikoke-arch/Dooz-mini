@@ -73,6 +73,10 @@
       transition: transform 0.14s ease;
     }
     .btn:active { transform: scale(0.97); }
+    .btn-2 {
+      background: linear-gradient(135deg, #0d9488, #14b8a6);
+      color: #fff;
+    }
     .btn-4 {
       background: linear-gradient(135deg, #0284c7, #2563eb);
       color: #fff;
@@ -179,8 +183,9 @@
   <!-- منوی اصلی دبرنا -->
   <div id="lobby-menu" class="card">
     <h1>🎲 دبرنا چندنفره</h1>
-    <p class="sub">میز ۴ یا ۶ نفره بساز و دوستانت را با <b>آیدی عددی تلگرام</b> یا یوزرنیم دعوت کن</p>
+    <p class="sub">میز ۲، ۴ یا ۶ نفره بساز و اکانت دوم یا دوستت را با <b>آیدی عددی تلگرام</b> دعوت کن</p>
 
+    <button id="btn-create-2" type="button" class="btn btn-2">ساخت میز ۲ نفره (تست سریع) • ورود ۱۰ SVH</button>
     <button id="btn-create-4" type="button" class="btn btn-4">ساخت میز ۴ نفره • ورود ۲۰ SVH</button>
     <button id="btn-create-6" type="button" class="btn btn-6">ساخت میز ۶ نفره • ورود ۳۰ SVH</button>
     <button id="btn-toggle-shop" type="button" class="btn btn-shop">🛒 فروشگاه کوین SVH</button>
@@ -209,13 +214,13 @@
     <h1 id="room-title">اتاق انتظار دبرنا</h1>
     <div class="status-box">
       <div style="font-size: 12px; color: #94a3b8;">تعداد بازیکنان متصل به میز:</div>
-      <div class="count-big"><span id="joined-count">0</span> / <span id="max-count">4</span> نفر</div>
+      <div class="count-big"><span id="joined-count">0</span> / <span id="max-count">2</span> نفر</div>
       <div id="remaining-text" style="font-size: 13px; color: #38bdf8; font-weight: bold;">در حال بررسی وضعیت میز...</div>
     </div>
 
     <div class="invite-box">
       <label for="invite-target" style="font-size: 12px; color: #cbd5e1;">دعوت با آیدی عددی تلگرام (مثلاً 123456789) یا @username:</label>
-      <input id="invite-target" class="input-id" type="text" placeholder="آیدی عددی یا @username دوستت را بزن" />
+      <input id="invite-target" class="input-id" type="text" placeholder="آیدی عددی یا @username اکانت دوم را بزن" />
       <button id="btn-invite-id" type="button" class="btn btn-invite">📩 ثبت دعوت با آیدی تلگرام</button>
       <div id="invited-list" style="font-size: 12px; color: #94a3b8; margin-top: 6px;"></div>
     </div>
