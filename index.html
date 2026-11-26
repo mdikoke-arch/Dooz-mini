@@ -1071,3 +1071,157 @@
   </script>
 </body>
 </html>
+  <script>
+    (function () {
+      var BOT_USERNAME = "Starsgameir_bot";
+      var APP_SHORT_NAME = "app";
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
+      var tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
+      var saved = {};
+      try { saved = JSON.parse(localStorage.getItem("germ_lobby_v3") || "{}"); } catch (e) {}
+      var state = {
+        displayName: saved.displayName || (tgUser && tgUser.first_name) || "SavasH",
+        username: saved.username || (tgUser && tgUser.username ? "@" + tgUser.username : "@bigsavash"),
+        avatar: saved.avatar || "🦁",
+        theme: saved.theme || "dark",
+        friends: Array.isArray(saved.friends) ? saved.friends : [],
+        incomingRequests: Array.isArray(saved.incomingRequests) ? saved.incomingRequests : [],
+        sentRequests: Array.isArray(saved.sentRequests) ? saved.sentRequests : []
+      };
+      function saveState() { try { localStorage.setItem("germ_lobby_v3", JSON.stringify(state)); } catch (e) {} }
+      function $(id) { return document.getElementById(id); }
+      function cleanHandle(v) { return String(v || "").trim().replace(/^@+/, ""); }
+      function getInviteCode() {
+        var base = (tgUser && tgUser.id) ? String(tgUser.id) : cleanHandle(state.username || "savash");
+        return "inv_" + base.replace(/[^a-zA-Z0-9_]/g, "");
+      }
+      function getInviteLink() {
+        return "https://t.me/" + BOT_USERNAME + "/" + APP_SHORT_NAME + "?startapp=" + encodeURIComponent(getInviteCode());
+      }
+      function handleIncomingStartParam() {
+        var p = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || new URLSearchParams(window.location.search || "").get("startapp") || "";
+        if (p.indexOf("inv_") === 0) {
+          var inviter = p.slice(4);
+          if (inviter && state.incomingRequests.indexOf(inviter) === -1 && state.friends.indexOf(inviter) === -1) {
+            state.incomingRequests.push(inviter);
+            saveState();
+          }
+        }
+      }
+      function applyTheme() {
+        var isLight = state.theme === "light";
+        document.body.classList.toggle("light", isLight);
+        $("btn-theme").textContent = isLight ? "☀️" : "🌙";
+      }
+      function renderProfile() {
+        $("top-avatar").textContent = state.avatar;
+        $("top-name").textContent = state.displayName;
+        $("top-username").textContent = state.username;
+        $("prof-avatar-big").textContent = state.avatar;
+        $("prof-name-big").textContent = state.displayName;
+        $("prof-user-big").textContent = state.username;
+        $("inp-username").value = cleanHandle(state.username);
+        $("inp-displayname").value = state.displayName;
+        $("invite-link-text").textContent = getInviteLink();
+        var items = document.querySelectorAll(".avatar-item");
+        for (var i = 0; i < items.length; i++) items[i].classList.toggle("active", items[i].getAttribute("data-av") === state.avatar);
+      }
+      function renderFriends() {
+        var box = $("friends-container");
+        if (!state.friends.length) { box.innerHTML = "لیست دوستان شما خالی است"; return; }
+        box.innerHTML = "";
+        state.friends.forEach(function (f, idx) {
+          var row = document.createElement("div");
+          row.className = "friend-row";
+          row.innerHTML = "<span>" + f + "</span>";
+          var del = document.createElement("button");
+          del.type = "button"; del.className = "mini-btn"; del.textContent = "حذف";
+          del.onclick = function () { state.friends.splice(idx, 1); saveState(); renderFriends(); };
+          row.appendChild(del); box.appendChild(row);
+        });
+      }
+      function renderRequests() {
+        var inBox = $("incoming-req-list"), outBox = $("sent-req-list");
+        if (!state.incomingRequests.length) { inBox.innerHTML = "دعوت جدیدی ندارید"; } else {
+          inBox.innerHTML = "";
+          state.incomingRequests.forEach(function (sender, idx) {
+            var row = document.createElement("div"); row.className = "friend-row"; row.innerHTML = "<span>" + sender + "</span>";
+            var btns = document.createElement("div");
+            var acc = document.createElement("button"); acc.type = "button"; acc.className = "mini-btn"; acc.textContent = "قبول";
+            acc.onclick = function () {
+              if (state.friends.indexOf(sender) === -1) state.friends.push(sender);
+              state.incomingRequests.splice(idx, 1); saveState(); renderFriends(); renderRequests();
+            };
+            var rej = document.createElement("button"); rej.type = "button"; rej.className = "mini-btn"; rej.textContent = "رد";
+            rej.onclick = function () { state.incomingRequests.splice(idx, 1); saveState(); renderRequests(); };
+            btns.appendChild(acc); btns.appendChild(rej); row.appendChild(btns); inBox.appendChild(row);
+          });
+        }
+        if (!state.sentRequests.length) { outBox.innerHTML = "دعوت ارسالی ندارید"; } else {
+          outBox.innerHTML = "";
+          state.sentRequests.forEach(function (target, idx) {
+            var row = document.createElement("div"); row.className = "friend-row"; row.innerHTML = "<span>" + target + "</span>";
+            var cancel = document.createElement("button"); cancel.type = "button"; cancel.className = "mini-btn"; cancel.textContent = "حذف";
+            cancel.onclick = function () { state.sentRequests.splice(idx, 1); saveState(); renderRequests(); };
+            row.appendChild(cancel); outBox.appendChild(row);
+          });
+        }
+      }
+      function switchPage(page) {
+        $("page-games").style.display = page === "games" ? "block" : "none";
+        $("page-friends").style.display = page === "friends" ? "block" : "none";
+        $("page-profile").style.display = page === "profile" ? "block" : "none";
+        $("nav-games").classList.toggle("active", page === "games");
+        $("nav-friends").classList.toggle("active", page === "friends");
+        $("nav-profile").classList.toggle("active", page === "profile");
+      }
+      $("btn-theme").onclick = function () { state.theme = state.theme === "dark" ? "light" : "dark"; applyTheme(); saveState(); };
+      $("nav-games").onclick = function () { switchPage("games"); };
+      $("nav-friends").onclick = function () { $("invite-link-text").textContent = getInviteLink(); renderFriends(); renderRequests(); switchPage("friends"); };
+      $("nav-profile").onclick = function () { $("prof-msg").textContent = ""; renderProfile(); switchPage("profile"); };
+      $("tab-board").onclick = function () { $("tab-board").classList.add("active"); $("tab-card").classList.remove("active"); $("box-board").style.display = "block"; $("box-card").style.display = "none"; };
+      $("tab-card").onclick = function () { $("tab-card").classList.add("active"); $("tab-board").classList.remove("active"); $("box-card").style.display = "block"; $("box-board").style.display = "none"; };
+      function switchFriendTab(tab) {
+        $("ftab-list").classList.toggle("active", tab === "list");
+        $("ftab-req").classList.toggle("active", tab === "req");
+        $("ftab-add").classList.toggle("active", tab === "add");
+        $("fbox-list").style.display = tab === "list" ? "block" : "none";
+        $("fbox-req").style.display = tab === "req" ? "block" : "none";
+        $("fbox-add").style.display = tab === "add" ? "block" : "none";
+      }
+      $("ftab-list").onclick = function () { renderFriends(); switchFriendTab("list"); };
+      $("ftab-req").onclick = function () { renderRequests(); switchFriendTab("req"); };
+      $("ftab-add").onclick = function () { $("friend-msg").textContent = ""; $("invite-link-text").textContent = getInviteLink(); switchFriendTab("add"); };
+      $("btn-copy-invite").onclick = function () {
+        var link = getInviteLink();
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).catch(function () {});
+        $("friend-msg").textContent = "لینک دعوت کپی شد";
+      };
+      $("btn-share-invite").onclick = function () {
+        var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(getInviteLink()) + "&text=" + encodeURIComponent("بیا داخل GermGame بازی کنیم!");
+        if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl); else window.open(shareUrl, "_blank");
+      };
+      $("btn-send-req").onclick = function () {
+        var cleaned = cleanHandle($("friend-search-input").value);
+        if (!cleaned) return;
+        var formatted = /^\d+$/.test(cleaned) ? cleaned : "@" + cleaned;
+        if (state.sentRequests.indexOf(formatted) === -1) state.sentRequests.push(formatted);
+        saveState(); $("friend-search-input").value = ""; renderRequests();
+        $("friend-msg").textContent = "دعوت برای " + formatted + " ثبت شد؛ لینک دعوت را برایش بفرست";
+      };
+      var avItems = document.querySelectorAll(".avatar-item");
+      for (var i = 0; i < avItems.length; i++) {
+        avItems[i].onclick = function () { state.avatar = this.getAttribute("data-av") || "🦁"; renderProfile(); };
+      }
+      $("btn-save-profile").onclick = function () {
+        var rawUser = cleanHandle($("inp-username").value), rawName = ($("inp-displayname").value || "").trim();
+        if (rawUser) state.username = "@" + rawUser;
+        if (rawName) state.displayName = rawName;
+        saveState(); renderProfile(); $("prof-msg").textContent = "تغییرات پروفایل ذخیره شد";
+      };
+      handleIncomingStartParam(); applyTheme(); renderProfile(); renderFriends(); renderRequests();
+    })();
+  </script>
+</body>
+</html>
