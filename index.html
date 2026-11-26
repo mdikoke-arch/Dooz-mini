@@ -204,7 +204,7 @@
         localStorage.setItem(K,JSON.stringify(st));
         renderTop();
         await fbPut(`/rooms/${roomId}`,{
-          bet:bet, game: (window.selectedGameMode || "dooz"), game_name: (window.selectedGameMode || "dooz"),hostId:uid,guestId:cleanFid,turn:"X",
+          bet:bet, game: (window.selectedGameMode || "dooz"), game_name: (window.selectedGameMode || "dooz"), game: (window.selectedGameMode || "dooz"), game_name: (window.selectedGameMode || "dooz"),hostId:uid,guestId:cleanFid,turn:"X",
           board:["","","","","","","","",""],winner:"",payoutDone:false,createdAt:Date.now()
         });
         await fbPut(`/bot_outbox/${outId}`,{
