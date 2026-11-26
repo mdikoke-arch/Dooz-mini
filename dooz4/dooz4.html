@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>دوز چهار تایی (Connect 4)</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { box-sizing: border-box; user-select: none; }
+    body {
+      margin: 0;
+      font-family: Tahoma, sans-serif;
+      background: radial-gradient(circle at top, #1b2454, #090d1e 75%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 14px;
+    }
+    .hud {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 14px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+    .status {
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    .board-wrap {
+      background: linear-gradient(180deg, #1e40af, #172554);
+      padding: 10px;
+      border-radius: 18px;
+      box-shadow: 0 14px 36px rgba(0,0,0,0.55);
+      border: 2px solid rgba(147, 197, 253, 0.35);
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(7, 46px);
+      grid-template-rows: repeat(6, 46px);
+      gap: 6px;
+    }
+    .cell {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: #090d1e;
+      box-shadow: inset 0 4px 8px rgba(0,0,0,0.75);
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
+    .cell.p1 {
+      background: radial-gradient(circle at 30% 30%, #ff7b7b, #ef4444 65%, #991b1b);
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.7);
+    }
+    .cell.p2 {
+      background: radial-gradient(circle at 30% 30%, #fde047, #eab308 65%, #854d0e);
+      box-shadow: 0 0 12px rgba(234, 179, 8, 0.7);
+    }
+    .cell.win {
+      outline: 3px solid #4ade80;
+      transform: scale(1.06);
+    }
+    .btn {
+      margin-top: 14px;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 12px;
+      background: #22c55e;
+      color: #062812;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div>اتاق: <span id="roomLabel">-</span></div>
+    <div>شرط: <span id="betLabel">0</span> SAV</div>
+    <div>مهره شما: <span id="symLabel">-</span></div>
+  </div>
+  <div class="status" id="statusBox">در حال آماده‌سازی دوز چهار تایی...</div>
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+  </div>
+  <button class="btn" onclick="resetLocalBoard()">شروع مجدد</button>
+  <script>
+    const ROWS = 6, COLS = 7;
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg) { tg.ready(); tg.expand(); }
+
+    const params = new URLSearchParams(location.search);
+    const roomId = params.get("room") || "local4";
+    const bet = params.get("bet") || "0";
+    const mySymbol = Number(params.get("sym") || "1"); // 1 = قرمز, 2 = زرد
+
+    document.getElementById("roomLabel").textContent = roomId;
+    document.getElementById("betLabel").textContent = bet;
+    document.getElementById("symLabel").textContent = mySymbol === 2 ? "زرد (2)" : "قرمز (1)";
+
+    let grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    let turn = 1;
+    let gameOver = false;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playDropSound(freq = 520) {
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.14);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+      } catch (_) {}
+    }
+
+    function checkWin(r, c, p) {
+      const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+      for (const [dr, dc] of dirs) {
+        const line = [[r, c]];
+        for (const sign of [1, -1]) {
+          let nr = r + dr * sign, nc = c + dc * sign;
+          while (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && grid[nr][nc] === p) {
+            line.push([nr, nc]);
+            nr += dr * sign; nc += dc * sign;
+          }
+        }
+        if (line.length >= 4) return line;
+      }
+      return null;
+    }
+
+    function render(winCells = []) {
+      const boardEl = document.getElementById("board");
+      boardEl.innerHTML = "";
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const div = document.createElement("div");
+          div.className = "cell";
+          if (grid[r][c] === 1) div.classList.add("p1");
+          if (grid[r][c] === 2) div.classList.add("p2");
+          if (winCells.some(([wr, wc]) => wr === r && wc === c)) div.classList.add("win");
+          div.onclick = () => dropPiece(c);
+          boardEl.appendChild(div);
+        }
+      }
+    }
+
+    function dropPiece(col) {
+      if (gameOver || turn !== mySymbol) return;
+      for (let r = ROWS - 1; r >= 0; r--) {
+        if (grid[r][col] === 0) {
+          grid[r][col] = mySymbol;
+          playDropSound(mySymbol === 1 ? 540 : 680);
+          if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
+          const winLine = checkWin(r, col, mySymbol);
+          if (winLine) {
+            gameOver = true;
+            document.getElementById("statusBox").textContent = `بازیکن ${mySymbol} برنده شد!`;
+            render(winLine);
+            return;
+          }
+          turn = mySymbol === 1 ? 2 : 1;
+          document.getElementById("statusBox").textContent = `نوبت بازیکن ${turn}`;
+          render();
+          return;
+        }
+      }
+    }
+
+    function resetLocalBoard() {
+      grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+      turn = 1;
+      gameOver = false;
+      document.getElementById("statusBox").textContent = "بازی تازه شروع شد — نوبت بازیکن 1";
+      render();
+    }
+
+    resetLocalBoard();
+  </script>
+</body>
+</html>
