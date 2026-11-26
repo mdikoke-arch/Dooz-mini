@@ -1,280 +1,359 @@
 (function () {
-  const DATABASE_URL = "https://YOUR-PROJECT-default-rtdb.europe-west1.firebasedatabase.app";
   const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   if (tg) {
     try { tg.ready(); tg.expand(); } catch (e) {}
   }
 
   const tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || null;
-  const playerId = String((tgUser && tgUser.id) || "8359766039");
-  const playerUsername = (tgUser && tgUser.username ? tgUser.username.toLowerCase() : "");
-  const playerName = (tgUser && tgUser.first_name) || "Savash";
+  const state = {
+    name: (tgUser && tgUser.first_name) || "SavasH",
+    username: (tgUser && tgUser.username) ? "@" + tgUser.username : "@bigsavash",
+    avatar: "🦁",
+    svh: 200,
+    games: 0,
+    wins: 0,
+    losses: 0,
+    mode: "solo",
+    playerColor: "#ef4444",
+    botColor: "#facc15",
+    difficulty: "medium",
+    totalRounds: 3,
+    currentRound: 1,
+    p1Score: 0,
+    p2Score: 0,
+    board: [],
+    turn: 1,
+    roundOver: false
+  };
 
-  const memStore = {};
-  function readStore(k, fallback) {
-    try {
-      const v = window.localStorage.getItem(k);
-      if (v !== null) return v;
-    } catch (e) {}
-    return memStore[k] !== undefined ? memStore[k] : fallback;
-  }
-  function writeStore(k, val) {
-    const s = String(val);
-    memStore[k] = s;
-    try { window.localStorage.setItem(k, s); } catch (e) {}
-  }
+  const ROWS = 6;
+  const COLS = 7;
 
-  let svhBalance = Number(readStore("svh_balance_" + playerId, "160"));
-  writeStore("svh_balance_" + playerId, svhBalance);
-
-  let currentRoomId = null;
-  let pollTimer = null;
-
-  function showToast(msg) {
-    const el = document.getElementById("toast");
-    if (!el) return;
-    el.textContent = msg;
-    el.classList.remove("hidden");
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(() => el.classList.add("hidden"), 2500);
-  }
-
-  function renderUserBar() {
-    const uEl = document.getElementById("user-label");
-    const bEl = document.getElementById("svh-balance");
-    if (uEl) uEl.textContent = `${playerName} (${playerId})`;
-    if (bEl) bEl.textContent = String(svhBalance);
-    writeStore("svh_balance_" + playerId, svhBalance);
-  }
-
-  function setSvh(newAmount) {
-    svhBalance = Math.max(0, Number(newAmount) || 0);
-    renderUserBar();
-  }
-
-  function hasDb() {
-    return Boolean(DATABASE_URL && !DATABASE_URL.includes("YOUR-PROJECT") && DATABASE_URL.startsWith("https://"));
-  }
-
-  async function dbRequest(path, method, body) {
-    const localKey = "db_" + path;
-    if (!hasDb()) {
-      if (method === "DELETE") {
-        delete memStore[localKey];
-        try { window.localStorage.removeItem(localKey); } catch (e) {}
-        return null;
-      }
-      if (method === "PUT") {
-        const raw = JSON.stringify(body);
-        writeStore(localKey, raw);
-        return body;
-      }
-      const raw = readStore(localKey, "");
-      if (!raw) return null;
-      try { return JSON.parse(raw); } catch (e) { return null; }
-    }
-
-    try {
-      const opts = { method: method || "GET", headers: { "Content-Type": "application/json" } };
-      if (body !== undefined) opts.body = JSON.stringify(body);
-      const res = await fetch(`${DATABASE_URL}/${path}.json`, opts);
-      return await res.json();
-    } catch (err) {
-      showToast("خطای اتصال به دیتابیس: " + (err && err.message ? err.message : "نامشخص"));
-      return null;
-    }
-  }
-
-  function showLobby() {
-    clearInterval(pollTimer);
-    currentRoomId = null;
-    document.getElementById("lobby-menu").classList.remove("hidden");
-    document.getElementById("waiting-room").classList.add("hidden");
-  }
-
-  function showWaitingRoom(roomId) {
-    currentRoomId = roomId;
-    document.getElementById("lobby-menu").classList.add("hidden");
-    document.getElementById("waiting-room").classList.remove("hidden");
-    syncRoom();
-    clearInterval(pollTimer);
-    pollTimer = setInterval(syncRoom, 1500);
-  }
-
-  function getEntryFee(maxPlayers) {
-    if (maxPlayers === 6) return 30;
-    if (maxPlayers === 4) return 20;
-    return 10;
-  }
-
-  async function createRoom(maxPlayers) {
-    const entryFee = getEntryFee(maxPlayers);
-    if (svhBalance < entryFee) {
-      showToast(`موجودی SVH کافی نیست (${entryFee} SVH لازم است)`);
-      document.getElementById("shop-box").classList.remove("hidden");
-      return;
-    }
-
-    const roomId = "db" + maxPlayers + "_" + Math.random().toString(36).slice(2, 6);
-    setSvh(svhBalance - entryFee);
-    showWaitingRoom(roomId);
-    showToast(`میز ${maxPlayers} نفره (${roomId}) باز شد`);
-
-    const payload = {
-      maxPlayers,
-      entryFee,
-      hostId: playerId,
-      status: "waiting",
-      createdAt: Date.now(),
-      invited: {},
-      players: {
-        [playerId]: { name: playerName, joinedAt: Date.now() }
-      }
-    };
-    await dbRequest(`daberna_rooms/${roomId}`, "PUT", payload);
-    syncRoom();
-  }
-
-  async function inviteByTelegramId() {
-    if (!currentRoomId) return;
-    const inp = document.getElementById("invite-target");
-    const rawInput = (inp && inp.value ? inp.value : "").trim();
-    if (!rawInput) {
-      showToast("آیدی عددی یا @username را وارد کن");
-      return;
-    }
-    const cleanTarget = rawInput.startsWith("@") ? rawInput.slice(1).toLowerCase() : rawInput;
-    const safeKey = cleanTarget.replace(/[^a-zA-Z0-9_]/g, "_");
-    if (!safeKey) {
-      showToast("آیدی واردشده معتبر نیست");
-      return;
-    }
-
-    await dbRequest(`daberna_rooms/${currentRoomId}/invited/${safeKey}`, "PUT", {
-      target: cleanTarget,
-      invitedBy: playerId,
-      invitedAt: Date.now()
+  function showView(viewId) {
+    ["view-lobby", "view-c4-modes", "view-c4-setup", "view-dice", "view-c4-game", "view-profile"].forEach((id) => {
+      document.getElementById(id).classList.toggle("hidden", id !== viewId);
     });
-
-    if (tg && typeof tg.sendData === "function") {
-      try {
-        tg.sendData(JSON.stringify({
-          action: "invite_by_id",
-          roomId: currentRoomId,
-          target: cleanTarget
-        }));
-      } catch (e) {}
-    }
-
-    inp.value = "";
-    showToast(`آیدی ${cleanTarget} دعوت شد`);
-    syncRoom();
   }
 
-  async function checkAutoInvitedRoom() {
-    const allRooms = await dbRequest("daberna_rooms", "GET");
-    if (!allRooms || typeof allRooms !== "object") return;
+  function refreshUI() {
+    document.getElementById("top-avatar").textContent = state.avatar;
+    document.getElementById("top-name").textContent = state.name;
+    document.getElementById("top-svh").textContent = String(state.svh);
+    document.getElementById("prof-avatar-big").textContent = state.avatar;
+    document.getElementById("prof-name-big").textContent = state.name;
+    document.getElementById("prof-handle").textContent = state.username;
+    document.getElementById("stat-games").textContent = String(state.games);
+    document.getElementById("stat-wins").textContent = String(state.wins);
+    document.getElementById("stat-losses").textContent = String(state.losses);
+  }
 
-    for (const [roomId, room] of Object.entries(allRooms)) {
-      if (!room || room.status !== "waiting") continue;
-      const invited = room.invited || {};
-      const players = room.players || {};
-      if (players[playerId]) {
-        showWaitingRoom(roomId);
-        return;
+  // تغییر تم
+  document.getElementById("btn-theme").onclick = () => {
+    document.body.classList.toggle("light");
+  };
+
+  // ناوبری پایین
+  document.getElementById("nav-games").onclick = () => {
+    document.getElementById("nav-games").classList.add("active");
+    document.getElementById("nav-profile").classList.remove("active");
+    showView("view-lobby");
+  };
+  document.getElementById("nav-profile").onclick = () => {
+    document.getElementById("nav-profile").classList.add("active");
+    document.getElementById("nav-games").classList.remove("active");
+    document.getElementById("prof-name-input").value = state.name;
+    showView("view-profile");
+  };
+
+  // تب‌های لابی
+  document.getElementById("tab-board").onclick = () => {
+    document.getElementById("tab-board").classList.add("active");
+    document.getElementById("tab-card").classList.remove("active");
+    document.getElementById("board-list").classList.remove("hidden");
+    document.getElementById("card-list").classList.add("hidden");
+  };
+  document.getElementById("tab-card").onclick = () => {
+    document.getElementById("tab-card").classList.add("active");
+    document.getElementById("tab-board").classList.remove("active");
+    document.getElementById("card-list").classList.remove("hidden");
+    document.getElementById("board-list").classList.add("hidden");
+  };
+
+  // انتخاب بازی دوز چهارتایی
+  document.getElementById("open-connect4").onclick = () => showView("view-c4-modes");
+  document.getElementById("btn-back-lobby").onclick = () => showView("view-lobby");
+  document.getElementById("btn-back-modes").onclick = () => showView("view-c4-modes");
+
+  function openSetup(mode) {
+    state.mode = mode;
+    document.getElementById("difficulty-wrap").classList.toggle("hidden", mode !== "solo");
+    document.getElementById("friend-id-wrap").classList.toggle("hidden", mode !== "friends");
+    showView("view-c4-setup");
+  }
+
+  document.getElementById("pick-solo").onclick = () => openSetup("solo");
+  document.getElementById("pick-public").onclick = () => openSetup("public");
+  document.getElementById("pick-friends").onclick = () => openSetup("friends");
+
+  // انتخاب رنگ مهره
+  document.querySelectorAll(".color-opt").forEach((el) => {
+    el.onclick = () => {
+      document.querySelectorAll(".color-opt").forEach((x) => x.classList.remove("selected"));
+      el.classList.add("selected");
+      state.playerColor = el.getAttribute("data-color");
+      state.botColor = state.playerColor === "#facc15" ? "#ef4444" : "#facc15";
+    };
+  });
+
+  // انتخاب سطح سختی
+  document.querySelectorAll(".diff-btn").forEach((btn) => {
+    btn.onclick = () => {
+      document.querySelectorAll(".diff-btn").forEach((x) => x.classList.remove("active"));
+      btn.classList.add("active");
+      state.difficulty = btn.getAttribute("data-diff");
+    };
+  });
+
+  // انتخاب تعداد دست
+  document.querySelectorAll(".round-btn").forEach((btn) => {
+    btn.onclick = () => {
+      document.querySelectorAll(".round-btn").forEach((x) => x.classList.remove("active"));
+      btn.classList.add("active");
+      state.totalRounds = Number(btn.getAttribute("data-rounds"));
+    };
+  });
+
+  // رفتن به تاس شروع
+  document.getElementById("btn-start-c4").onclick = () => {
+    if (state.mode === "friends") {
+      const target = (document.getElementById("friend-id-input").value || "").trim();
+      if (target && tg && typeof tg.sendData === "function") {
+        try {
+          tg.sendData(JSON.stringify({ action: "invite_by_id", roomId: "c4_match", target }));
+        } catch (e) {}
       }
-      const isInvited = Object.values(invited).some((item) => {
-        if (!item || !item.target) return false;
-        const t = String(item.target).toLowerCase();
-        return t === String(playerId).toLowerCase() || (playerUsername && t === playerUsername);
-      });
-      if (isInvited && Object.keys(players).length < (room.maxPlayers || 2)) {
-        const fee = room.entryFee || 10;
-        if (svhBalance >= fee) {
-          setSvh(svhBalance - fee);
-          await dbRequest(`daberna_rooms/${roomId}/players/${playerId}`, "PUT", {
-            name: playerName,
-            joinedAt: Date.now()
-          });
-          showToast("وارد میز دعوت‌شده شدید!");
-          showWaitingRoom(roomId);
-          return;
+    }
+    state.currentRound = 1;
+    state.p1Score = 0;
+    state.p2Score = 0;
+    document.getElementById("dice-cube").textContent = "?";
+    document.getElementById("dice-result").textContent = "";
+    document.getElementById("btn-roll-dice").disabled = false;
+    showView("view-dice");
+  };
+
+  // پرتاب تاس نوبت
+  document.getElementById("btn-roll-dice").onclick = () => {
+    const btn = document.getElementById("btn-roll-dice");
+    btn.disabled = true;
+    const myRoll = Math.floor(Math.random() * 6) + 1;
+    const oppRoll = Math.floor(Math.random() * 6) + 1;
+    document.getElementById("dice-cube").textContent = String(myRoll);
+    const iStart = myRoll >= oppRoll;
+    document.getElementById("dice-result").textContent = iStart
+      ? `تاس شما: ${myRoll} | حریف: ${oppRoll} — شما شروع می‌کنید!`
+      : `تاس شما: ${myRoll} | حریف: ${oppRoll} — حریف شروع می‌کند!`;
+
+    setTimeout(() => {
+      startRound(iStart ? 1 : 2);
+    }, 1000);
+  };
+
+  function createEmptyBoard() {
+    return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+  }
+
+  function startRound(starter) {
+    state.board = createEmptyBoard();
+    state.turn = starter;
+    state.roundOver = false;
+    document.getElementById("hud-p1").textContent = state.name;
+    document.getElementById("hud-p2").textContent = state.mode === "solo" ? "ربات" : "حریف";
+    document.getElementById("score-p1").textContent = String(state.p1Score);
+    document.getElementById("score-p2").textContent = String(state.p2Score);
+    document.getElementById("hud-round").textContent = String(state.currentRound);
+    document.getElementById("hud-total-rounds").textContent = String(state.totalRounds);
+    showView("view-c4-game");
+    renderBoard([]);
+    updateTurnText();
+    if (state.turn === 2) {
+      setTimeout(botPlay, 450);
+    }
+  }
+
+  function updateTurnText() {
+    const el = document.getElementById("turn-banner");
+    if (state.roundOver) return;
+    el.textContent = state.turn === 1
+      ? "نوبت شماست — یک ستون را انتخاب کن"
+      : "حریف در حال فکر کردن است...";
+  }
+
+  function renderBoard(winCoords) {
+    const winSet = new Set(winCoords.map(([r, c]) => `${r},${c}`));
+    const boardEl = document.getElementById("c4-board");
+    boardEl.innerHTML = "";
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const slot = document.createElement("div");
+        slot.className = "c4-slot" + (winSet.has(`${r},${c}`) ? " win" : "");
+        const val = state.board[r][c];
+        if (val === 1) slot.style.background = state.playerColor;
+        if (val === 2) slot.style.background = state.botColor;
+        slot.onclick = () => handleColumnClick(c);
+        boardEl.appendChild(slot);
+      }
+    }
+  }
+
+  function dropInColumn(board, col, who) {
+    for (let r = ROWS - 1; r >= 0; r--) {
+      if (board[r][col] === 0) {
+        board[r][col] = who;
+        return r;
+      }
+    }
+    return -1;
+  }
+
+  function findWin(board, who) {
+    const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (board[r][c] !== who) continue;
+        for (const [dr, dc] of dirs) {
+          const line = [[r, c]];
+          for (let k = 1; k < 4; k++) {
+            const nr = r + dr * k;
+            const nc = c + dc * k;
+            if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && board[nr][nc] === who) {
+              line.push([nr, nc]);
+            }
+          }
+          if (line.length === 4) return line;
         }
       }
     }
+    return null;
   }
 
-  async function syncRoom() {
-    if (!currentRoomId) return;
-    const room = await dbRequest(`daberna_rooms/${currentRoomId}`, "GET");
-    if (!room) {
-      document.getElementById("room-title").textContent = `میز ${currentRoomId}`;
-      document.getElementById("joined-count").textContent = "1";
-      document.getElementById("max-count").textContent = currentRoomId.startsWith("db6") ? "6" : currentRoomId.startsWith("db4") ? "4" : "2";
-      document.getElementById("remaining-text").textContent = "در انتظار ورود بازیکن بعدی با آیدی...";
+  function handleColumnClick(col) {
+    if (state.roundOver || state.turn !== 1) return;
+    const row = dropInColumn(state.board, col, 1);
+    if (row === -1) return;
+
+    const winLine = findWin(state.board, 1);
+    renderBoard(winLine || []);
+    if (winLine) {
+      endRound(1);
       return;
     }
-    const maxPlayers = room.maxPlayers || 2;
-    const playersObj = room.players || {};
-    const playersArr = Object.entries(playersObj).map(([id, info]) => ({ id, ...info }));
-    const joined = Math.max(1, playersArr.length);
-    const needed = Math.max(0, maxPlayers - joined);
+    if (state.board[0].every((x) => x !== 0)) {
+      endRound(0);
+      return;
+    }
+    state.turn = 2;
+    updateTurnText();
+    setTimeout(botPlay, 400);
+  }
 
-    document.getElementById("room-title").textContent = `میز دبرنا (${maxPlayers} نفره)`;
-    document.getElementById("joined-count").textContent = joined;
-    document.getElementById("max-count").textContent = maxPlayers;
+  function botPlay() {
+    if (state.roundOver || state.turn !== 2) return;
+    const validCols = [];
+    for (let c = 0; c < COLS; c++) {
+      if (state.board[0][c] === 0) validCols.push(c);
+    }
+    if (!validCols.length) return;
 
-    const remainingEl = document.getElementById("remaining-text");
-    if (needed > 0) {
-      remainingEl.textContent = `${needed} نفر دیگر باید اضافه شوند تا بازی شروع شود`;
+    let chosen = validCols[Math.floor(Math.random() * validCols.length)];
+    if (state.difficulty !== "easy") {
+      // اول بررسی برد فوری ربات
+      for (const c of validCols) {
+        const copy = state.board.map((row) => [...row]);
+        dropInColumn(copy, c, 2);
+        if (findWin(copy, 2)) { chosen = c; break; }
+      }
+      // بعد جلوگیری از برد حریف
+      if (state.difficulty === "hard") {
+        for (const c of validCols) {
+          const copy = state.board.map((row) => [...row]);
+          dropInColumn(copy, c, 1);
+          if (findWin(copy, 1)) { chosen = c; break; }
+        }
+      }
+    }
+
+    dropInColumn(state.board, chosen, 2);
+    const winLine = findWin(state.board, 2);
+    renderBoard(winLine || []);
+    if (winLine) {
+      endRound(2);
+      return;
+    }
+    if (state.board[0].every((x) => x !== 0)) {
+      endRound(0);
+      return;
+    }
+    state.turn = 1;
+    updateTurnText();
+  }
+
+  function endRound(winner) {
+    state.roundOver = true;
+    const banner = document.getElementById("turn-banner");
+    if (winner === 1) {
+      state.p1Score += 1;
+      banner.textContent = "🎉 این دست را بردی!";
+    } else if (winner === 2) {
+      state.p2Score += 1;
+      banner.textContent = "حریف این دست را برد!";
     } else {
-      remainingEl.textContent = "ظرفیت تکمیل شد! بازی دبرنا آماده شروع است";
-      if (room.status !== "playing") {
-        await dbRequest(`daberna_rooms/${currentRoomId}/status`, "PUT", "playing");
-      }
+      banner.textContent = "این دست مساوی شد!";
     }
+    document.getElementById("score-p1").textContent = String(state.p1Score);
+    document.getElementById("score-p2").textContent = String(state.p2Score);
 
-    const invitedArr = Object.values(room.invited || {}).map((x) => x.target).filter(Boolean);
-    document.getElementById("invited-list").textContent = invitedArr.length
-      ? "آیدی‌های دعوت‌شده: " + invitedArr.join(" ، ")
-      : "هنوز آیدی‌ای دعوت نشده است.";
-
-    document.getElementById("players-ul").innerHTML = (playersArr.length ? playersArr : [{ name: playerName }])
-      .map((p, i) => `<li><span>${i + 1}. ${p.name}</span><span class="badge">متصل</span></li>`)
-      .join("");
+    const neededWins = Math.ceil(state.totalRounds / 2);
+    if (state.p1Score >= neededWins || state.p2Score >= neededWins || state.currentRound >= state.totalRounds) {
+      state.games += 1;
+      if (state.p1Score > state.p2Score) {
+        state.wins += 1;
+        state.svh += 25;
+        banner.textContent = "🏆 برنده کل بازی شدی! +۲۵ SVH";
+      } else if (state.p2Score > state.p1Score) {
+        state.losses += 1;
+        banner.textContent = "پایان بازی — حریف برنده شد";
+      } else {
+        state.svh += 10;
+        banner.textContent = "پایان بازی با تساوی! +۱۰ SVH";
+      }
+      refreshUI();
+      setTimeout(() => showView("view-c4-modes"), 1800);
+    } else {
+      state.currentRound += 1;
+      setTimeout(() => startRound(winner === 1 ? 2 : 1), 1300);
+    }
   }
 
-  async function leaveRoom() {
-    if (!currentRoomId) return;
-    await dbRequest(`daberna_rooms/${currentRoomId}/players/${playerId}`, "DELETE");
-    showToast("از میز خارج شدید");
-    showLobby();
-  }
+  document.getElementById("btn-exit-match").onclick = () => showView("view-c4-modes");
 
-  function bindEvents() {
-    document.getElementById("btn-create-2").onclick = () => createRoom(2);
-    document.getElementById("btn-create-4").onclick = () => createRoom(4);
-    document.getElementById("btn-create-6").onclick = () => createRoom(6);
-    document.getElementById("btn-invite-id").onclick = inviteByTelegramId;
-    document.getElementById("btn-leave").onclick = leaveRoom;
-    document.getElementById("btn-toggle-shop").onclick = () => {
-      document.getElementById("shop-box").classList.toggle("hidden");
+  // پروفایل و آواتار
+  document.querySelectorAll(".avatar-item").forEach((el) => {
+    el.onclick = () => {
+      document.querySelectorAll(".avatar-item").forEach((x) => x.classList.remove("active"));
+      el.classList.add("active");
+      state.avatar = el.getAttribute("data-av");
     };
+  });
 
-    document.querySelectorAll(".pack").forEach((el) => {
-      el.onclick = () => {
-        const addSvh = Number(el.getAttribute("data-svh") || "0");
-        const stars = Number(el.getAttribute("data-stars") || "0");
-        if (tg && typeof tg.sendData === "function") {
-          try { tg.sendData(JSON.stringify({ action: "buy_svh", svh: addSvh, stars })); } catch (e) {}
-        }
-        setSvh(svhBalance + addSvh);
-        showToast(`+${addSvh} کوین SVH اضافه شد`);
-      };
-    });
-  }
+  document.getElementById("btn-save-profile").onclick = () => {
+    const newName = (document.getElementById("prof-name-input").value || "").trim();
+    if (newName) state.name = newName;
+    refreshUI();
+    showView("view-lobby");
+    document.getElementById("nav-games").classList.add("active");
+    document.getElementById("nav-profile").classList.remove("active");
+  };
 
-  renderUserBar();
-  bindEvents();
-  checkAutoInvitedRoom();
+  refreshUI();
 })();

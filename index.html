@@ -3,234 +3,516 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>دبرنا SVH | دعوت با آیدی تلگرام</title>
+  <title>GermGame | دوز چهارتایی</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
+    :root {
+      --bg: #0b1120;
+      --card: #151f32;
+      --card-soft: #1e293b;
+      --border: rgba(148, 163, 184, 0.2);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --gold: #f59e0b;
+    }
+    body.light {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --card-soft: #e2e8f0;
+      --border: rgba(15, 23, 42, 0.14);
+      --text: #0f172a;
+      --muted: #475569;
+      --accent: #0284c7;
+      --gold: #d97706;
+    }
     * { box-sizing: border-box; font-family: Tahoma, sans-serif; user-select: none; }
     body {
       margin: 0;
       min-height: 100vh;
-      padding: 16px;
-      color: #f8fafc;
-      background: radial-gradient(circle at top, #1e293b 0%, #090d16 70%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      background: var(--bg);
+      color: var(--text);
+      padding: 12px 14px 78px;
+      transition: background 0.2s ease, color 0.2s ease;
     }
+    .container { max-width: 430px; margin: 0 auto; }
     .topbar {
-      width: 100%;
-      max-width: 430px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(30, 41, 59, 0.85);
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      border-radius: 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
       padding: 10px 14px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
-    .svh-pill {
+    .icon-btn {
+      background: var(--card-soft);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .svh-badge {
       background: linear-gradient(135deg, #f59e0b, #d97706);
       color: #111827;
       font-weight: bold;
-      font-size: 13px;
-      padding: 6px 12px;
+      font-size: 12px;
+      padding: 5px 11px;
       border-radius: 999px;
     }
-    .card {
-      width: 100%;
-      max-width: 430px;
-      background: linear-gradient(180deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
-      border: 1px solid rgba(99, 102, 241, 0.28);
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
-      text-align: center;
-      margin-bottom: 14px;
-    }
-    h1 {
-      margin: 0 0 6px;
-      font-size: 22px;
-      background: linear-gradient(90deg, #38bdf8, #a78bfa, #fbbf24);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .sub {
-      margin: 0 0 18px;
-      font-size: 13px;
-      color: #94a3b8;
-      line-height: 1.6;
-    }
-    .btn {
-      width: 100%;
-      border: none;
-      border-radius: 14px;
-      padding: 14px;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-bottom: 10px;
-      transition: transform 0.14s ease;
-    }
-    .btn:active { transform: scale(0.97); }
-    .btn-2 {
-      background: linear-gradient(135deg, #0d9488, #14b8a6);
-      color: #fff;
-    }
-    .btn-4 {
-      background: linear-gradient(135deg, #0284c7, #2563eb);
-      color: #fff;
-    }
-    .btn-6 {
-      background: linear-gradient(135deg, #7c3aed, #db2777);
-      color: #fff;
-    }
-    .btn-shop {
-      background: rgba(245, 158, 11, 0.15);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.45);
-      font-size: 14px;
-    }
-    .btn-invite {
-      background: linear-gradient(135deg, #059669, #10b981);
-      color: #ecfdf5;
-      margin-top: 8px;
-    }
-    .btn-leave {
-      background: rgba(239, 68, 68, 0.18);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.4);
-      font-size: 13px;
-      padding: 10px;
-    }
-    .invite-box {
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid #334155;
-      border-radius: 14px;
-      padding: 12px;
-      margin-top: 12px;
-      text-align: right;
-    }
-    .input-id {
-      width: 100%;
-      padding: 11px 12px;
-      border-radius: 10px;
-      border: 1px solid #475569;
-      background: #020617;
+    .banner {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a 60%, #0369a1);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
       color: #f8fafc;
-      font-size: 14px;
-      margin-top: 8px;
-      outline: none;
-    }
-    .input-id:focus { border-color: #38bdf8; }
-    .shop-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .pack {
-      background: #0f172a;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 10px 6px;
-      cursor: pointer;
-    }
-    .pack-svh { color: #fbbf24; font-weight: bold; font-size: 14px; }
-    .pack-price { color: #94a3b8; font-size: 11px; margin-top: 4px; }
-    .status-box {
-      background: rgba(2, 6, 23, 0.75);
-      border: 1px dashed rgba(148, 163, 184, 0.35);
-      border-radius: 14px;
-      padding: 14px;
-      margin: 14px 0;
-    }
-    .count-big { font-size: 28px; font-weight: bold; color: #fbbf24; margin: 6px 0; }
-    .player-list { list-style: none; padding: 0; margin: 12px 0 0; text-align: right; }
-    .player-list li {
-      background: rgba(30, 41, 59, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.15);
-      padding: 9px 12px;
-      border-radius: 10px;
-      margin-bottom: 6px;
-      font-size: 13px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .badge { background: #0284c7; color: #fff; padding: 2px 8px; border-radius: 999px; font-size: 11px; }
-    .toast {
-      position: fixed;
-      bottom: 18px;
-      background: #1e293b;
-      color: #f8fafc;
-      border: 1px solid #38bdf8;
-      padding: 10px 16px;
-      border-radius: 12px;
-      font-size: 13px;
-      z-index: 99;
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
     }
-    .hidden { display: none; }
+    .tab-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 10px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff;
+      border-color: transparent;
+    }
+    .games-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .game-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      cursor: pointer;
+      transition: transform 0.14s ease;
+    }
+    .game-card:active { transform: scale(0.97); }
+    .game-thumb {
+      height: 92px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      display: grid;
+      grid-template-columns: repeat(4, 14px);
+      gap: 5px;
+      align-content: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+    .mini-dot { width: 14px; height: 14px; border-radius: 50%; background: #020617; }
+    .mini-dot.r { background: #ef4444; }
+    .mini-dot.y { background: #facc15; }
+    .card-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .mode-item {
+      background: var(--card-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 13px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    .mode-item:active { transform: scale(0.98); }
+    .color-row { display: flex; justify-content: center; gap: 14px; margin: 12px 0 16px; }
+    .color-opt {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+    }
+    .color-opt.selected { border-color: #fff; transform: scale(1.12); box-shadow: 0 0 12px rgba(255,255,255,0.45); }
+    .pill-group { display: flex; gap: 8px; margin: 8px 0 16px; }
+    .pill-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: var(--card-soft);
+      color: var(--text);
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .pill-btn.active {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #111827;
+      border-color: transparent;
+    }
+    .primary-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 13px;
+      border: none;
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .dice-box {
+      text-align: center;
+      padding: 20px 10px;
+    }
+    .dice-cube {
+      width: 74px;
+      height: 74px;
+      margin: 14px auto;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #38bdf8, #1d4ed8);
+      color: #fff;
+      font-size: 34px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 24px rgba(2, 132, 199, 0.45);
+    }
+    .c4-hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      font-size: 12px;
+    }
+    .c4-board {
+      background: #1d4ed8;
+      border: 3px solid #3b82f6;
+      border-radius: 16px;
+      padding: 8px;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+    }
+    .c4-slot {
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      background: #0b1120;
+      box-shadow: inset 0 3px 6px rgba(0,0,0,0.65);
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.18s ease;
+    }
+    .c4-slot.win { outline: 3px solid #fff; transform: scale(1.06); }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 14px 0;
+      text-align: center;
+    }
+    .stat-box {
+      background: var(--card-soft);
+      border-radius: 12px;
+      padding: 10px 6px;
+    }
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin: 10px 0 14px;
+    }
+    .avatar-item {
+      background: var(--card-soft);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 7px 0;
+      font-size: 22px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .avatar-item.active { border-color: var(--accent); background: rgba(56, 189, 248, 0.15); }
+    .input-box {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: var(--card-soft);
+      color: var(--text);
+      margin-top: 6px;
+      font-size: 13px;
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0 10px;
+      z-index: 50;
+    }
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .nav-btn.active { color: var(--accent); }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
+  <div class="container">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="top-avatar" style="font-size:20px;">🦁</span>
+        <span id="top-name" style="font-weight:bold;font-size:13px;">SavasH</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="svh-badge">🪙 <span id="top-svh">200</span> SVH</span>
+        <button id="btn-theme" type="button" class="icon-btn">🌓</button>
+      </div>
+    </div>
 
-  <div class="topbar">
-    <span id="user-label" style="font-size: 13px; color: #cbd5e1;">بازیکن</span>
-    <span class="svh-pill">🪙 <span id="svh-balance">0</span> SVH</span>
-  </div>
-
-  <!-- منوی اصلی دبرنا -->
-  <div id="lobby-menu" class="card">
-    <h1>🎲 دبرنا چندنفره</h1>
-    <p class="sub">میز ۲، ۴ یا ۶ نفره بساز و اکانت دوم یا دوستت را با <b>آیدی عددی تلگرام</b> دعوت کن</p>
-
-    <button id="btn-create-2" type="button" class="btn btn-2">ساخت میز ۲ نفره (تست سریع) • ورود ۱۰ SVH</button>
-    <button id="btn-create-4" type="button" class="btn btn-4">ساخت میز ۴ نفره • ورود ۲۰ SVH</button>
-    <button id="btn-create-6" type="button" class="btn btn-6">ساخت میز ۶ نفره • ورود ۳۰ SVH</button>
-    <button id="btn-toggle-shop" type="button" class="btn btn-shop">🛒 فروشگاه کوین SVH</button>
-
-    <div id="shop-box" class="hidden">
-      <div style="font-size: 13px; color: #fbbf24; margin-top: 8px;">خرید بسته کوین SVH:</div>
-      <div class="shop-grid">
-        <div class="pack" data-svh="100" data-stars="25">
-          <div class="pack-svh">+100 SVH</div>
-          <div class="pack-price">25 ⭐</div>
+    <!-- نمای ۱: لابی بازی‌ها -->
+    <div id="view-lobby">
+      <div class="banner">
+        <div>
+          <div style="font-weight:bold;font-size:17px;">GermGame</div>
+          <div style="font-size:12px;color:#bae6fd;margin-top:4px;">دور هم، هر جا که باشی</div>
         </div>
-        <div class="pack" data-svh="300" data-stars="65">
-          <div class="pack-svh">+300 SVH</div>
-          <div class="pack-price">65 ⭐</div>
+        <div style="font-size:28px;">🎯</div>
+      </div>
+
+      <div class="tabs">
+        <button id="tab-board" type="button" class="tab-btn active">🎲 بازی‌های تخته‌ای</button>
+        <button id="tab-card" type="button" class="tab-btn">🃏 بازی‌های کارتی</button>
+      </div>
+
+      <div id="board-list" class="games-grid">
+        <div id="open-connect4" class="game-card">
+          <div class="game-thumb">
+            <span class="mini-dot"></span><span class="mini-dot r"></span><span class="mini-dot"></span><span class="mini-dot"></span>
+            <span class="mini-dot y"></span><span class="mini-dot r"></span><span class="mini-dot y"></span><span class="mini-dot"></span>
+            <span class="mini-dot r"></span><span class="mini-dot y"></span><span class="mini-dot r"></span><span class="mini-dot y"></span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <strong style="font-size:14px;">دوز چهارتایی</strong>
+            <span style="font-size:11px;color:var(--accent);">۲ نفره</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">۴ مهره هم‌رنگ در یک ردیف</div>
         </div>
-        <div class="pack" data-svh="700" data-stars="140">
-          <div class="pack-svh">+700 SVH</div>
-          <div class="pack-price">140 ⭐</div>
+
+        <div class="game-card" style="opacity:0.65;">
+          <div class="game-thumb" style="display:flex;align-items:center;justify-content:center;font-size:32px;">♟️</div>
+          <strong style="font-size:14px;">شطرنج</strong>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">به‌زودی</div>
         </div>
+      </div>
+
+      <div id="card-list" class="games-grid hidden">
+        <div class="game-card" style="opacity:0.65;">
+          <div class="game-thumb" style="display:flex;align-items:center;justify-content:center;font-size:32px;">🂡</div>
+          <strong style="font-size:14px;">حکم</strong>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">به‌زودی</div>
+        </div>
+        <div class="game-card" style="opacity:0.65;">
+          <div class="game-thumb" style="display:flex;align-items:center;justify-content:center;font-size:32px;">🃏</div>
+          <strong style="font-size:14px;">چهاربرگ</strong>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">به‌زودی</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- نمای ۲: انتخاب حالت دوز چهارتایی -->
+    <div id="view-c4-modes" class="hidden">
+      <div class="card-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <strong style="font-size:16px;">🎯 دوز چهارتایی • چطوری بازی کنی؟</strong>
+          <button id="btn-back-lobby" type="button" class="icon-btn">بازگشت</button>
+        </div>
+
+        <div id="pick-solo" class="mode-item">
+          <div>
+            <div style="font-weight:bold;font-size:14px;">🤖 تک‌نفره (مقابل ربات)</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px;">انتخاب رنگ مهره، سطح سختی و تعداد دست</div>
+          </div>
+          <span>❮</span>
+        </div>
+
+        <div id="pick-public" class="mode-item">
+          <div>
+            <div style="font-weight:bold;font-size:14px;">⚡ اتاق عمومی</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px;">ورودی ۲۰ SVH • جایزه ۳۵ SVH</div>
+          </div>
+          <span>❮</span>
+        </div>
+
+        <div id="pick-friends" class="mode-item">
+          <div>
+            <div style="font-weight:bold;font-size:14px;">👥 بازی با دوستان (آیدی تلگرام)</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px;">دعوت مستقیم با آیدی عددی یا یوزرنیم</div>
+          </div>
+          <span>❮</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- نمای ۳: تنظیمات قبل از شروع دوز چهارتایی -->
+    <div id="view-c4-setup" class="hidden">
+      <div class="card-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <strong style="font-size:16px;">تنظیمات قبل از شروع</strong>
+          <button id="btn-back-modes" type="button" class="icon-btn">بازگشت</button>
+        </div>
+
+        <div id="friend-id-wrap" class="hidden" style="margin-bottom:14px;">
+          <div style="font-size:12px;color:var(--muted);">آیدی عددی یا @username دوستت:</div>
+          <input id="friend-id-input" class="input-box" type="text" placeholder="مثلاً 123456789 یا @user" />
+        </div>
+
+        <div style="font-size:13px;color:var(--muted);text-align:center;">رنگ مهره خودت را انتخاب کن:</div>
+        <div class="color-row">
+          <div class="color-opt selected" data-color="#ef4444" style="background:#ef4444;"></div>
+          <div class="color-opt" data-color="#facc15" style="background:#facc15;"></div>
+          <div class="color-opt" data-color="#22c55e" style="background:#22c55e;"></div>
+          <div class="color-opt" data-color="#a855f7" style="background:#a855f7;"></div>
+        </div>
+
+        <div id="difficulty-wrap">
+          <div style="font-size:13px;color:var(--muted);">سطح حریف (ربات):</div>
+          <div class="pill-group">
+            <button type="button" class="pill-btn diff-btn" data-diff="easy">آسان</button>
+            <button type="button" class="pill-btn diff-btn active" data-diff="medium">متوسط</button>
+            <button type="button" class="pill-btn diff-btn" data-diff="hard">سخت</button>
+          </div>
+        </div>
+
+        <div style="font-size:13px;color:var(--muted);">تعداد دست بازی:</div>
+        <div class="pill-group">
+          <button type="button" class="pill-btn round-btn active" data-rounds="3">۳ دست</button>
+          <button type="button" class="pill-btn round-btn" data-rounds="5">۵ دست</button>
+        </div>
+
+        <button id="btn-start-c4" type="button" class="primary-btn">شروع بازی</button>
+      </div>
+    </div>
+
+    <!-- نمای ۴: تاس نوبت شروع -->
+    <div id="view-dice" class="hidden">
+      <div class="card-box dice-box">
+        <strong style="font-size:16px;">🎲 تعیین نوبت شروع بازی</strong>
+        <p style="font-size:12px;color:var(--muted);">تاس را بینداز تا مشخص شود چه کسی حرکت اول را می‌زند</p>
+        <div id="dice-cube" class="dice-cube">?</div>
+        <div id="dice-result" style="font-size:13px;color:var(--gold);min-height:22px;margin-bottom:12px;"></div>
+        <button id="btn-roll-dice" type="button" class="primary-btn">پرتاب تاس</button>
+      </div>
+    </div>
+
+    <!-- نمای ۵: صفحه بازی دوز چهارتایی (۷×۶) -->
+    <div id="view-c4-game" class="hidden">
+      <div class="c4-hud">
+        <div><span id="hud-p1">شما</span>: <strong id="score-p1">0</strong></div>
+        <div style="color:var(--gold);font-weight:bold;">دست <span id="hud-round">1</span> از <span id="hud-total-rounds">3</span></div>
+        <div><span id="hud-p2">ربات</span>: <strong id="score-p2">0</strong></div>
+      </div>
+
+      <div id="turn-banner" style="text-align:center;font-size:13px;font-weight:bold;color:var(--accent);margin-bottom:10px;">
+        نوبت شماست — روی یکی از ستون‌ها بزن
+      </div>
+
+      <div id="c4-board" class="c4-board"></div>
+
+      <button id="btn-exit-match" type="button" class="icon-btn" style="width:100%;margin-top:12px;padding:10px;">
+        خروج از بازی
+      </button>
+    </div>
+
+    <!-- نمای ۶: پروفایل -->
+    <div id="view-profile" class="hidden">
+      <div class="card-box">
+        <div style="text-align:center;">
+          <div id="prof-avatar-big" style="font-size:46px;">🦁</div>
+          <div id="prof-name-big" style="font-weight:bold;font-size:16px;margin-top:4px;">SavasH</div>
+          <div id="prof-handle" style="font-size:12px;color:var(--muted);">@bigsavash</div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div style="font-size:11px;color:var(--muted);">بازی‌ها</div>
+            <strong id="stat-games" style="font-size:17px;">0</strong>
+          </div>
+          <div class="stat-box">
+            <div style="font-size:11px;color:var(--muted);">بردها</div>
+            <strong id="stat-wins" style="font-size:17px;color:#22c55e;">0</strong>
+          </div>
+          <div class="stat-box">
+            <div style="font-size:11px;color:var(--muted);">باخت‌ها</div>
+            <strong id="stat-losses" style="font-size:17px;color:#ef4444;">0</strong>
+          </div>
+        </div>
+
+        <div style="font-size:12px;color:var(--muted);">نام نمایشی:</div>
+        <input id="prof-name-input" class="input-box" type="text" placeholder="نام نمایشی خودت را بنویس" />
+
+        <div style="font-size:12px;color:var(--muted);margin-top:12px;">آواتار آماده:</div>
+        <div id="avatar-grid" class="avatar-grid">
+          <div class="avatar-item active" data-av="🦁">🦁</div>
+          <div class="avatar-item" data-av="🐼">🐼</div>
+          <div class="avatar-item" data-av="🦊">🦊</div>
+          <div class="avatar-item" data-av="🐯">🐯</div>
+          <div class="avatar-item" data-av="🐺">🐺</div>
+          <div class="avatar-item" data-av="🐸">🐸</div>
+          <div class="avatar-item" data-av="🐨">🐨</div>
+          <div class="avatar-item" data-av="🐵">🐵</div>
+          <div class="avatar-item" data-av="🦄">🦄</div>
+          <div class="avatar-item" data-av="🐙">🐙</div>
+          <div class="avatar-item" data-av="🐧">🐧</div>
+          <div class="avatar-item" data-av="🦅">🦅</div>
+        </div>
+
+        <button id="btn-save-profile" type="button" class="primary-btn">ذخیره پروفایل</button>
       </div>
     </div>
   </div>
 
-  <!-- اتاق انتظار و دعوت با آیدی -->
-  <div id="waiting-room" class="card hidden">
-    <h1 id="room-title">اتاق انتظار دبرنا</h1>
-    <div class="status-box">
-      <div style="font-size: 12px; color: #94a3b8;">تعداد بازیکنان متصل به میز:</div>
-      <div class="count-big"><span id="joined-count">0</span> / <span id="max-count">2</span> نفر</div>
-      <div id="remaining-text" style="font-size: 13px; color: #38bdf8; font-weight: bold;">در حال بررسی وضعیت میز...</div>
-    </div>
-
-    <div class="invite-box">
-      <label for="invite-target" style="font-size: 12px; color: #cbd5e1;">دعوت با آیدی عددی تلگرام (مثلاً 123456789) یا @username:</label>
-      <input id="invite-target" class="input-id" type="text" placeholder="آیدی عددی یا @username اکانت دوم را بزن" />
-      <button id="btn-invite-id" type="button" class="btn btn-invite">📩 ثبت دعوت با آیدی تلگرام</button>
-      <div id="invited-list" style="font-size: 12px; color: #94a3b8; margin-top: 6px;"></div>
-    </div>
-
-    <ul id="players-ul" class="player-list"></ul>
-
-    <button id="btn-leave" type="button" class="btn btn-leave">خروج از میز</button>
+  <div class="bottom-nav">
+    <button id="nav-games" type="button" class="nav-btn active"><span>🎮</span><span>بازی‌ها</span></button>
+    <button id="nav-profile" type="button" class="nav-btn"><span>👤</span><span>پروفایل</span></button>
   </div>
-
-  <div id="toast" class="toast hidden"></div>
 
   <script src="./app.js"></script>
 </body>
