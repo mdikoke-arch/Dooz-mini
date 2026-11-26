@@ -174,13 +174,16 @@
   function shareRoomLink() {
     if (!currentRoomId) return;
     const webLink = `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
-    const botLink = `https://t.me/${BOT_USERNAME}?startapp=${currentRoomId}`;
-    const text = `بیا میز دبرنا SVH!\nورود مستقیم در ربات: ${botLink}\nلینک وب: ${webLink}`;
+    const botUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.receiver && tg.initDataUnsafe.receiver.username) || "";
+    const inviteLink = botUser ? `https://t.me/${botUser}?startapp=${currentRoomId}` : webLink;
+    const text = botUser
+      ? `بیا میز دبرنا SVH!\nورود مستقیم در ربات: ${inviteLink}\nلینک میز: ${webLink}`
+      : `بیا میز دبرنا SVH!\nلینک ورود به میز: ${webLink}`;
 
     if (tg && tg.openTelegramLink) {
-      tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(botLink)}&text=${encodeURIComponent(text)}`);
+      tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(text)}`);
     } else if (navigator.clipboard) {
-      navigator.clipboard.writeText(botLink);
+      navigator.clipboard.writeText(inviteLink);
       showToast("لینک دعوت کپی شد!");
     }
   }
