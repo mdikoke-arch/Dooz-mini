@@ -57,6 +57,10 @@
           <div class="g-ico">❌⭕</div>
           <div class="g-name">دوز</div>
           <div class="g-sub">برای انتخاب شرط و دعوت دوست کلیک کن</div>
+<div onclick="selectGameMode('dooz4')" style="margin-top:10px;padding:12px;border-radius:14px;background:rgba(99,102,241,0.14);border:1px solid rgba(129,140,248,0.45);cursor:pointer;">
+  <div style="font-weight:bold;font-size:16px;">4×4 / دوز چهار تایی</div>
+  <div style="font-size:12px;opacity:0.85;margin-top:4px;">اتصال ۴ مهره در یک ردیف • شرط‌بندی با دوست</div>
+</div>
         </div>
       </div>
 
@@ -232,5 +236,19 @@
     document.getElementById("addFriendBtn").onclick=addFriend;
     renderTop();registerMe();refreshAll();setInterval(refreshAll,4000);
   </script>
+
+<script>
+window.selectedGameMode = window.selectedGameMode || 'dooz';
+window.selectGameMode = function(mode) {
+  window.selectedGameMode = mode;
+  const statusEl = document.querySelector('[style*="بازی دوز انتخاب شد"]') || document.getElementById('statusText');
+  if (statusEl) {
+    statusEl.textContent = mode === 'dooz4'
+      ? 'بازی دوز چهار تایی انتخاب شد — شرط را انتخاب کن و دوستت را دعوت کن.'
+      : 'بازی دوز انتخاب شد — شرط را انتخاب کن و دوستت را دعوت کن.';
+  }
+};
+</script>
+
 </body>
 </html>
