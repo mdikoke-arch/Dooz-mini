@@ -6,250 +6,50 @@
   <title>GermGame | لابی</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    :root {
-      --bg: #0b1120;
-      --card: #151f32;
-      --card-soft: #1e293b;
-      --border: rgba(148, 163, 184, 0.2);
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-    }
-    body.light {
-      --bg: #f1f5f9;
-      --card: #ffffff;
-      --card-soft: #e2e8f0;
-      --border: rgba(15, 23, 42, 0.14);
-      --text: #0f172a;
-      --muted: #475569;
-      --accent: #0284c7;
-    }
-    * { box-sizing: border-box; font-family: Tahoma, sans-serif; user-select: none; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--text);
-      padding: 12px 14px 80px;
-      transition: background 0.2s ease, color 0.2s ease;
-    }
-    .container { max-width: 430px; margin: 0 auto; }
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 10px 14px;
-      margin-bottom: 12px;
-    }
-    .theme-btn {
-      background: var(--card-soft);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 11px;
-      width: 38px;
-      height: 36px;
-      font-size: 17px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .banner {
-      background: linear-gradient(135deg, #0f172a, #1e3a8a 60%, #0369a1);
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 12px;
-      color: #f8fafc;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .tabs-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .tab-btn {
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      padding: 10px 8px;
-      border-radius: 12px;
-      font-weight: bold;
-      font-size: 12px;
-      cursor: pointer;
-    }
-    .tab-btn.active {
-      background: linear-gradient(135deg, #0284c7, #2563eb);
-      color: #fff;
-      border-color: transparent;
-    }
-    .empty-box {
-      background: var(--card);
-      border: 1px dashed var(--border);
-      border-radius: 18px;
-      padding: 36px 16px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-    }
-    .card-box {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin: 14px 0;
-      text-align: center;
-    }
-    .stat-box {
-      background: var(--card-soft);
-      border-radius: 12px;
-      padding: 10px 6px;
-    }
-    .avatar-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 8px;
-      margin: 10px 0 14px;
-    }
-    .avatar-item {
-      background: var(--card-soft);
-      border: 2px solid transparent;
-      border-radius: 12px;
-      padding: 7px 0;
-      font-size: 22px;
-      text-align: center;
-      cursor: pointer;
-    }
-    .avatar-item.active {
-      border-color: var(--accent);
-      background: rgba(56, 189, 248, 0.15);
-    }
-    .input-box {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 11px;
-      border: 1px solid var(--border);
-      background: var(--card-soft);
-      color: var(--text);
-      margin-top: 6px;
-      font-size: 13px;
-      user-select: text;
-    }
-    .invite-link-box {
-      background: var(--card-soft);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 11px;
-      color: var(--accent);
-      word-break: break-all;
-      margin-top: 8px;
-      user-select: text;
-    }
-    .btn-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .primary-btn {
-      width: 100%;
-      padding: 11px;
-      border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, #0284c7, #2563eb);
-      color: #fff;
-      font-weight: bold;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .secondary-btn {
-      width: 100%;
-      padding: 11px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--card-soft);
-      color: var(--text);
-      font-weight: bold;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .friend-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card-soft);
-      border-radius: 12px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      font-size: 13px;
-    }
-    .mini-btn {
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 9px;
-      padding: 5px 10px;
-      font-size: 11px;
-      cursor: pointer;
-      margin-right: 6px;
-    }
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--card);
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 0 10px;
-      z-index: 50;
-    }
-    .nav-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-    }
-    .nav-btn.active { color: var(--accent); }
+    :root { --bg:#0b1120; --card:#151f32; --soft:#1e293b; --border:rgba(148,163,184,.2); --text:#f8fafc; --muted:#94a3b8; --accent:#38bdf8; }
+    body.light { --bg:#f1f5f9; --card:#ffffff; --soft:#e2e8f0; --border:rgba(15,23,42,.14); --text:#0f172a; --muted:#475569; --accent:#0284c7; }
+    * { box-sizing:border-box; font-family:Tahoma,sans-serif; user-select:none; }
+    body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); padding:12px 14px 80px; transition:background .2s,color .2s; }
+    .wrap { max-width:430px; margin:0 auto; }
+    .ltr { direction:ltr; unicode-bidi:embed; display:inline-block; }
+    .topbar,.banner,.card-box { background:var(--card); border:1px solid var(--border); border-radius:16px; margin-bottom:12px; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; }
+    .theme-btn { background:var(--soft); border:1px solid var(--border); color:var(--text); border-radius:11px; width:38px; height:36px; font-size:17px; cursor:pointer; }
+    .banner { background:linear-gradient(135deg,#0f172a,#1e3a8a 60%,#0369a1); border-color:rgba(56,189,248,.35); color:#f8fafc; padding:16px; display:flex; justify-content:space-between; align-items:center; }
+    .tabs2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+    .tabs3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px; }
+    .tab-btn { background:var(--card); border:1px solid var(--border); color:var(--muted); padding:10px 8px; border-radius:12px; font-weight:bold; font-size:12px; cursor:pointer; }
+    .tab-btn.active { background:linear-gradient(135deg,#0284c7,#2563eb); color:#fff; border-color:transparent; }
+    .empty-box { background:var(--card); border:1px dashed var(--border); border-radius:18px; padding:36px 16px; text-align:center; color:var(--muted); font-size:13px; }
+    .card-box { padding:16px; border-radius:18px; }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:14px 0; text-align:center; }
+    .stat { background:var(--soft); border-radius:12px; padding:10px 6px; }
+    .avatars { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin:10px 0 14px; }
+    .av { background:var(--soft); border:2px solid transparent; border-radius:12px; padding:7px 0; font-size:22px; text-align:center; cursor:pointer; }
+    .av.active { border-color:var(--accent); background:rgba(56,189,248,.15); }
+    .inp,.link-box { width:100%; border-radius:11px; border:1px solid var(--border); background:var(--soft); color:var(--text); padding:10px 12px; font-size:13px; margin-top:6px; user-select:text; }
+    .link-box { font-size:11px; color:var(--accent); word-break:break-all; }
+    .row2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+    .btn-p { width:100%; padding:11px; border-radius:12px; border:none; background:linear-gradient(135deg,#0284c7,#2563eb); color:#fff; font-weight:bold; font-size:13px; cursor:pointer; }
+    .btn-s { width:100%; padding:11px; border-radius:12px; border:1px solid var(--border); background:var(--soft); color:var(--text); font-weight:bold; font-size:13px; cursor:pointer; }
+    .f-row { display:flex; justify-content:space-between; align-items:center; background:var(--soft); border-radius:12px; padding:10px 12px; margin-bottom:8px; font-size:13px; }
+    .m-btn { background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:9px; padding:5px 10px; font-size:11px; cursor:pointer; margin-right:6px; }
+    .nav { position:fixed; bottom:0; left:0; right:0; background:var(--card); border-top:1px solid var(--border); display:flex; justify-content:space-around; padding:8px 0 10px; z-index:50; }
+    .n-btn { background:none; border:none; color:var(--muted); font-size:12px; font-weight:bold; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; }
+    .n-btn.active { color:var(--accent); }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="wrap">
     <div class="topbar">
       <div style="display:flex;align-items:center;gap:8px;">
-        <span id="top-avatar" style="font-size:21px;">🦁</span>
+        <span id="top-av" style="font-size:21px;">🦁</span>
         <div>
           <div id="top-name" style="font-weight:bold;font-size:13px;">SavasH</div>
-          <div id="top-username" style="font-size:11px;color:var(--muted);">@bigsavash</div>
+          <div id="top-user" class="ltr" style="font-size:11px;color:var(--muted);">@bigsavash</div>
         </div>
       </div>
-      <button id="btn-theme" type="button" class="theme-btn" aria-label="تغییر تم">🌙</button>
+      <button id="btn-theme" type="button" class="theme-btn">🌙</button>
     </div>
 
     <div id="page-games">
@@ -260,585 +60,7 @@
         </div>
         <div style="font-size:28px;">🎮</div>
       </div>
-
-      <div class="tabs">
-        <button id="tab-board" type="button" class="tab-btn active">🎲 بازی‌های تخته‌ای</button>
-        <button id="tab-card" type="button" class="tab-btn">🃏 بازی‌های کارتی</button>
-      </div>
-
-      <div id="box-board" class="empty-box">هنوز بازی تخته‌ای اضافه نشده است</div>
-      <div id="box-card" class="empty-box" style="display:none;">هنوز بازی کارتی اضافه نشده است</div>
-    </div>
-
-    <div id="page-friends" style="display:none;">
-      <div class="tabs-3">
-        <button id="ftab-list" type="button" class="tab-btn active">دوستان</button>
-        <button id="ftab-req" type="button" class="tab-btn">درخواست‌ها</button>
-        <button id="ftab-add" type="button" class="tab-btn">افزودن</button>
-      </div>
-
-      <div id="fbox-list" class="card-box">
-        <div id="friends-container" style="font-size:13px;color:var(--muted);text-align:center;padding:16px 0;">
-          لیست دوستان شما خالی است
-        </div>
-      </div>
-
-      <div id="fbox-req" class="card-box" style="display:none;">
-        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">📥 دعوت‌های دریافتی</div>
-        <div id="incoming-req-list" style="font-size:12px;color:var(--muted);text-align:center;padding:10px 0;">
-          دعوت جدیدی ندارید
-        </div>
-        <div style="font-size:12px;color:var(--muted);margin:12px 0 8px;">📤 دعوت‌های ارسالی</div>
-        <div id="sent-req-list" style="font-size:12px;color:var(--muted);text-align:center;padding:10px 0;">
-          دعوت ارسالی ندارید
-        </div>
-      </div>
-
-      <div id="fbox-add" class="card-box" style="display:none;">
-        <div style="font-size:12px;font-weight:bold;">دعوت دوست با لینک اختصاصی:</div>
-        <div id="invite-link-text" class="invite-link-box"></div>
-        <div class="btn-row">
-          <button id="btn-copy-invite" type="button" class="secondary-btn">کپی لینک</button>
-          <button id="btn-share-invite" type="button" class="primary-btn">ارسال در تلگرام</button>
-        </div>
-
-        <div style="font-size:12px;color:var(--muted);margin-top:16px;">ثبت سریع یوزرنیم یا شناسه دوست:</div>
-        <input id="friend-search-input" class="input-box" type="text" placeholder="مثلاً @username یا 123456789" />
-        <button id="btn-send-req" type="button" class="primary-btn" style="margin-top:8px;">ثبت و ساخت لینک دعوت</button>
-        <div id="friend-msg" style="font-size:12px;color:var(--accent);text-align:center;margin-top:8px;"></div>
-      </div>
-    </div>
-
-    <div id="page-profile" style="display:none;">
-      <div class="card-box">
-        <div style="text-align:center;">
-          <div id="prof-avatar-big" style="font-size:48px;">🦁</div>
-          <div id="prof-name-big" style="font-weight:bold;font-size:16px;margin-top:4px;">SavasH</div>
-          <div id="prof-user-big" style="font-size:12px;color:var(--muted);">@bigsavash</div>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-box">
-            <div style="font-size:11px;color:var(--muted);">بازی‌ها</div>
-            <strong style="font-size:17px;">0</strong>
-          </div>
-          <div class="stat-box">
-            <div style="font-size:11px;color:var(--muted);">بردها</div>
-            <strong style="font-size:17px;color:#22c55e;">0</strong>
-          </div>
-          <div class="stat-box">
-            <div style="font-size:11px;color:var(--muted);">باخت‌ها</div>
-            <strong style="font-size:17px;color:#ef4444;">0</strong>
-          </div>
-        </div>
-
-        <div style="font-size:12px;color:var(--muted);">نام کاربری (Username):</div>
-        <input id="inp-username" class="input-box" type="text" placeholder="مثلاً bigsavash" />
-
-        <div style="font-size:12px;color:var(--muted);margin-top:10px;">نام نمایشی:</div>
-        <input id="inp-displayname" class="input-box" type="text" placeholder="نام نمایشی خودت را بنویس" />
-
-        <div style="font-size:12px;color:var(--muted);margin-top:12px;">آواتار آماده:</div>
-        <div id="avatar-grid" class="avatar-grid">
-          <div class="avatar-item active" data-av="🦁">🦁</div>
-          <div class="avatar-item" data-av="🐼">🐼</div>
-          <div class="avatar-item" data-av="🦊">🦊</div>
-          <div class="avatar-item" data-av="🐯">🐯</div>
-          <div class="avatar-item" data-av="🐺">🐺</div>
-          <div class="avatar-item" data-av="🐸">🐸</div>
-          <div class="avatar-item" data-av="🐨">🐨</div>
-          <div class="avatar-item" data-av="🐵">🐵</div>
-          <div class="avatar-item" data-av="🦄">🦄</div>
-          <div class="avatar-item" data-av="🐙">🐙</div>
-          <div class="avatar-item" data-av="🐧">🐧</div>
-          <div class="avatar-item" data-av="🦅">🦅</div>
-        </div>
-
-        <button id="btn-save-profile" type="button" class="primary-btn">ذخیره پروفایل</button>
-        <div id="prof-msg" style="font-size:12px;color:#22c55e;text-align:center;margin-top:8px;"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="bottom-nav">
-    <button id="nav-games" type="button" class="nav-btn active"><span>🎮</span><span>بازی‌ها</span></button>
-    <button id="nav-friends" type="button" class="nav-btn"><span>👥</span><span>دوستان</span></button>
-    <button id="nav-profile" type="button" class="nav-btn"><span>👤</span><span>پروفایل</span></button>
-  </div>
-
-  <script>
-    (function () {
-      var BOT_USERNAME = "Starsgameir_bot";
-      var APP_SHORT_NAME = "app";
-
-      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-      if (tg) {
-        try { tg.ready(); tg.expand(); } catch (e) {}
-      }
-
-      var tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
-      var saved = {};
-      try { saved = JSON.parse(localStorage.getItem("germ_lobby_v3") || "{}"); } catch (e) {}
-
-      var state = {
-        displayName: saved.displayName || (tgUser && tgUser.first_name) || "SavasH",
-        username: saved.username || (tgUser && tgUser.username ? "@" + tgUser.username : "@bigsavash"),
-        avatar: saved.avatar || "🦁",
-        theme: saved.theme || "dark",
-        friends: Array.isArray(saved.friends) ? saved.friends : [],
-        incomingRequests: Array.isArray(saved.incomingRequests) ? saved.incomingRequests : [],
-        sentRequests: Array.isArray(saved.sentRequests) ? saved.sentRequests : []
-      };
-
-      function saveState() {
-        try { localStorage.setItem("germ_lobby_v3", JSON.stringify(state)); } catch (e) {}
-      }
-
-      function $(id) { return document.getElementById(id); }
-
-      function cleanHandle(v) {
-        return String(v || "").trim().replace(/^@+/, "");
-      }
-
-      function getInviteCode() {
-        var base = (tgUser && tgUser.id) ? String(tgUser.id) : cleanHandle(state.username || "savash");
-        return "inv_" + base.replace(/[^a-zA-Z0-9_]/g, "");
-      }
-
-      function getInviteLink() {
-        return "https://t.me/" + BOT_USERNAME + "/" + APP_SHORT_NAME + "?startapp=" + encodeURIComponent(getInviteCode());
-      }
-
-      function handleIncomingStartParam() {
-        var startParam = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || "";
-        if (!startParam) {
-          var q = new URLSearchParams(window.location.search || "");
-          startParam = q.get("startapp") || "";
-        }
-        if (startParam && startParam.indexOf("inv_") === 0) {
-          var inviter = startParam.slice(4);
-          if (inviter && state.incomingRequests.indexOf(inviter) === -1 && state.friends.indexOf(inviter) === -1) {
-            state.incomingRequests.push(inviter);
-            saveState();
-          }
-        }
-      }
-
-      function applyTheme() {
-        var isLight = state.theme === "light";
-        document.body.classList.toggle("light", isLight);
-        $("btn-theme").textContent = isLight ? "☀️" : "🌙";
-      }
-
-      function renderProfile() {
-        $("top-avatar").textContent = state.avatar;
-        $("top-name").textContent = state.displayName;
-        $("top-username").textContent = state.username;
-        $("prof-avatar-big").textContent = state.avatar;
-        $("prof-name-big").textContent = state.displayName;
-        $("prof-user-big").textContent = state.username;
-        $("inp-username").value = cleanHandle(state.username);
-        $("inp-displayname").value = state.displayName;
-        $("invite-link-text").textContent = getInviteLink();
-
-        var items = document.querySelectorAll(".avatar-item");
-        for (var i = 0; i < items.length; i++) {
-          items[i].classList.toggle("active", items[i].getAttribute("data-av") === state.avatar);
-        }
-      }
-
-      function renderFriends() {
-        var box = $("friends-container");
-        if (!state.friends.length) {
-          box.innerHTML = "لیست دوستان شما خالی است";
-          return;
-        }
-        box.innerHTML = "";
-        state.friends.forEach(function (f, idx) {
-          var row = document.createElement("div");
-          row.className = "friend-row";
-          row.innerHTML = "<span>" + f + "</span>";
-          var del = document.createElement("button");
-          del.type = "button";
-          del.className = "mini-btn";
-          del.textContent = "حذف";
-          del.onclick = function () {
-            state.friends.splice(idx, 1);
-            saveState();
-            renderFriends();
-          };
-          row.appendChild(del);
-          box.appendChild(row);
-        });
-      }
-
-      function renderRequests() {
-        var inBox = $("incoming-req-list");
-        var outBox = $("sent-req-list");
-
-        if (!state.incomingRequests.length) {
-          inBox.innerHTML = "دعوت جدیدی ندارید";
-        } else {
-          inBox.innerHTML = "";
-          state.incomingRequests.forEach(function (sender, idx) {
-            var row = document.createElement("div");
-            row.className = "friend-row";
-            row.innerHTML = "<span>" + sender + "</span>";
-            var btns = document.createElement("div");
-
-            var acc = document.createElement("button");
-            acc.type = "button";
-            acc.className = "mini-btn";
-            acc.textContent = "قبول";
-            acc.onclick = function () {
-              if (state.friends.indexOf(sender) === -1) state.friends.push(sender);
-              state.incomingRequests.splice(idx, 1);
-              saveState();
-              renderFriends();
-              renderRequests();
-            };
-
-            var rej = document.createElement("button");
-            rej.type = "button";
-            rej.className = "mini-btn";
-            rej.textContent = "رد";
-            rej.onclick = function () {
-              state.incomingRequests.splice(idx, 1);
-              saveState();
-              renderRequests();
-            };
-
-            btns.appendChild(acc);
-            btns.appendChild(rej);
-            row.appendChild(btns);
-            inBox.appendChild(row);
-          });
-        }
-
-        if (!state.sentRequests.length) {
-          outBox.innerHTML = "دعوت ارسالی ندارید";
-        } else {
-          outBox.innerHTML = "";
-          state.sentRequests.forEach(function (target, idx) {
-            var row = document.createElement("div");
-            row.className = "friend-row";
-            row.innerHTML = "<span>" + target + "</span>";
-            var cancel = document.createElement("button");
-            cancel.type = "button";
-            cancel.className = "mini-btn";
-            cancel.textContent = "حذف";
-            cancel.onclick = function () {
-              state.sentRequests.splice(idx, 1);
-              saveState();
-              renderRequests();
-            };
-            row.appendChild(cancel);
-            outBox.appendChild(row);
-          });
-        }
-      }
-
-      function switchPage(page) {
-        $("page-games").style.display = page === "games" ? "block" : "none";
-        $("page-friends").style.display = page === "friends" ? "block" : "none";
-        $("page-profile").style.display = page === "profile" ? "block" : "none";
-
-        $("nav-games").classList.toggle("active", page === "games");
-        $("nav-friends").classList.toggle("active", page === "friends");
-        $("nav-profile").classList.toggle("active", page === "profile");
-      }
-
-      $("btn-theme").onclick = function () {
-        state.theme = state.theme === "dark" ? "light" : "dark";
-        applyTheme();
-        saveState();
-      };
-
-      $("nav-games").onclick = function () { switchPage("games"); };
-      $("nav-friends").onclick = function () {
-        $("invite-link-text").textContent = getInviteLink();
-        renderFriends();
-        renderRequests();
-        switchPage("friends");
-      };
-      $("nav-profile").onclick = function () {
-        $("prof-msg").textContent = "";
-        renderProfile();
-        switchPage("profile");
-      };
-
-      $("tab-board").onclick = function () {
-        $("tab-board").classList.add("active");
-        $("tab-card").classList.remove("active");
-        $("box-board").style.display = "block";
-        $("box-card").style.display = "none";
-      };
-
-      $("tab-card").onclick = function () {
-        $("tab-card").classList.add("active");cd ~/Dooz-mini && cat << 'EOF' > index.html
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>GermGame | لابی</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    :root {
-      --bg: #0b1120;
-      --card: #151f32;
-      --card-soft: #1e293b;
-      --border: rgba(148, 163, 184, 0.2);
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-    }
-    body.light {
-      --bg: #f1f5f9;
-      --card: #ffffff;
-      --card-soft: #e2e8f0;
-      --border: rgba(15, 23, 42, 0.14);
-      --text: #0f172a;
-      --muted: #475569;
-      --accent: #0284c7;
-    }
-    * { box-sizing: border-box; font-family: Tahoma, sans-serif; user-select: none; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--text);
-      padding: 12px 14px 80px;
-      transition: background 0.2s ease, color 0.2s ease;
-    }
-    .container { max-width: 430px; margin: 0 auto; }
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 10px 14px;
-      margin-bottom: 12px;
-    }
-    .theme-btn {
-      background: var(--card-soft);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 11px;
-      width: 38px;
-      height: 36px;
-      font-size: 17px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .banner {
-      background: linear-gradient(135deg, #0f172a, #1e3a8a 60%, #0369a1);
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 12px;
-      color: #f8fafc;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .tabs-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .tab-btn {
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      padding: 10px 8px;
-      border-radius: 12px;
-      font-weight: bold;
-      font-size: 12px;
-      cursor: pointer;
-    }
-    .tab-btn.active {
-      background: linear-gradient(135deg, #0284c7, #2563eb);
-      color: #fff;
-      border-color: transparent;
-    }
-    .empty-box {
-      background: var(--card);
-      border: 1px dashed var(--border);
-      border-radius: 18px;
-      padding: 36px 16px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-    }
-    .card-box {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin: 14px 0;
-      text-align: center;
-    }
-    .stat-box {
-      background: var(--card-soft);
-      border-radius: 12px;
-      padding: 10px 6px;
-    }
-    .avatar-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 8px;
-      margin: 10px 0 14px;
-    }
-    .avatar-item {
-      background: var(--card-soft);
-      border: 2px solid transparent;
-      border-radius: 12px;
-      padding: 7px 0;
-      font-size: 22px;
-      text-align: center;
-      cursor: pointer;
-    }
-    .avatar-item.active {
-      border-color: var(--accent);
-      background: rgba(56, 189, 248, 0.15);
-    }
-    .input-box {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 11px;
-      border: 1px solid var(--border);
-      background: var(--card-soft);
-      color: var(--text);
-      margin-top: 6px;
-      font-size: 13px;
-      user-select: text;
-    }
-    .invite-link-box {
-      background: var(--card-soft);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 11px;
-      color: var(--accent);
-      word-break: break-all;
-      margin-top: 8px;
-      user-select: text;
-    }
-    .btn-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .primary-btn {
-      width: 100%;
-      padding: 11px;
-      border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, #0284c7, #2563eb);
-      color: #fff;
-      font-weight: bold;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .secondary-btn {
-      width: 100%;
-      padding: 11px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--card-soft);
-      color: var(--text);
-      font-weight: bold;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .friend-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card-soft);
-      border-radius: 12px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      font-size: 13px;
-    }
-    .mini-btn {
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 9px;
-      padding: 5px 10px;
-      font-size: 11px;
-      cursor: pointer;
-      margin-right: 6px;
-    }
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--card);
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 0 10px;
-      z-index: 50;
-    }
-    .nav-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-    }
-    .nav-btn.active { color: var(--accent); }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="topbar">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span id="top-avatar" style="font-size:21px;">🦁</span>
-        <div>
-          <div id="top-name" style="font-weight:bold;font-size:13px;">SavasH</div>
-          <div id="top-username" style="font-size:11px;color:var(--muted);">@bigsavash</div>
-        </div>
-      </div>
-      <button id="btn-theme" type="button" class="theme-btn" aria-label="تغییر تم">🌙</button>
-    </div>
-
-    <div id="page-games">
-      <div class="banner">
-        <div>
-          <div style="font-weight:bold;font-size:17px;">GermGame</div>
-          <div style="font-size:12px;color:#bae6fd;margin-top:4px;">دور هم، هر جا که باشی</div>
-        </div>
-        <div style="font-size:28px;">🎮</div>
-      </div>
-      <div class="tabs">
+      <div class="tabs2">
         <button id="tab-board" type="button" class="tab-btn active">🎲 بازی‌های تخته‌ای</button>
         <button id="tab-card" type="button" class="tab-btn">🃏 بازی‌های کارتی</button>
       </div>
@@ -847,380 +69,188 @@
     </div>
 
     <div id="page-friends" style="display:none;">
-      <div class="tabs-3">
+      <div class="tabs3">
         <button id="ftab-list" type="button" class="tab-btn active">دوستان</button>
         <button id="ftab-req" type="button" class="tab-btn">درخواست‌ها</button>
         <button id="ftab-add" type="button" class="tab-btn">افزودن</button>
       </div>
       <div id="fbox-list" class="card-box">
-        <div id="friends-container" style="font-size:13px;color:var(--muted);text-align:center;padding:16px 0;">لیست دوستان شما خالی است</div>
+        <div id="friends-list" style="font-size:13px;color:var(--muted);text-align:center;padding:16px 0;">لیست دوستان شما خالی است</div>
       </div>
       <div id="fbox-req" class="card-box" style="display:none;">
         <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">📥 دعوت‌های دریافتی</div>
-        <div id="incoming-req-list" style="font-size:12px;color:var(--muted);text-align:center;padding:10px 0;">دعوت جدیدی ندارید</div>
+        <div id="inc-list" style="font-size:12px;color:var(--muted);text-align:center;padding:10px 0;">دعوت جدیدی ندارید</div>
         <div style="font-size:12px;color:var(--muted);margin:12px 0 8px;">📤 دعوت‌های ارسالی</div>
-        <div id="sent-req-list" style="font-size:12px;color:var(--muted);text-align:center;padding:10px 0;">دعوت ارسالی ندارید</div>
+        <div id="sent-list" style="font-size:12px;color:var(--muted);text-align:center;padding:10px 0;">دعوت ارسالی ندارید</div>
       </div>
       <div id="fbox-add" class="card-box" style="display:none;">
         <div style="font-size:12px;font-weight:bold;">دعوت دوست با لینک اختصاصی:</div>
-        <div id="invite-link-text" class="invite-link-box"></div>
-        <div class="btn-row">
-          <button id="btn-copy-invite" type="button" class="secondary-btn">کپی لینک</button>
-          <button id="btn-share-invite" type="button" class="primary-btn">ارسال در تلگرام</button>
+        <div id="inv-link" class="link-box ltr"></div>
+        <div class="row2">
+          <button id="btn-copy" type="button" class="btn-s">کپی لینک</button>
+          <button id="btn-share" type="button" class="btn-p">ارسال در تلگرام</button>
         </div>
-        <div style="font-size:12px;color:var(--muted);margin-top:16px;">ثبت سریع یوزرنیم یا شناسه دوست:</div>
-        <input id="friend-search-input" class="input-box" type="text" placeholder="مثلاً @username یا 123456789" />
-        <button id="btn-send-req" type="button" class="primary-btn" style="margin-top:8px;">ثبت و ساخت لینک دعوت</button>
-        <div id="friend-msg" style="font-size:12px;color:var(--accent);text-align:center;margin-top:8px;"></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:16px;">ثبت یوزرنیم یا شناسه دوست:</div>
+        <input id="inp-friend" class="inp" type="text" placeholder="مثلاً @username یا 123456789" />
+        <button id="btn-add-f" type="button" class="btn-p" style="margin-top:8px;">ثبت دعوت</button>
+        <div id="f-msg" style="font-size:12px;color:var(--accent);text-align:center;margin-top:8px;"></div>
       </div>
     </div>
 
     <div id="page-profile" style="display:none;">
       <div class="card-box">
         <div style="text-align:center;">
-          <div id="prof-avatar-big" style="font-size:48px;">🦁</div>
-          <div id="prof-name-big" style="font-weight:bold;font-size:16px;margin-top:4px;">SavasH</div>
-          <div id="prof-user-big" style="font-size:12px;color:var(--muted);">@bigsavash</div>
+          <div id="p-av" style="font-size:48px;">🦁</div>
+          <div id="p-name" style="font-weight:bold;font-size:16px;margin-top:4px;">SavasH</div>
+          <div id="p-user" class="ltr" style="font-size:12px;color:var(--muted);">@bigsavash</div>
         </div>
-        <div class="stats-grid">
-          <div class="stat-box"><div style="font-size:11px;color:var(--muted);">بازی‌ها</div><strong style="font-size:17px;">0</strong></div>
-          <div class="stat-box"><div style="font-size:11px;color:var(--muted);">بردها</div><strong style="font-size:17px;color:#22c55e;">0</strong></div>
-          <div class="stat-box"><div style="font-size:11px;color:var(--muted);">باخت‌ها</div><strong style="font-size:17px;color:#ef4444;">0</strong></div>
+        <div class="stats">
+          <div class="stat"><div style="font-size:11px;color:var(--muted);">بازی‌ها</div><strong style="font-size:17px;">0</strong></div>
+          <div class="stat"><div style="font-size:11px;color:var(--muted);">بردها</div><strong style="font-size:17px;color:#22c55e;">0</strong></div>
+          <div class="stat"><div style="font-size:11px;color:var(--muted);">باخت‌ها</div><strong style="font-size:17px;color:#ef4444;">0</strong></div>
         </div>
         <div style="font-size:12px;color:var(--muted);">نام کاربری (Username):</div>
-        <input id="inp-username" class="input-box" type="text" placeholder="مثلاً bigsavash" />
+        <input id="inp-user" class="inp" type="text" placeholder="مثلاً bigsavash" />
         <div style="font-size:12px;color:var(--muted);margin-top:10px;">نام نمایشی:</div>
-        <input id="inp-displayname" class="input-box" type="text" placeholder="نام نمایشی خودت را بنویس" />
+        <input id="inp-name" class="inp" type="text" placeholder="نام نمایشی" />
         <div style="font-size:12px;color:var(--muted);margin-top:12px;">آواتار آماده:</div>
-        <div id="avatar-grid" class="avatar-grid">
-          <div class="avatar-item active" data-av="🦁">🦁</div>
-          <div class="avatar-item" data-av="🐼">🐼</div>
-          <div class="avatar-item" data-av="🦊">🦊</div>
-          <div class="avatar-item" data-av="🐯">🐯</div>
-          <div class="avatar-item" data-av="🐺">🐺</div>
-          <div class="avatar-item" data-av="🐸">🐸</div>
-          <div class="avatar-item" data-av="🐨">🐨</div>
-          <div class="avatar-item" data-av="🐵">🐵</div>
-          <div class="avatar-item" data-av="🦄">🦄</div>
-          <div class="avatar-item" data-av="🐙">🐙</div>
-          <div class="avatar-item" data-av="🐧">🐧</div>
-          <div class="avatar-item" data-av="🦅">🦅</div>
+        <div id="av-grid" class="avatars">
+          <div class="av active" data-av="🦁">🦁</div><div class="av" data-av="🐼">🐼</div>
+          <div class="av" data-av="🦊">🦊</div><div class="av" data-av="🐯">🐯</div>
+          <div class="av" data-av="🐺">🐺</div><div class="av" data-av="🐸">🐸</div>
+          <div class="av" data-av="🐨">🐨</div><div class="av" data-av="🐵">🐵</div>
+          <div class="av" data-av="🦄">🦄</div><div class="av" data-av="🐙">🐙</div>
+          <div class="av" data-av="🐧">🐧</div><div class="av" data-av="🦅">🦅</div>
         </div>
-        <button id="btn-save-profile" type="button" class="primary-btn">ذخیره پروفایل</button>
-        <div id="prof-msg" style="font-size:12px;color:#22c55e;text-align:center;margin-top:8px;"></div>
+        <button id="btn-save" type="button" class="btn-p">ذخیره پروفایل</button>
+        <div id="p-msg" style="font-size:12px;color:#22c55e;text-align:center;margin-top:8px;"></div>
       </div>
     </div>
   </div>
 
-  <div class="bottom-nav">
-    <button id="nav-games" type="button" class="nav-btn active"><span>🎮</span><span>بازی‌ها</span></button>
-    <button id="nav-friends" type="button" class="nav-btn"><span>👥</span><span>دوستان</span></button>
-    <button id="nav-profile" type="button" class="nav-btn"><span>👤</span><span>پروفایل</span></button>
+  <div class="nav">
+    <button id="nav-games" type="button" class="n-btn active"><span>🎮</span><span>بازی‌ها</span></button>
+    <button id="nav-friends" type="button" class="n-btn"><span>👥</span><span>دوستان</span></button>
+    <button id="nav-profile" type="button" class="n-btn"><span>👤</span><span>پروفایل</span></button>
   </div>
+
   <script>
     (function () {
-      var BOT_USERNAME = "Starsgameir_bot";
-      var APP_SHORT_NAME = "app";
+      var BOT_USERNAME = "Starsgameir_bot", APP_SHORT_NAME = "app";
       var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
       if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
       var tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
       var saved = {};
-      try { saved = JSON.parse(localStorage.getItem("germ_lobby_v3") || "{}"); } catch (e) {}
-      var state = {
-        displayName: saved.displayName || (tgUser && tgUser.first_name) || "SavasH",
-        username: saved.username || (tgUser && tgUser.username ? "@" + tgUser.username : "@bigsavash"),
-        avatar: saved.avatar || "🦁",
+      try { saved = JSON.parse(localStorage.getItem("germ_lobby_v4") || "{}"); } catch (e) {}
+      var st = {
+        name: saved.name || (tgUser && tgUser.first_name) || "SavasH",
+        user: saved.user || (tgUser && tgUser.username ? "@" + tgUser.username : "@bigsavash"),
+        av: saved.av || "🦁",
         theme: saved.theme || "dark",
         friends: Array.isArray(saved.friends) ? saved.friends : [],
-        incomingRequests: Array.isArray(saved.incomingRequests) ? saved.incomingRequests : [],
-        sentRequests: Array.isArray(saved.sentRequests) ? saved.sentRequests : []
+        inc: Array.isArray(saved.inc) ? saved.inc : [],
+        sent: Array.isArray(saved.sent) ? saved.sent : []
       };
-      function saveState() { try { localStorage.setItem("germ_lobby_v3", JSON.stringify(state)); } catch (e) {} }
-      function $(id) { return document.getElementById(id); }
-      function cleanHandle(v) { return String(v || "").trim().replace(/^@+/, ""); }
-      function getInviteCode() {
-        var base = (tgUser && tgUser.id) ? String(tgUser.id) : cleanHandle(state.username || "savash");
-        return "inv_" + base.replace(/[^a-zA-Z0-9_]/g, "");
+      var $ = function (id) { return document.getElementById(id); };
+      var clean = function (v) { return String(v || "").trim().replace(/^@+/, ""); };
+      var save = function () { try { localStorage.setItem("germ_lobby_v4", JSON.stringify(st)); } catch (e) {} };
+      function invLink() {
+        var idPart = (tgUser && tgUser.id) ? String(tgUser.id) : clean(st.user || "savash");
+        return "https://t.me/" + BOT_USERNAME + "/" + APP_SHORT_NAME + "?startapp=inv_" + idPart.replace(/[^a-zA-Z0-9_]/g, "");
       }
-      function getInviteLink() {
-        return "https://t.me/" + BOT_USERNAME + "/" + APP_SHORT_NAME + "?startapp=" + encodeURIComponent(getInviteCode());
-      }
-      function handleIncomingStartParam() {
-        var p = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || new URLSearchParams(window.location.search || "").get("startapp") || "";
+      function checkStart() {
+        var p = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || new URLSearchParams(location.search || "").get("startapp") || "";
         if (p.indexOf("inv_") === 0) {
-          var inviter = p.slice(4);
-          if (inviter && state.incomingRequests.indexOf(inviter) === -1 && state.friends.indexOf(inviter) === -1) {
-            state.incomingRequests.push(inviter);
-            saveState();
-          }
+          var who = p.slice(4);
+          if (who && st.inc.indexOf(who) === -1 && st.friends.indexOf(who) === -1) { st.inc.push(who); save(); }
         }
       }
       function applyTheme() {
-        var isLight = state.theme === "light";
-        document.body.classList.toggle("light", isLight);
-        $("btn-theme").textContent = isLight ? "☀️" : "🌙";
+        var l = st.theme === "light";
+        document.body.classList.toggle("light", l);
+        $("btn-theme").textContent = l ? "☀️" : "🌙";
       }
       function renderProfile() {
-        $("top-avatar").textContent = state.avatar;
-        $("top-name").textContent = state.displayName;
-        $("top-username").textContent = state.username;
-        $("prof-avatar-big").textContent = state.avatar;
-        $("prof-name-big").textContent = state.displayName;
-        $("prof-user-big").textContent = state.username;
-        $("inp-username").value = cleanHandle(state.username);
-        $("inp-displayname").value = state.displayName;
-        $("invite-link-text").textContent = getInviteLink();
-        var items = document.querySelectorAll(".avatar-item");
-        for (var i = 0; i < items.length; i++) items[i].classList.toggle("active", items[i].getAttribute("data-av") === state.avatar);
+        $("top-av").textContent = $("p-av").textContent = st.av;
+        $("top-name").textContent = $("p-name").textContent = st.name;
+        $("top-user").textContent = $("p-user").textContent = st.user;
+        $("inp-user").value = clean(st.user);
+        $("inp-name").value = st.name;
+        $("inv-link").textContent = invLink();
+        document.querySelectorAll(".av").forEach(function (el) { el.classList.toggle("active", el.getAttribute("data-av") === st.av); });
       }
-      function renderFriends() {
-        var box = $("friends-container");
-        if (!state.friends.length) { box.innerHTML = "لیست دوستان شما خالی است"; return; }
-        box.innerHTML = "";
-        state.friends.forEach(function (f, idx) {
-          var row = document.createElement("div");
-          row.className = "friend-row";
-          row.innerHTML = "<span>" + f + "</span>";
-          var del = document.createElement("button");
-          del.type = "button"; del.className = "mini-btn"; del.textContent = "حذف";
-          del.onclick = function () { state.friends.splice(idx, 1); saveState(); renderFriends(); };
-          row.appendChild(del); box.appendChild(row);
-        });
-      }
-      function renderRequests() {
-        var inBox = $("incoming-req-list"), outBox = $("sent-req-list");
-        if (!state.incomingRequests.length) { inBox.innerHTML = "دعوت جدیدی ندارید"; } else {
-          inBox.innerHTML = "";
-          state.incomingRequests.forEach(function (sender, idx) {
-            var row = document.createElement("div"); row.className = "friend-row"; row.innerHTML = "<span>" + sender + "</span>";
-            var btns = document.createElement("div");
-            var acc = document.createElement("button"); acc.type = "button"; acc.className = "mini-btn"; acc.textContent = "قبول";
-            acc.onclick = function () {
-              if (state.friends.indexOf(sender) === -1) state.friends.push(sender);
-              state.incomingRequests.splice(idx, 1); saveState(); renderFriends(); renderRequests();
-            };
-            var rej = document.createElement("button"); rej.type = "button"; rej.className = "mini-btn"; rej.textContent = "رد";
-            rej.onclick = function () { state.incomingRequests.splice(idx, 1); saveState(); renderRequests(); };
-            btns.appendChild(acc); btns.appendChild(rej); row.appendChild(btns); inBox.appendChild(row);
-          });
-        }
-        if (!state.sentRequests.length) { outBox.innerHTML = "دعوت ارسالی ندارید"; } else {
-          outBox.innerHTML = "";
-          state.sentRequests.forEach(function (target, idx) {
-            var row = document.createElement("div"); row.className = "friend-row"; row.innerHTML = "<span>" + target + "</span>";
-            var cancel = document.createElement("button"); cancel.type = "button"; cancel.className = "mini-btn"; cancel.textContent = "حذف";
-            cancel.onclick = function () { state.sentRequests.splice(idx, 1); saveState(); renderRequests(); };
-            row.appendChild(cancel); outBox.appendChild(row);
-          });
-        }
-      }
-      function switchPage(page) {
-        $("page-games").style.display = page === "games" ? "block" : "none";
-        $("page-friends").style.display = page === "friends" ? "block" : "none";
-        $("page-profile").style.display = page === "profile" ? "block" : "none";
-        $("nav-games").classList.toggle("active", page === "games");
-        $("nav-friends").classList.toggle("active", page === "friends");
-        $("nav-profile").classList.toggle("active", page === "profile");
-      }
-      $("btn-theme").onclick = function () { state.theme = state.theme === "dark" ? "light" : "dark"; applyTheme(); saveState(); };
-      $("nav-games").onclick = function () { switchPage("games"); };
-      $("nav-friends").onclick = function () { $("invite-link-text").textContent = getInviteLink(); renderFriends(); renderRequests(); switchPage("friends"); };
-      $("nav-profile").onclick = function () { $("prof-msg").textContent = ""; renderProfile(); switchPage("profile"); };
-      $("tab-board").onclick = function () { $("tab-board").classList.add("active"); $("tab-card").classList.remove("active"); $("box-board").style.display = "block"; $("box-card").style.display = "none"; };
-      $("tab-card").onclick = function () { $("tab-card").classList.add("active"); $("tab-board").classList.remove("active"); $("box-card").style.display = "block"; $("box-board").style.display = "none"; };
-      function switchFriendTab(tab) {
-        $("ftab-list").classList.toggle("active", tab === "list");
-        $("ftab-req").classList.toggle("active", tab === "req");
-        $("ftab-add").classList.toggle("active", tab === "add");
-        $("fbox-list").style.display = tab === "list" ? "block" : "none";
-        $("fbox-req").style.display = tab === "req" ? "block" : "none";
-        $("fbox-add").style.display = tab === "add" ? "block" : "none";
-      }
-      $("ftab-list").onclick = function () { renderFriends(); switchFriendTab("list"); };
-      $("ftab-req").onclick = function () { renderRequests(); switchFriendTab("req"); };
-      $("ftab-add").onclick = function () { $("friend-msg").textContent = ""; $("invite-link-text").textContent = getInviteLink(); switchFriendTab("add"); };
-      $("btn-copy-invite").onclick = function () {
-        var link = getInviteLink();
-        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).catch(function () {});
-        $("friend-msg").textContent = "لینک دعوت کپی شد";
-      };
-      $("btn-share-invite").onclick = function () {
-        var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(getInviteLink()) + "&text=" + encodeURIComponent("بیا داخل GermGame بازی کنیم!");
-        if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl); else window.open(shareUrl, "_blank");
-      };
-      $("btn-send-req").onclick = function () {
-        var cleaned = cleanHandle($("friend-search-input").value);
-        if (!cleaned) return;
-        var formatted = /^\d+$/.test(cleaned) ? cleaned : "@" + cleaned;
-        if (state.sentRequests.indexOf(formatted) === -1) state.sentRequests.push(formatted);
-        saveState(); $("friend-search-input").value = ""; renderRequests();
-        $("friend-msg").textContent = "دعوت برای " + formatted + " ثبت شد؛ لینک دعوت را برایش بفرست";
-      };
-      var avItems = document.querySelectorAll(".avatar-item");
-      for (var i = 0; i < avItems.length; i++) {
-        avItems[i].onclick = function () { state.avatar = this.getAttribute("data-av") || "🦁"; renderProfile(); };
-      }
-      $("btn-save-profile").onclick = function () {
-        var rawUser = cleanHandle($("inp-username").value), rawName = ($("inp-displayname").value || "").trim();
-        if (rawUser) state.username = "@" + rawUser;
-        if (rawName) state.displayName = rawName;
-        saveState(); renderProfile(); $("prof-msg").textContent = "تغییرات پروفایل ذخیره شد";
-      };
-      handleIncomingStartParam(); applyTheme(); renderProfile(); renderFriends(); renderRequests();
-    })();
-  </script>
-</body>
-</html>
-  <script>
-    (function () {
-      var BOT_USERNAME = "Starsgameir_bot";
-      var APP_SHORT_NAME = "app";
-      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-      if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
-      var tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
-      var saved = {};
-      try { saved = JSON.parse(localStorage.getItem("germ_lobby_v3") || "{}"); } catch (e) {}
-      var state = {
-        displayName: saved.displayName || (tgUser && tgUser.first_name) || "SavasH",
-        username: saved.username || (tgUser && tgUser.username ? "@" + tgUser.username : "@bigsavash"),
-        avatar: saved.avatar || "🦁",
-        theme: saved.theme || "dark",
-        friends: Array.isArray(saved.friends) ? saved.friends : [],
-        incomingRequests: Array.isArray(saved.incomingRequests) ? saved.incomingRequests : [],
-        sentRequests: Array.isArray(saved.sentRequests) ? saved.sentRequests : []
-      };
-      function saveState() { try { localStorage.setItem("germ_lobby_v3", JSON.stringify(state)); } catch (e) {} }
-      function $(id) { return document.getElementById(id); }
-      function cleanHandle(v) { return String(v || "").trim().replace(/^@+/, ""); }
-      function getInviteCode() {
-        var base = (tgUser && tgUser.id) ? String(tgUser.id) : cleanHandle(state.username || "savash");
-        return "inv_" + base.replace(/[^a-zA-Z0-9_]/g, "");
-      }
-      function getInviteLink() {
-        return "https://t.me/" + BOT_USERNAME + "/" + APP_SHORT_NAME + "?startapp=" + encodeURIComponent(getInviteCode());
-      }
-      function handleIncomingStartParam() {
-        var p = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || new URLSearchParams(window.location.search || "").get("startapp") || "";
-        if (p.indexOf("inv_") === 0) {
-          var inviter = p.slice(4);
-          if (inviter && state.incomingRequests.indexOf(inviter) === -1 && state.friends.indexOf(inviter) === -1) {
-            state.incomingRequests.push(inviter);
-            saveState();
+      function renderList(boxId, arr, emptyText, onAccept) {
+        var b = $(boxId);
+        if (!arr.length) { b.innerHTML = emptyText; return; }
+        b.innerHTML = "";
+        arr.forEach(function (item, idx) {
+          var r = document.createElement("div"); r.className = "f-row";
+          r.innerHTML = "<span class='ltr'>" + item + "</span>";
+          var acts = document.createElement("div");
+          if (onAccept) {
+            var a = document.createElement("button"); a.type = "button"; a.className = "m-btn"; a.textContent = "قبول";
+            a.onclick = function () { onAccept(item, idx); };
+            acts.appendChild(a);
           }
-        }
-      }
-      function applyTheme() {
-        var isLight = state.theme === "light";
-        document.body.classList.toggle("light", isLight);
-        $("btn-theme").textContent = isLight ? "☀️" : "🌙";
-      }
-      function renderProfile() {
-        $("top-avatar").textContent = state.avatar;
-        $("top-name").textContent = state.displayName;
-        $("top-username").textContent = state.username;
-        $("prof-avatar-big").textContent = state.avatar;
-        $("prof-name-big").textContent = state.displayName;
-        $("prof-user-big").textContent = state.username;
-        $("inp-username").value = cleanHandle(state.username);
-        $("inp-displayname").value = state.displayName;
-        $("invite-link-text").textContent = getInviteLink();
-        var items = document.querySelectorAll(".avatar-item");
-        for (var i = 0; i < items.length; i++) items[i].classList.toggle("active", items[i].getAttribute("data-av") === state.avatar);
-      }
-      function renderFriends() {
-        var box = $("friends-container");
-        if (!state.friends.length) { box.innerHTML = "لیست دوستان شما خالی است"; return; }
-        box.innerHTML = "";
-        state.friends.forEach(function (f, idx) {
-          var row = document.createElement("div");
-          row.className = "friend-row";
-          row.innerHTML = "<span>" + f + "</span>";
-          var del = document.createElement("button");
-          del.type = "button"; del.className = "mini-btn"; del.textContent = "حذف";
-          del.onclick = function () { state.friends.splice(idx, 1); saveState(); renderFriends(); };
-          row.appendChild(del); box.appendChild(row);
+          var d = document.createElement("button"); d.type = "button"; d.className = "m-btn"; d.textContent = "حذف";
+          d.onclick = function () { arr.splice(idx, 1); save(); renderFriends(); };
+          acts.appendChild(d); r.appendChild(acts); b.appendChild(r);
         });
       }
-      function renderRequests() {
-        var inBox = $("incoming-req-list"), outBox = $("sent-req-list");
-        if (!state.incomingRequests.length) { inBox.innerHTML = "دعوت جدیدی ندارید"; } else {
-          inBox.innerHTML = "";
-          state.incomingRequests.forEach(function (sender, idx) {
-            var row = document.createElement("div"); row.className = "friend-row"; row.innerHTML = "<span>" + sender + "</span>";
-            var btns = document.createElement("div");
-            var acc = document.createElement("button"); acc.type = "button"; acc.className = "mini-btn"; acc.textContent = "قبول";
-            acc.onclick = function () {
-              if (state.friends.indexOf(sender) === -1) state.friends.push(sender);
-              state.incomingRequests.splice(idx, 1); saveState(); renderFriends(); renderRequests();
-            };
-            var rej = document.createElement("button"); rej.type = "button"; rej.className = "mini-btn"; rej.textContent = "رد";
-            rej.onclick = function () { state.incomingRequests.splice(idx, 1); saveState(); renderRequests(); };
-            btns.appendChild(acc); btns.appendChild(rej); row.appendChild(btns); inBox.appendChild(row);
-          });
-        }
-        if (!state.sentRequests.length) { outBox.innerHTML = "دعوت ارسالی ندارید"; } else {
-          outBox.innerHTML = "";
-          state.sentRequests.forEach(function (target, idx) {
-            var row = document.createElement("div"); row.className = "friend-row"; row.innerHTML = "<span>" + target + "</span>";
-            var cancel = document.createElement("button"); cancel.type = "button"; cancel.className = "mini-btn"; cancel.textContent = "حذف";
-            cancel.onclick = function () { state.sentRequests.splice(idx, 1); saveState(); renderRequests(); };
-            row.appendChild(cancel); outBox.appendChild(row);
-          });
-        }
+      function renderFriends() {
+        renderList("friends-list", st.friends, "لیست دوستان شما خالی است");
+        renderList("inc-list", st.inc, "دعوت جدیدی ندارید", function (who, idx) {
+          if (st.friends.indexOf(who) === -1) st.friends.push(who);
+          st.inc.splice(idx, 1); save(); renderFriends();
+        });
+        renderList("sent-list", st.sent, "دعوت ارسالی ندارید");
       }
-      function switchPage(page) {
-        $("page-games").style.display = page === "games" ? "block" : "none";
-        $("page-friends").style.display = page === "friends" ? "block" : "none";
-        $("page-profile").style.display = page === "profile" ? "block" : "none";
-        $("nav-games").classList.toggle("active", page === "games");
-        $("nav-friends").classList.toggle("active", page === "friends");
-        $("nav-profile").classList.toggle("active", page === "profile");
+      function showPage(p) {
+        ["games","friends","profile"].forEach(function (k) {
+          $("page-" + k).style.display = k === p ? "block" : "none";
+          $("nav-" + k).classList.toggle("active", k === p);
+        });
       }
-      $("btn-theme").onclick = function () { state.theme = state.theme === "dark" ? "light" : "dark"; applyTheme(); saveState(); };
-      $("nav-games").onclick = function () { switchPage("games"); };
-      $("nav-friends").onclick = function () { $("invite-link-text").textContent = getInviteLink(); renderFriends(); renderRequests(); switchPage("friends"); };
-      $("nav-profile").onclick = function () { $("prof-msg").textContent = ""; renderProfile(); switchPage("profile"); };
+      $("btn-theme").onclick = function () { st.theme = st.theme === "dark" ? "light" : "dark"; applyTheme(); save(); };
+      $("nav-games").onclick = function () { showPage("games"); };
+      $("nav-friends").onclick = function () { $("inv-link").textContent = invLink(); renderFriends(); showPage("friends"); };
+      $("nav-profile").onclick = function () { $("p-msg").textContent = ""; renderProfile(); showPage("profile"); };
       $("tab-board").onclick = function () { $("tab-board").classList.add("active"); $("tab-card").classList.remove("active"); $("box-board").style.display = "block"; $("box-card").style.display = "none"; };
       $("tab-card").onclick = function () { $("tab-card").classList.add("active"); $("tab-board").classList.remove("active"); $("box-card").style.display = "block"; $("box-board").style.display = "none"; };
-      function switchFriendTab(tab) {
-        $("ftab-list").classList.toggle("active", tab === "list");
-        $("ftab-req").classList.toggle("active", tab === "req");
-        $("ftab-add").classList.toggle("active", tab === "add");
-        $("fbox-list").style.display = tab === "list" ? "block" : "none";
-        $("fbox-req").style.display = tab === "req" ? "block" : "none";
-        $("fbox-add").style.display = tab === "add" ? "block" : "none";
-      }
-      $("ftab-list").onclick = function () { renderFriends(); switchFriendTab("list"); };
-      $("ftab-req").onclick = function () { renderRequests(); switchFriendTab("req"); };
-      $("ftab-add").onclick = function () { $("friend-msg").textContent = ""; $("invite-link-text").textContent = getInviteLink(); switchFriendTab("add"); };
-      $("btn-copy-invite").onclick = function () {
-        var link = getInviteLink();
-        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).catch(function () {});
-        $("friend-msg").textContent = "لینک دعوت کپی شد";
+      ["list","req","add"].forEach(function (t) {
+        $("ftab-" + t).onclick = function () {
+          ["list","req","add"].forEach(function (x) {
+            $("ftab-" + x).classList.toggle("active", x === t);
+            $("fbox-" + x).style.display = x === t ? "block" : "none";
+          });
+          if (t === "add") { $("f-msg").textContent = ""; $("inv-link").textContent = invLink(); }
+          else renderFriends();
+        };
+      });
+      $("btn-copy").onclick = function () {
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(invLink()).catch(function () {});
+        $("f-msg").textContent = "لینک دعوت کپی شد";
       };
-      $("btn-share-invite").onclick = function () {
-        var shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(getInviteLink()) + "&text=" + encodeURIComponent("بیا داخل GermGame بازی کنیم!");
-        if (tg && tg.openTelegramLink) tg.openTelegramLink(shareUrl); else window.open(shareUrl, "_blank");
+      $("btn-share").onclick = function () {
+        var u = "https://t.me/share/url?url=" + encodeURIComponent(invLink()) + "&text=" + encodeURIComponent("بیا داخل GermGame بازی کنیم!");
+        if (tg && tg.openTelegramLink) tg.openTelegramLink(u); else window.open(u, "_blank");
       };
-      $("btn-send-req").onclick = function () {
-        var cleaned = cleanHandle($("friend-search-input").value);
-        if (!cleaned) return;
-        var formatted = /^\d+$/.test(cleaned) ? cleaned : "@" + cleaned;
-        if (state.sentRequests.indexOf(formatted) === -1) state.sentRequests.push(formatted);
-        saveState(); $("friend-search-input").value = ""; renderRequests();
-        $("friend-msg").textContent = "دعوت برای " + formatted + " ثبت شد؛ لینک دعوت را برایش بفرست";
+      $("btn-add-f").onclick = function () {
+        var c = clean($("inp-friend").value); if (!c) return;
+        var fmt = /^\d+$/.test(c) ? c : "@" + c;
+        if (st.sent.indexOf(fmt) === -1) st.sent.push(fmt);
+        save(); $("inp-friend").value = ""; renderFriends();
+        $("f-msg").textContent = "دعوت برای " + fmt + " ثبت شد؛ لینک دعوت را بفرست";
       };
-      var avItems = document.querySelectorAll(".avatar-item");
-      for (var i = 0; i < avItems.length; i++) {
-        avItems[i].onclick = function () { state.avatar = this.getAttribute("data-av") || "🦁"; renderProfile(); };
-      }
-      $("btn-save-profile").onclick = function () {
-        var rawUser = cleanHandle($("inp-username").value), rawName = ($("inp-displayname").value || "").trim();
-        if (rawUser) state.username = "@" + rawUser;
-        if (rawName) state.displayName = rawName;
-        saveState(); renderProfile(); $("prof-msg").textContent = "تغییرات پروفایل ذخیره شد";
+      document.querySelectorAll(".av").forEach(function (el) {
+        el.onclick = function () { st.av = this.getAttribute("data-av") || "🦁"; renderProfile(); };
+      });
+      $("btn-save").onclick = function () {
+        var u = clean($("inp-user").value), n = ($("inp-name").value || "").trim();
+        if (u) st.user = "@" + u; if (n) st.name = n;
+        save(); renderProfile(); $("p-msg").textContent = "تغییرات پروفایل ذخیره شد";
       };
-      handleIncomingStartParam(); applyTheme(); renderProfile(); renderFriends(); renderRequests();
+      checkStart(); applyTheme(); renderProfile(); renderFriends();
     })();
   </script>
 </body>
