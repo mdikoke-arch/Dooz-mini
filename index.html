@@ -59,11 +59,6 @@
           <div class="g-sub">برای انتخاب شرط و دعوت دوست کلیک کن</div>
 
         </div>
-<div id="card-dooz4" data-mode="dooz4" class="app">
-    <header class="topbar">
-      <div class="user-box">
-        <div class="avatar" id="avTxt">ک</div>
-        <div><div class="uname" id="nameTxt">کاربر</div><div class="uid" id="idTxt">ID: ---</div></div>
       </div>
       <div class="sav-pill"><span class="sav-coin">S</span><span id="savBal">0 SAV</span></div>
     </header>
@@ -255,67 +250,35 @@
     renderTop();registerMe();refreshAll();setInterval(refreshAll,4000);
   </script>
 
-<script>
-window.selectedGameMode = window.selectedGameMode || 'dooz';
-window.selectGameMode = function(mode) {
-  window.selectedGameMode = mode;
-  const c1 = document.querySelector('[onclick*="dooz4"]');
-  if (c1) {
-    c1.style.borderColor = mode === 'dooz4' ? 'rgba(255,77,90,0.9)' : 'rgba(239,68,68,0.35)';
-    c1.style.boxShadow = mode === 'dooz4' ? '0 0 18px rgba(255,77,90,0.28)' : 'none';
-  }
-  const betBox = document.querySelector('[class*="bet"], [id*="bet"]') ||
-                 Array.from(document.querySelectorAll('div,section')).find(el => (el.textContent || '').includes('SAV 100'));
-  if (betBox) {
-    betBox.style.display = '';
-    betBox.classList.remove('hidden', 'hide', 'd-none');
-    betBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-  const statusEl = document.querySelector('[style*="بازی دوز انتخاب شد"]') || document.getElementById('statusText');
-  if (statusEl) {
-    statusEl.textContent = mode === 'dooz4'
-      ? 'بازی دوز چهارتایی انتخاب شد — شرط را انتخاب کن و دوستت را دعوت کن.'
-      : 'بازی دوز انتخاب شد — شرط را انتخاب کن و دوستت را دعوت کن.';
-  }
-};
-</script>
 
+
+
+
+<div id="card-dooz4" data-mode="dooz4" style="margin-top:12px;padding:16px 14px;border-radius:18px;background:rgba(24,20,48,0.85);border:1px solid rgba(255,77,90,0.4);cursor:pointer;text-align:center;">
+  <div style="display:flex;justify-content:center;gap:6px;margin-bottom:8px;">
+    <span style="width:14px;height:14px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.8);"></span>
+    <span style="width:14px;height:14px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.8);"></span>
+    <span style="width:14px;height:14px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.8);"></span>
+    <span style="width:14px;height:14px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.8);"></span>
+  </div>
+  <div style="font-weight:900;font-size:18px;color:#ff4d5a;text-shadow:0 0 12px rgba(255,77,90,0.35);">دوز چهارتایی</div>
+</div>
 
 <script>
 (function() {
   window.selectedGameMode = window.selectedGameMode || 'dooz';
-  function activateMode(mode) {
-    window.selectedGameMode = mode;
-    const c4 = document.getElementById('card-dooz4');
-    if (c4) {
-      c4.style.borderColor = mode === 'dooz4' ? '#ff4d5a' : 'rgba(255,77,90,0.35)';
-      c4.style.boxShadow = mode === 'dooz4' ? '0 0 18px rgba(255,77,90,0.35)' : 'none';
-    }
-    const statusNodes = Array.from(document.querySelectorAll('div,p,span')).filter(
-      el => (el.textContent || '').includes('انتخاب کن') || (el.textContent || '').includes('انتخاب شد')
+  document.addEventListener('click', function(e) {
+    const card4 = e.target.closest('#card-dooz4');
+    if (!card4) return;
+    window.selectedGameMode = 'dooz4';
+    card4.style.borderColor = '#ff4d5a';
+    card4.style.boxShadow = '0 0 18px rgba(255,77,90,0.35)';
+    const doozCard = Array.from(document.querySelectorAll('div')).find(
+      el => el.children.length > 0 && (el.textContent || '').includes('OX') && (el.textContent || '').includes('دوز') && !(el.textContent || '').includes('چهارتایی')
     );
-    statusNodes.forEach(el => {
-      if (el.children.length === 0 && (el.textContent || '').includes('انتخاب شد')) {
-        el.textContent = mode === 'dooz4'
-          ? 'بازی دوز چهارتایی انتخاب شد — شرط را انتخاب کن و دوستت را دعوت کن.'
-          : 'بازی دوز انتخاب شد — شرط را انتخاب کن و دوستت را دعوت کن.';
-      }
-    });
+    if (doozCard) doozCard.click();
     if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
       window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-    }
-  }
-  document.addEventListener('click', function(e) {
-    const card4 = e.target.closest('#card-dooz4, [data-mode="dooz4"]');
-    if (card4) {
-      activateMode('dooz4');
-      const betSection = Array.from(document.querySelectorAll('div,section')).find(
-        el => (el.textContent || '').includes('SAV 100')
-      );
-      if (betSection) {
-        betSection.style.display = '';
-        betSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
     }
   }, true);
 })();
