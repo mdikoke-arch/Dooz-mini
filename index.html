@@ -1,333 +1,56 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>دوز و دوستان</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GermGame - منوی اصلی</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    :root{--bg:#090512;--card:#140c24;--card2:#1c1133;--neon:#a855f7;--neon2:#ec4899;--gold:#facc15;--ok:#34d399;--err:#f87171;--txt:#f5f3ff;--mut:#a78bfa;--bd:rgba(168,85,247,.26)}
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
-    html,body{margin:0;padding:0;overflow-x:hidden;background:radial-gradient(circle at top,#241046 0%,var(--bg) 72%);color:var(--txt);font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
-    .app{max-width:460px;margin:0 auto;padding:14px 14px 86px}
-    .topbar{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:10px 14px;margin-bottom:14px}
-    .user-box{display:flex;align-items:center;gap:10px}
-    .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--neon),var(--neon2));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff}
-    .uname{font-size:14px;font-weight:800}.uid{font-size:11px;color:var(--mut)}
-    .sav-pill{display:flex;align-items:center;gap:7px;background:#1e1236;border:1px solid rgba(250,204,21,.45);padding:6px 12px;border-radius:999px;font-weight:900;font-size:14px;color:var(--gold)}
-    .sav-coin{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fef08a,#eab308 65%,#a16207);border:1.5px solid #fffbeb;color:#422006;font-size:11px;font-weight:900;display:inline-flex;align-items:center;justify-content:center}
-    .view{display:none}.view.active{display:block}
-    .box{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;margin-bottom:12px}
-    .title{font-size:14px;font-weight:900;color:#f3e8ff;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
-    .game-pick{background:var(--card2);border:1px solid rgba(236,72,153,.55);border-radius:18px;padding:16px;text-align:center;cursor:pointer;box-shadow:0 0 20px rgba(168,85,247,.18)}
-    .g-ico{font-size:34px;margin-bottom:6px}.g-name{font-size:16px;font-weight:900}.g-sub{font-size:12px;color:var(--mut);margin-top:4px}
-    .panel{display:none}.panel.open{display:block}
-    .bets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
-    .bet-chip{border:1px solid var(--bd);background:var(--card2);color:#e9d5ff;border-radius:11px;padding:9px 6px;font-size:12px;font-weight:900;cursor:pointer;text-align:center}
-    .bet-chip.active{border-color:var(--gold);color:var(--gold);background:#281447}
-    .add-row{display:flex;gap:8px}
-    .inp{flex:1;background:var(--card2);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;color:#fff;font-size:13px;outline:none}
-    .btn{border:none;border-radius:12px;padding:10px 14px;font-weight:900;font-size:12px;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--neon),var(--neon2))}
-    .btn-gold{background:linear-gradient(135deg,#facc15,#f59e0b);color:#1d1200}
-    .btn-sm{padding:7px 10px;font-size:11px;border-radius:10px}
-    .list{display:flex;flex-direction:column;gap:8px}
-    .item{background:var(--card2);border:1px solid rgba(168,85,247,.18);border-radius:14px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-    .item-meta{font-size:11px;color:var(--mut)}
-    .msg{min-height:20px;font-size:12px;font-weight:800;color:var(--ok);margin-top:8px}
-    .msg.err{color:var(--err)}
-    .bottom-nav{position:fixed;bottom:0;left:0;right:0;max-width:460px;margin:0 auto;background:#110820;border-top:1px solid var(--bd);display:grid;grid-template-columns:1fr 1fr;padding:8px 8px 10px;z-index:20}
-    .nav-btn{border:none;background:transparent;color:var(--mut);font-size:12px;font-weight:900;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
-    .nav-btn.active{color:var(--gold)}
+    * { box-sizing: border-box; user-select: none; }
+    body { margin: 0; font-family: Tahoma, sans-serif; background: #0d0914; color: #fff; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+    .header { width: 100%; max-width: 400px; background: #181429; border: 1px solid #312450; border-radius: 16px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .user-info { display: flex; align-items: center; gap: 10px; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; background: #ff4d5a; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .balance { background: #261b40; padding: 6px 12px; border-radius: 20px; color: #facc15; font-weight: bold; border: 1px solid #4a337a; }
+    .section-title { width: 100%; max-width: 400px; font-size: 14px; color: #a5b4fc; margin-bottom: 10px; padding-right: 5px; }
+    .game-card { width: 100%; max-width: 400px; background: #181429; border: 2px solid #312450; border-radius: 20px; padding: 25px; text-align: center; cursor: pointer; transition: all 0.3s ease; margin-bottom: 20px; }
+    .game-card:hover { transform: translateY(-3px); border-color: #ff4d5a; }
+    .icon-ox { font-size: 40px; font-weight: 900; color: #ff4d5a; text-shadow: 0 0 20px rgba(255, 77, 90, 0.6); margin-bottom: 10px; }
+    .icon-4x4 { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; }
+    .dot { width: 16px; height: 16px; border-radius: 50%; background: #ff4d5a; box-shadow: 0 0 15px #ff4d5a; }
+    .game-title { font-size: 22px; font-weight: bold; margin-bottom: 8px; }
+    .game-desc { font-size: 13px; color: #94a3b8; }
   </style>
 </head>
 <body>
-  <div class="app">
-    <header class="topbar">
-      <div class="user-box">
-        <div class="avatar" id="avTxt">ک</div>
-        <div><div class="uname" id="nameTxt">کاربر</div><div class="uid" id="idTxt">ID: ---</div></div>
-      </div>
-      <div class="sav-pill"><span class="sav-coin">S</span><span id="savBal">0 SAV</span></div>
-    </header>
-
-    <section class="view active" id="view-lobby">
-      <div class="box">
-        <div class="title"><span id="lobbyTitle">کاربر</span><span style="font-size:11px;color:var(--mut)">انتخاب بازی</span></div>
-        <div class="game-pick" id="doozPick">
-          <div class="g-ico">❌⭕</div>
-          <div class="g-name">دوز</div>
-          <div class="g-sub">برای انتخاب شرط و دعوت دوست کلیک کن</div>
-
-        </div>
-<div id="card-dooz4" data-mode="dooz4" style="margin-top:12px;padding:16px 14px;border-radius:18px;background:rgba(24,20,48,0.88);border:1px solid rgba(255,77,90,0.45);cursor:pointer;text-align:center;">
-  <div style="display:flex;justify-content:center;gap:6px;margin-bottom:8px;">
-    <span style="width:13px;height:13px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.85);"></span>
-    <span style="width:13px;height:13px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.85);"></span>
-    <span style="width:13px;height:13px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.85);"></span>
-    <span style="width:13px;height:13px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.85);"></span>
+  <div class="header">
+    <div class="user-info">
+      <div class="avatar" id="userInitial">س</div>
+      <div style="font-weight: bold;" id="userName">ساواش</div>
+    </div>
+    <div class="balance">SAV <span id="userBalance">4,480</span></div>
   </div>
-  <div style="font-weight:900;font-size:18px;color:#ff4d5a;text-shadow:0 0 12px rgba(255,77,90,0.35);">دوز چهارتایی</div>
-</div>
-
-      </div>
-      <div class="sav-pill"><span class="sav-coin">S</span><span id="savBal">0 SAV</span></div>
-    </header>
-
-    <section class="view active" id="view-lobby">
-      <div class="box">
-        <div class="title"><span id="lobbyTitle">کاربر</span><span style="font-size:11px;color:var(--mut)">انتخاب بازی</span></div>
-        <div class="game-pick" id="doozPick">
-          <div class="g-ico">❌⭕</div>
-          <div class="g-name">دوز چهارتایی</div>
-          <div class="g-sub">برای انتخاب شرط و دعوت دوست کلیک کن</div>
-
-        </div>
-<div style="font-weight:bold;font-size:17px;color:#ffffff;margin-top:6px;">دوز چهارتایی</div>
-  <div style="font-size:12px;color:rgba(255,255,255,0.72);margin-top:4px;">برای انتخاب شرط و دعوت دوست کلیک کن</div>
-</div>
-      </div>
-
-      <div class="box panel" id="doozPanel">
-        <div class="title"><span>⚔️ شرط‌بندی دوز</span><span style="font-size:11px;color:var(--mut)">۱۰٪ کارمزد کل</span></div>
-        <div class="bets">
-          <button type="button" class="bet-chip active" data-bet="100">100 SAV</button>
-          <button type="button" class="bet-chip" data-bet="200">200 SAV</button>
-          <button type="button" class="bet-chip" data-bet="300">300 SAV</button>
-        </div>
-        <div class="title" style="margin-top:8px"><span>👥 دعوت دوست به میز دوز</span></div>
-        <div class="list" id="lobbyFriendsList"></div>
-      </div>
-    </section>
-
-    <section class="view" id="view-friends">
-      <div class="box">
-        <div class="title"><span>➕ پیدا کردن و افزودن دوست</span></div>
-        <div class="add-row">
-          <input type="text" id="friendIdInp" class="inp" placeholder="آیدی عددی دوست (مثلاً 8955189092)" />
-          <button type="button" class="btn" id="addFriendBtn">افزودن</button>
-        </div>
-      </div>
-
-      <div class="box">
-        <div class="title"><span>👥 لیست دوستان من</span><span id="friendsCount" style="font-size:11px;color:var(--mut)">0 نفر</span></div>
-        <div class="list" id="friendsTabList"></div>
-      </div>
-    </section>
-
-    <div class="msg" id="statusMsg"></div>
+  <div class="section-title">انتخاب بازی</div>
+  <div class="game-card" onclick="openGame('dooz3')">
+    <div class="icon-ox">OX</div>
+    <div class="game-title">دوز کلاسیک (3x3)</div>
+    <div class="game-desc">کلاسیک و نوستالژیک • شرط‌بندی سریع</div>
   </div>
-
-  <nav class="bottom-nav">
-    <button type="button" class="nav-btn active" data-view="lobby"><span>🏛️</span><span>لابی</span></button>
-    <button type="button" class="nav-btn" data-view="friends"><span>👥</span><span>دوستان</span></button>
-  </nav>
-
+  <div class="game-card" onclick="openGame('dooz4')">
+    <div class="icon-4x4">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+    <div class="game-title">دوز چهار تایی (Connect 4)</div>
+    <div class="game-desc">اتصال ۴ مهره در یک ستون یا ردیف • هیجان بالا</div>
+  </div>
   <script>
-    const DB_URL="https://savash-c4207-default-rtdb.europe-west1.firebasedatabase.app",K="savash_coin_state_v1";
-    const tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
-    if(tg){tg.ready();tg.expand()}
-    const u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user;
-    const uid=(u&&u.id)?String(u.id):("u_"+(localStorage.getItem("savash_gid")||(()=>{const g=Math.random().toString(36).slice(2,8);localStorage.setItem("savash_gid",g);return g})()));
-    const profileName=(u&&[u.first_name,u.last_name].filter(Boolean).join(" ").trim())||"کاربر";
-    let st=(()=>{const d={name:profileName,sav:0};try{return{...d,...JSON.parse(localStorage.getItem(K)||"{}"),name:profileName}}catch(_){return d}})();
-    let bet=100,friendsMap={},busyInvite=false;
-
-    function setMsg(t,isErr=false){
-      const el=document.getElementById("statusMsg");
-      el.textContent=t;el.className=isErr?"msg err":"msg";
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg) { tg.ready(); tg.expand(); }
+    function openGame(type) {
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+      const baseUrl = window.location.href.replace(/[^/]*$/, '');
+      window.location.href = baseUrl + (type === 'dooz3' ? 'dooz3.html' : 'dooz4.html');
     }
-    async function fbGet(p){const r=await fetch(`${DB_URL}${p}.json`);if(!r.ok)throw new Error("GET "+r.status);return r.json()}
-    async function fbPut(p,d){const r=await fetch(`${DB_URL}${p}.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)});if(!r.ok)throw new Error("PUT "+r.status)}
-    async function fbPatch(p,d){const r=await fetch(`${DB_URL}${p}.json`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)});if(!r.ok)throw new Error("PATCH "+r.status)}
-
-    function goDoozRoom(roomId,amt,sym){
-      location.href=`./dooz/dooz.html?room=${encodeURIComponent(roomId)}&bet=${encodeURIComponent(amt)}&sym=${encodeURIComponent(sym)}&uid=${encodeURIComponent(uid)}`;
-    }
-
-    function renderTop(){
-      document.getElementById("nameTxt").textContent=st.name;
-      document.getElementById("lobbyTitle").textContent=st.name;
-      document.getElementById("idTxt").textContent="ID: "+uid;
-      document.getElementById("avTxt").textContent=(st.name||"ک").trim().charAt(0).toUpperCase();
-      document.getElementById("savBal").textContent=Number(st.sav||0).toLocaleString("en-US")+" SAV";
-    }
-
-    function renderFriends(){
-      const entries=Object.entries(friendsMap||{});
-      document.getElementById("friendsCount").textContent=entries.length+" نفر";
-      const tabWrap=document.getElementById("friendsTabList");
-      const lobbyWrap=document.getElementById("lobbyFriendsList");
-      if(!entries.length){
-        const emptyHtml='<div class="item-meta">هنوز دوستی اضافه نکردی. از تب دوستان با آیدی عددی اضافه کن.</div>';
-        tabWrap.innerHTML=emptyHtml;lobbyWrap.innerHTML=emptyHtml;return;
-      }
-      tabWrap.innerHTML="";lobbyWrap.innerHTML="";
-      entries.forEach(([fid,f])=>{
-        const fname=(f&&f.name)||("کاربر "+fid);
-
-        const rTab=document.createElement("div");rTab.className="item";
-        rTab.innerHTML=`<div><div style="font-size:13px;font-weight:800">${fname}</div><div class="item-meta">ID: ${fid}</div></div><button type="button" class="btn btn-sm">دعوت دوز</button>`;
-        rTab.querySelector("button").onclick=()=>{switchView("lobby");document.getElementById("doozPanel").classList.add("open");sendBetInvite(fid,fname)};
-        tabWrap.appendChild(rTab);
-
-        const rLobby=document.createElement("div");rLobby.className="item";
-        rLobby.innerHTML=`<div><div style="font-size:13px;font-weight:800">${fname}</div><div class="item-meta">ID: ${fid}</div></div><button type="button" class="btn btn-gold btn-sm">دعوت (${bet} SAV)</button>`;
-        rLobby.querySelector("button").onclick=()=>sendBetInvite(fid,fname);
-        lobbyWrap.appendChild(rLobby);
-      });
-    }
-
-    function switchView(v){
-      document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
-      document.querySelectorAll(".nav-btn").forEach(x=>x.classList.remove("active"));
-      document.getElementById("view-"+v).classList.add("active");
-      document.querySelector(`.nav-btn[data-view="${v}"]`).classList.add("active");
-    }
-
-    async function registerMe(){
-      try{await fbPatch(`/users/${uid}`,{name:st.name,updatedAt:Date.now()})}catch(_){}
-    }
-
-    async function refreshAll(){
-      try{
-        const s=await fbGet(`/users/${uid}/sav`);
-        if(typeof s==="number"){st.sav=s;localStorage.setItem(K,JSON.stringify(st))}
-      }catch(_){}
-      renderTop();
-      try{friendsMap=(await fbGet(`/friends/${uid}`))||{}}catch(_){friendsMap={}}
-      renderFriends();
-    }
-
-    async function addFriend(){
-      const fid=document.getElementById("friendIdInp").value.trim().replace(/[^a-zA-Z0-9_-]/g,"");
-      if(!fid){setMsg("آیدی عددی دوست را وارد کن.",true);return}
-      if(fid===uid){setMsg("نمی‌توانی خودت را اضافه کنی.",true);return}
-      try{
-        const target=await fbGet(`/users/${fid}`);
-        const fname=(target&&target.name)?target.name:("کاربر "+fid);
-        await fbPut(`/friends/${uid}/${fid}`,{name:fname,addedAt:Date.now()});
-        await fbPut(`/friends/${fid}/${uid}`,{name:st.name,addedAt:Date.now()});
-        document.getElementById("friendIdInp").value="";
-        setMsg(`✅ ${fname} (${fid}) به لیست دوستان اضافه شد.`);
-        refreshAll();
-      }catch(e){setMsg("خطا در ثبت دوست: "+(e.message||""),true)}
-    }
-
-    async function sendBetInvite(fid,fname){
-      if(busyInvite)return;
-      const cleanFid=String(fid||"").replace(/[^a-zA-Z0-9_-]/g,"");
-      if(!cleanFid){setMsg("شناسه دوست نامعتبر است.",true);return}
-      if(Number(st.sav||0)<bet){setMsg(`موجودی SAV برای دعوت ${bet} SAV کافی نیست.`,true);return}
-      busyInvite=true;
-      const roomId=`dooz_${uid}_${cleanFid}_${Date.now()}`;
-      const outId="out_"+Date.now();
-      const prevSav=Number(st.sav||0);
-      try{
-        st.sav=prevSav-bet;
-        localStorage.setItem(K,JSON.stringify(st));
-        renderTop();
-        await fbPut(`/rooms/${roomId}`,{
-          bet:bet, game: (window.selectedGameMode || "dooz"), game_name: (window.selectedGameMode || "dooz"), game: (window.selectedGameMode || "dooz"), game_name: (window.selectedGameMode || "dooz"),hostId:uid,guestId:cleanFid,turn:"X",
-          board:["","","","","","","","",""],winner:"",payoutDone:false,createdAt:Date.now()
-        });
-        await fbPut(`/bot_outbox/${outId}`,{
-          toId:cleanFid,fromId:uid,fromName:st.name,toName:fname,
-          roomId:roomId,bet:bet,prize:Math.round(bet*2*0.9),
-          sent:false,createdAt:Date.now()
-        });
-        try{await fbPut(`/users/${uid}/sav`,st.sav)}catch(_){}
-        goDoozRoom(roomId,bet,"X");
-      }catch(e){
-        st.sav=prevSav;
-        localStorage.setItem(K,JSON.stringify(st));
-        renderTop();
-        busyInvite=false;
-        setMsg("خطا در ارسال دعوت: "+(e.message||"اتصال را بررسی کن"),true);
-      }
-    }
-
-    document.getElementById("doozPick").onclick=()=>{
-      document.getElementById("doozPanel").classList.add("open");
-      document.getElementById("doozPanel").scrollIntoView({behavior:"smooth",block:"nearest"});
-      setMsg("بازی دوز انتخاب شد — شرط را انتخاب کن و دوستت را دعوت کن.");
-    };
-    document.querySelectorAll(".bet-chip").forEach(c=>c.onclick=()=>{
-      document.querySelectorAll(".bet-chip").forEach(x=>x.classList.remove("active"));
-      c.classList.add("active");bet=Number(c.dataset.bet);renderFriends();
-    });
-    document.querySelectorAll(".nav-btn").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
-    document.getElementById("addFriendBtn").onclick=addFriend;
-    renderTop();registerMe();refreshAll();setInterval(refreshAll,4000);
   </script>
-
-
-
-
-
-
-
-
-
-
-
-<script>
-(function() {
-  window.selectedGameMode = window.selectedGameMode || 'dooz';
-
-  function openBetAndInviteForMode(mode) {
-    window.selectedGameMode = mode;
-    const c4 = document.getElementById('card-dooz4');
-    if (c4) {
-      c4.style.borderColor = mode === 'dooz4' ? '#ff4d5a' : 'rgba(255,77,90,0.45)';
-      c4.style.boxShadow = mode === 'dooz4' ? '0 0 20px rgba(255,77,90,0.45)' : 'none';
-    }
-
-    // اگر تابع داخلی برای انتخاب بازی در صفحه وجود داشته باشد صدا زده می‌شود
-    for (const fnName of ['selectGame', 'chooseGame', 'setGame', 'openBetSection', 'showBetBox']) {
-      if (typeof window[fnName] === 'function') {
-        try { window[fnName](mode); } catch (_) {}
-      }
-    }
-
-    // نمایش بخش‌های شرط‌بندی یا دعوت دوست در صورت مخفی بودن
-    const allEls = Array.from(document.querySelectorAll('div,section,form'));
-    const targets = allEls.filter(el => {
-      if (el.id === 'card-dooz4' || el.closest('#card-dooz4')) return false;
-      const txt = el.textContent || '';
-      return txt.includes('SAV 100') || txt.includes('دعوت');
-    }).sort((a, b) => a.innerHTML.length - b.innerHTML.length);
-
-    let scrollTarget = targets[0] || null;
-    for (const el of targets) {
-      let cur = el;
-      while (cur && cur !== document.body) {
-        const st = window.getComputedStyle(cur);
-        if (st.display === 'none' || st.visibility === 'hidden' || Number(st.opacity) === 0) {
-          cur.style.display = 'block';
-          cur.style.visibility = 'visible';
-          cur.style.opacity = '1';
-          cur.classList.remove('hidden', 'hide', 'd-none', 'invisible');
-        }
-        cur = cur.parentElement;
-      }
-    }
-
-    if (scrollTarget) {
-      scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
-      window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-    }
-  }
-
-  document.addEventListener('click', function(e) {
-    const card4 = e.target.closest('#card-dooz4');
-    if (!card4) return;
-    openBetAndInviteForMode('dooz4');
-  }, true);
-})();
-</script>
-
 </body>
 </html>

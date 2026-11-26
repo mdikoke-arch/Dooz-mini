@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>دوز چهار تایی</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { box-sizing: border-box; user-select: none; }
+    body { margin: 0; font-family: Tahoma, sans-serif; background: #0d0914; color: #fff; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+    .top-bar { width: 100%; max-width: 360px; display: flex; justify-content: space-between; margin-bottom: 20px; }
+    .back-btn { background: #261b40; border: 1px solid #4a337a; padding: 8px 16px; border-radius: 12px; color: #fff; cursor: pointer; }
+    .status { font-size: 18px; font-weight: bold; color: #ff4d5a; margin-bottom: 20px; }
+    .board-container { background: #181429; padding: 12px; border-radius: 24px; border: 2px solid #312450; }
+    .board { display: grid; grid-template-columns: repeat(7, 42px); grid-template-rows: repeat(6, 42px); gap: 6px; }
+    .cell { background: #0d0914; border-radius: 50%; cursor: pointer; }
+    .cell.p1 { background: #ff4d5a; }
+    .cell.p2 { background: #38bdf8; }
+  </style>
+</head>
+<body>
+  <div class="top-bar"><button class="back-btn" onclick="history.back()">← بازگشت</button></div>
+  <div class="status" id="status4">نوبت شما (قرمز)</div>
+  <div class="board-container"><div class="board" id="board4"></div></div>
+  <script>
+    const ROWS = 6, COLS = 7;
+    let grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0)), turn = 1, gameOver = false;
+    const boardEl = document.getElementById('board4');
+    function createBoard() {
+      boardEl.innerHTML = '';
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell' + (grid[r][c] === 1 ? ' p1' : grid[r][c] === 2 ? ' p2' : '');
+        cell.onclick = () => dropPiece(c);
+        boardEl.appendChild(cell);
+      }
+    }
+    function countDir(r, c, dr, dc, p) {
+      let n = 0, nr = r + dr, nc = c + dc;
+      while (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && grid[nr][nc] === p) { n++; nr += dr; nc += dc; }
+      return n;
+    }
+    function dropPiece(col) {
+      if (gameOver) return;
+      for (let r = ROWS - 1; r >= 0; r--) if (grid[r][col] === 0) {
+        grid[r][col] = turn; createBoard();
+        if ([[0,1],[1,0],[1,1],[1,-1]].some(([dr,dc]) => 1 + countDir(r,col,dr,dc,turn) + countDir(r,col,-dr,-dc,turn) >= 4)) {
+          document.getElementById('status4').textContent = `بازیکن ${turn === 1 ? 'قرمز' : 'آبی'} برنده شد!`; gameOver = true; return;
+        }
+        turn = turn === 1 ? 2 : 1;
+        document.getElementById('status4').textContent = `نوبت بازیکن ${turn === 1 ? 'شما (قرمز)' : 'حریف (آبی)'}`;
+        break;
+      }
+    }
+    createBoard();
+  </script>
+</body>
+</html>
