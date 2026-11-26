@@ -1,24 +1,22 @@
 (function () {
   const DATABASE_URL = "https://YOUR-PROJECT-default-rtdb.europe-west1.firebasedatabase.app";
-  const BOT_USERNAME = "Starsgameir_bot";
   const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   if (tg) {
     tg.ready();
     tg.expand();
   }
 
-  const params = new URLSearchParams(window.location.search);
-  const startParam = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || params.get("room");
-
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
   const playerId = String(
-    (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) ||
+    (tgUser && tgUser.id) ||
     localStorage.getItem("svh_uid") ||
     ("u_" + Math.random().toString(36).slice(2, 8))
   );
   localStorage.setItem("svh_uid", playerId);
 
+  const playerUsername = (tgUser && tgUser.username ? tgUser.username.toLowerCase() : "");
   const playerName =
-    (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) ||
+    (tgUser && tgUser.first_name) ||
     ("بازیکن " + playerId.slice(-4));
 
   let svhBalance = Number(localStorage.getItem("svh_balance_" + playerId) || "200");
@@ -36,7 +34,7 @@
   }
 
   function renderUserBar() {
-    document.getElementById("user-label").textContent = "👤 " + playerName;
+    document.getElementById("user-label").textContent = "👤 " + playerName + (tgUser && tgUser.id ? ` (${tgUser.id})` : "");
     document.getElementById("svh-balance").textContent = svhBalance;
     localStorage.setItem("svh_balance_" + playerId, String(svhBalance));
   }
@@ -44,22 +42,6 @@
   function setSvh(newAmount) {
     svhBalance = Math.max(0, newAmount);
     renderUserBar();
-  }
-
-  function showLobby() {
-    clearInterval(pollTimer);
-    currentRoomId = null;
-    document.getElementById("lobby-menu").classList.remove("hidden");
-    document.getElementById("waiting-room").classList.add("hidden");
-  }
-
-  function showWaitingRoom(roomId) {
-    currentRoomId = roomId;
-    document.getElementById("lobby-menu").classList.add("hidden");
-    document.getElementById("waiting-room").classList.remove("hidden");
-    syncRoom();
-    clearInterval(pollTimer);
-    pollTimer = setInterval(syncRoom, 1500);
   }
 
   function hasDb() {
@@ -86,6 +68,22 @@
     return await res.json();
   }
 
+  function showLobby() {
+    clearInterval(pollTimer);
+    currentRoomId = null;
+    document.getElementById("lobby-menu").classList.remove("hidden");
+    document.getElementById("waiting-room").classList.add("hidden");
+  }
+
+  function showWaitingRoom(roomId) {
+    currentRoomId = roomId;
+    document.getElementById("lobby-menu").classList.add("hidden");
+    document.getElementById("waiting-room").classList.remove("hidden");
+    syncRoom();
+    clearInterval(pollTimer);
+    pollTimer = setInterval(syncRoom, 1500);
+  }
+
   async function createRoom(maxPlayers) {
     const entryFee = maxPlayers === 6 ? 30 : 20;
     if (svhBalance < entryFee) {
@@ -99,8 +97,10 @@
     const payload = {
       maxPlayers,
       entryFee,
+      hostId: playerId,
       status: "waiting",
       createdAt: Date.now(),
+      invited: {},
       players: {
         [playerId]: { name: playerName, joinedAt: Date.now() }
       }
@@ -110,33 +110,70 @@
     showWaitingRoom(roomId);
   }
 
-  async function joinRoom(roomId) {
-    const room = await dbRequest(`daberna_rooms/${roomId}`, "GET");
-    if (!room) {
-      showToast("میز پیدا نشد یا بسته شده است.");
-      showLobby();
+  async function inviteByTelegramId() {
+    if (!currentRoomId) return;
+    const rawInput = (document.getElementById("invite-target").value || "").trim();
+    if (!rawInput) {
+      showToast("آیدی عددی تلگرام یا @username را وارد کن");
       return;
     }
-    const players = room.players || {};
-    const count = Object.keys(players).length;
-    if (!players[playerId] && count >= room.maxPlayers) {
-      showToast("ظرفیت این میز تکمیل است.");
-      showLobby();
+    const cleanTarget = rawInput.startsWith("@") ? rawInput.slice(1).toLowerCase() : rawInput;
+    const safeKey = cleanTarget.replace(/[^a-zA-Z0-9_]/g, "_");
+    if (!safeKey) {
+      showToast("آیدی واردشده معتبر نیست");
       return;
     }
-    const fee = room.entryFee || 20;
-    if (!players[playerId]) {
-      if (svhBalance < fee) {
-        showToast(`برای ورود به این میز ${fee} SVH نیاز دارید.`);
+
+    await dbRequest(`daberna_rooms/${currentRoomId}/invited/${safeKey}`, "PUT", {
+      target: cleanTarget,
+      invitedBy: playerId,
+      invitedAt: Date.now()
+    });
+
+    if (tg && typeof tg.sendData === "function") {
+      tg.sendData(JSON.stringify({
+        action: "invite_by_id",
+        roomId: currentRoomId,
+        target: cleanTarget
+      }));
+    }
+
+    document.getElementById("invite-target").value = "";
+    showToast(`دعوت برای آیدی ${cleanTarget} ثبت شد`);
+    syncRoom();
+  }
+
+  async function checkAutoInvitedRoom() {
+    const allRooms = await dbRequest("daberna_rooms", "GET");
+    if (!allRooms || typeof allRooms !== "object") return;
+
+    for (const [roomId, room] of Object.entries(allRooms)) {
+      if (!room || room.status !== "waiting") continue;
+      const invited = room.invited || {};
+      const players = room.players || {};
+      if (players[playerId]) {
+        showWaitingRoom(roomId);
         return;
       }
-      setSvh(svhBalance - fee);
-      await dbRequest(`daberna_rooms/${roomId}/players/${playerId}`, "PUT", {
-        name: playerName,
-        joinedAt: Date.now()
+      const isInvited = Object.values(invited).some((item) => {
+        if (!item || !item.target) return false;
+        const t = String(item.target).toLowerCase();
+        return t === String(playerId).toLowerCase() || (playerUsername && t === playerUsername);
       });
+      if (isInvited && Object.keys(players).length < (room.maxPlayers || 4)) {
+        const fee = room.entryFee || 20;
+        if (svhBalance >= fee) {
+          setSvh(svhBalance - fee);
+          await dbRequest(`daberna_rooms/${roomId}/players/${playerId}`, "PUT", {
+            name: playerName,
+            joinedAt: Date.now()
+          });
+          showToast("با دعوت آیدی وارد میز شدید!");
+          showWaitingRoom(roomId);
+          return;
+        }
+      }
     }
-    showWaitingRoom(roomId);
   }
 
   async function syncRoom() {
@@ -166,26 +203,14 @@
       }
     }
 
+    const invitedArr = Object.values(room.invited || {}).map((x) => x.target).filter(Boolean);
+    document.getElementById("invited-list").textContent = invitedArr.length
+      ? "آیدی‌های دعوت‌شده: " + invitedArr.join(" ، ")
+      : "هنوز آیدی‌ای دعوت نشده است.";
+
     document.getElementById("players-ul").innerHTML = playersArr
       .map((p, i) => `<li><span>${i + 1}. ${p.name}</span><span class="badge">متصل</span></li>`)
       .join("");
-  }
-
-  function shareRoomLink() {
-    if (!currentRoomId) return;
-    const webLink = `${window.location.origin}${window.location.pathname}?room=${currentRoomId}`;
-    const botUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.receiver && tg.initDataUnsafe.receiver.username) || "";
-    const inviteLink = botUser ? `https://t.me/${botUser}?startapp=${currentRoomId}` : webLink;
-    const text = botUser
-      ? `بیا میز دبرنا SVH!\nورود مستقیم در ربات: ${inviteLink}\nلینک میز: ${webLink}`
-      : `بیا میز دبرنا SVH!\nلینک ورود به میز: ${webLink}`;
-
-    if (tg && tg.openTelegramLink) {
-      tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(text)}`);
-    } else if (navigator.clipboard) {
-      navigator.clipboard.writeText(inviteLink);
-      showToast("لینک دعوت کپی شد!");
-    }
   }
 
   async function leaveRoom() {
@@ -198,7 +223,7 @@
   function bindEvents() {
     document.getElementById("btn-create-4").addEventListener("click", () => createRoom(4));
     document.getElementById("btn-create-6").addEventListener("click", () => createRoom(6));
-    document.getElementById("btn-share").addEventListener("click", shareRoomLink);
+    document.getElementById("btn-invite-id").addEventListener("click", inviteByTelegramId);
     document.getElementById("btn-leave").addEventListener("click", leaveRoom);
     document.getElementById("btn-toggle-shop").addEventListener("click", () => {
       document.getElementById("shop-box").classList.toggle("hidden");
@@ -219,7 +244,5 @@
 
   renderUserBar();
   bindEvents();
-  if (startParam) {
-    joinRoom(startParam);
-  }
+  checkAutoInvitedRoom();
 })();
