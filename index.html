@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>GermGame | دوز چهارتایی</title>
+  <title>GermGame | لابی</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
@@ -32,7 +32,7 @@
       min-height: 100vh;
       background: var(--bg);
       color: var(--text);
-      padding: 12px 14px 78px;
+      padding: 12px 14px 80px;
       transition: background 0.2s ease, color 0.2s ease;
     }
     .container { max-width: 430px; margin: 0 auto; }
@@ -46,22 +46,18 @@
       padding: 10px 14px;
       margin-bottom: 12px;
     }
-    .icon-btn {
+    .theme-btn {
       background: var(--card-soft);
       border: 1px solid var(--border);
       color: var(--text);
-      border-radius: 10px;
-      padding: 6px 10px;
+      border-radius: 11px;
+      width: 38px;
+      height: 36px;
+      font-size: 17px;
       cursor: pointer;
-      font-size: 14px;
-    }
-    .svh-badge {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: #111827;
-      font-weight: bold;
-      font-size: 12px;
-      padding: 5px 11px;
-      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .banner {
       background: linear-gradient(135deg, #0f172a, #1e3a8a 60%, #0369a1);
@@ -80,14 +76,20 @@
       gap: 8px;
       margin-bottom: 12px;
     }
+    .tabs-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
     .tab-btn {
       background: var(--card);
       border: 1px solid var(--border);
       color: var(--muted);
-      padding: 10px;
+      padding: 10px 8px;
       border-radius: 12px;
       font-weight: bold;
-      font-size: 13px;
+      font-size: 12px;
       cursor: pointer;
     }
     .tab-btn.active {
@@ -95,35 +97,15 @@
       color: #fff;
       border-color: transparent;
     }
-    .games-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .game-card {
+    .empty-box {
       background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 12px;
-      cursor: pointer;
-      transition: transform 0.14s ease;
+      border: 1px dashed var(--border);
+      border-radius: 18px;
+      padding: 36px 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
     }
-    .game-card:active { transform: scale(0.97); }
-    .game-thumb {
-      height: 92px;
-      border-radius: 12px;
-      background: linear-gradient(145deg, #1e293b, #0f172a);
-      display: grid;
-      grid-template-columns: repeat(4, 14px);
-      gap: 5px;
-      align-content: center;
-      justify-content: center;
-      margin-bottom: 10px;
-      border: 1px solid rgba(56, 189, 248, 0.25);
-    }
-    .mini-dot { width: 14px; height: 14px; border-radius: 50%; background: #020617; }
-    .mini-dot.r { background: #ef4444; }
-    .mini-dot.y { background: #facc15; }
     .card-box {
       background: var(--card);
       border: 1px solid var(--border);
@@ -131,103 +113,6 @@
       padding: 16px;
       margin-bottom: 12px;
     }
-    .mode-item {
-      background: var(--card-soft);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 13px 14px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-    }
-    .mode-item:active { transform: scale(0.98); }
-    .color-row { display: flex; justify-content: center; gap: 14px; margin: 12px 0 16px; }
-    .color-opt {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      border: 3px solid transparent;
-      cursor: pointer;
-    }
-    .color-opt.selected { border-color: #fff; transform: scale(1.12); box-shadow: 0 0 12px rgba(255,255,255,0.45); }
-    .pill-group { display: flex; gap: 8px; margin: 8px 0 16px; }
-    .pill-btn {
-      flex: 1;
-      padding: 10px;
-      border-radius: 11px;
-      border: 1px solid var(--border);
-      background: var(--card-soft);
-      color: var(--text);
-      font-weight: bold;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .pill-btn.active {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: #111827;
-      border-color: transparent;
-    }
-    .primary-btn {
-      width: 100%;
-      padding: 13px;
-      border-radius: 13px;
-      border: none;
-      background: linear-gradient(135deg, #0284c7, #2563eb);
-      color: #fff;
-      font-weight: bold;
-      font-size: 15px;
-      cursor: pointer;
-    }
-    .dice-box {
-      text-align: center;
-      padding: 20px 10px;
-    }
-    .dice-cube {
-      width: 74px;
-      height: 74px;
-      margin: 14px auto;
-      border-radius: 18px;
-      background: linear-gradient(145deg, #38bdf8, #1d4ed8);
-      color: #fff;
-      font-size: 34px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 10px 24px rgba(2, 132, 199, 0.45);
-    }
-    .c4-hud {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 10px 12px;
-      margin-bottom: 10px;
-      font-size: 12px;
-    }
-    .c4-board {
-      background: #1d4ed8;
-      border: 3px solid #3b82f6;
-      border-radius: 16px;
-      padding: 8px;
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
-      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
-    }
-    .c4-slot {
-      aspect-ratio: 1 / 1;
-      border-radius: 50%;
-      background: #0b1120;
-      box-shadow: inset 0 3px 6px rgba(0,0,0,0.65);
-      cursor: pointer;
-      transition: transform 0.12s ease, background 0.18s ease;
-    }
-    .c4-slot.win { outline: 3px solid #fff; transform: scale(1.06); }
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -255,7 +140,10 @@
       text-align: center;
       cursor: pointer;
     }
-    .avatar-item.active { border-color: var(--accent); background: rgba(56, 189, 248, 0.15); }
+    .avatar-item.active {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.15);
+    }
     .input-box {
       width: 100%;
       padding: 10px 12px;
@@ -265,6 +153,38 @@
       color: var(--text);
       margin-top: 6px;
       font-size: 13px;
+      user-select: text;
+    }
+    .primary-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 13px;
+      border: none;
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    .friend-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-soft);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .mini-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 9px;
+      padding: 5px 10px;
+      font-size: 11px;
+      cursor: pointer;
     }
     .bottom-nav {
       position: fixed;
@@ -291,30 +211,30 @@
       gap: 3px;
     }
     .nav-btn.active { color: var(--accent); }
-    .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- نوار بالا -->
     <div class="topbar">
       <div style="display:flex;align-items:center;gap:8px;">
-        <span id="top-avatar" style="font-size:20px;">🦁</span>
-        <span id="top-name" style="font-weight:bold;font-size:13px;">SavasH</span>
+        <span id="top-avatar" style="font-size:21px;">🦁</span>
+        <div>
+          <div id="top-name" style="font-weight:bold;font-size:13px;">SavasH</div>
+          <div id="top-username" style="font-size:11px;color:var(--muted);">@bigsavash</div>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span class="svh-badge">🪙 <span id="top-svh">200</span> SVH</span>
-        <button id="btn-theme" type="button" class="icon-btn">🌓</button>
-      </div>
+      <button id="btn-theme" type="button" class="theme-btn" aria-label="تغییر تم">🌙</button>
     </div>
 
-    <!-- نمای ۱: لابی بازی‌ها -->
-    <div id="view-lobby">
+    <!-- نمای ۱: بازی‌ها (بدون هیچ بازی فعال) -->
+    <div id="page-games">
       <div class="banner">
         <div>
           <div style="font-weight:bold;font-size:17px;">GermGame</div>
           <div style="font-size:12px;color:#bae6fd;margin-top:4px;">دور هم، هر جا که باشی</div>
         </div>
-        <div style="font-size:28px;">🎯</div>
+        <div style="font-size:28px;">🎮</div>
       </div>
 
       <div class="tabs">
@@ -322,171 +242,75 @@
         <button id="tab-card" type="button" class="tab-btn">🃏 بازی‌های کارتی</button>
       </div>
 
-      <div id="board-list" class="games-grid">
-        <div id="open-connect4" class="game-card">
-          <div class="game-thumb">
-            <span class="mini-dot"></span><span class="mini-dot r"></span><span class="mini-dot"></span><span class="mini-dot"></span>
-            <span class="mini-dot y"></span><span class="mini-dot r"></span><span class="mini-dot y"></span><span class="mini-dot"></span>
-            <span class="mini-dot r"></span><span class="mini-dot y"></span><span class="mini-dot r"></span><span class="mini-dot y"></span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <strong style="font-size:14px;">دوز چهارتایی</strong>
-            <span style="font-size:11px;color:var(--accent);">۲ نفره</span>
-          </div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px;">۴ مهره هم‌رنگ در یک ردیف</div>
-        </div>
-
-        <div class="game-card" style="opacity:0.65;">
-          <div class="game-thumb" style="display:flex;align-items:center;justify-content:center;font-size:32px;">♟️</div>
-          <strong style="font-size:14px;">شطرنج</strong>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px;">به‌زودی</div>
-        </div>
+      <div id="box-board" class="empty-box">
+        هنوز بازی تخته‌ای اضافه نشده است
       </div>
 
-      <div id="card-list" class="games-grid hidden">
-        <div class="game-card" style="opacity:0.65;">
-          <div class="game-thumb" style="display:flex;align-items:center;justify-content:center;font-size:32px;">🂡</div>
-          <strong style="font-size:14px;">حکم</strong>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px;">به‌زودی</div>
-        </div>
-        <div class="game-card" style="opacity:0.65;">
-          <div class="game-thumb" style="display:flex;align-items:center;justify-content:center;font-size:32px;">🃏</div>
-          <strong style="font-size:14px;">چهاربرگ</strong>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px;">به‌زودی</div>
-        </div>
+      <div id="box-card" class="empty-box" style="display:none;">
+        هنوز بازی کارتی اضافه نشده است
       </div>
     </div>
 
-    <!-- نمای ۲: انتخاب حالت دوز چهارتایی -->
-    <div id="view-c4-modes" class="hidden">
-      <div class="card-box">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <strong style="font-size:16px;">🎯 دوز چهارتایی • چطوری بازی کنی؟</strong>
-          <button id="btn-back-lobby" type="button" class="icon-btn">بازگشت</button>
-        </div>
+    <!-- نمای ۲: دوستان -->
+    <div id="page-friends" style="display:none;">
+      <div class="tabs-3">
+        <button id="ftab-list" type="button" class="tab-btn active">دوستان</button>
+        <button id="ftab-req" type="button" class="tab-btn">درخواست‌ها</button>
+        <button id="ftab-add" type="button" class="tab-btn">افزودن</button>
+      </div>
 
-        <div id="pick-solo" class="mode-item">
-          <div>
-            <div style="font-weight:bold;font-size:14px;">🤖 تک‌نفره (مقابل ربات)</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:3px;">انتخاب رنگ مهره، سطح سختی و تعداد دست</div>
-          </div>
-          <span>❮</span>
+      <div id="fbox-list" class="card-box">
+        <div id="friends-container" style="font-size:13px;color:var(--muted);text-align:center;padding:16px 0;">
+          لیست دوستان شما خالی است
         </div>
+      </div>
 
-        <div id="pick-public" class="mode-item">
-          <div>
-            <div style="font-weight:bold;font-size:14px;">⚡ اتاق عمومی</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:3px;">ورودی ۲۰ SVH • جایزه ۳۵ SVH</div>
-          </div>
-          <span>❮</span>
+      <div id="fbox-req" class="card-box" style="display:none;">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">📥 دریافتی</div>
+        <div style="font-size:12px;color:var(--muted);text-align:center;padding:10px 0;">درخواست دوستی جدیدی ندارید</div>
+        <div style="font-size:12px;color:var(--muted);margin:12px 0 8px;">📤 ارسالی</div>
+        <div id="sent-req-list" style="font-size:12px;color:var(--muted);text-align:center;padding:10px 0;">
+          درخواست ارسالی ندارید
         </div>
+      </div>
 
-        <div id="pick-friends" class="mode-item">
-          <div>
-            <div style="font-weight:bold;font-size:14px;">👥 بازی با دوستان (آیدی تلگرام)</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:3px;">دعوت مستقیم با آیدی عددی یا یوزرنیم</div>
-          </div>
-          <span>❮</span>
-        </div>
+      <div id="fbox-add" class="card-box" style="display:none;">
+        <div style="font-size:12px;color:var(--muted);">نام کاربری یا شناسه عددی دوست:</div>
+        <input id="friend-search-input" class="input-box" type="text" placeholder="مثلاً @username یا 123456789" />
+        <button id="btn-send-req" type="button" class="primary-btn">ارسال درخواست دوستی</button>
+        <div id="friend-msg" style="font-size:12px;color:var(--accent);text-align:center;margin-top:8px;"></div>
       </div>
     </div>
 
-    <!-- نمای ۳: تنظیمات قبل از شروع دوز چهارتایی -->
-    <div id="view-c4-setup" class="hidden">
-      <div class="card-box">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <strong style="font-size:16px;">تنظیمات قبل از شروع</strong>
-          <button id="btn-back-modes" type="button" class="icon-btn">بازگشت</button>
-        </div>
-
-        <div id="friend-id-wrap" class="hidden" style="margin-bottom:14px;">
-          <div style="font-size:12px;color:var(--muted);">آیدی عددی یا @username دوستت:</div>
-          <input id="friend-id-input" class="input-box" type="text" placeholder="مثلاً 123456789 یا @user" />
-        </div>
-
-        <div style="font-size:13px;color:var(--muted);text-align:center;">رنگ مهره خودت را انتخاب کن:</div>
-        <div class="color-row">
-          <div class="color-opt selected" data-color="#ef4444" style="background:#ef4444;"></div>
-          <div class="color-opt" data-color="#facc15" style="background:#facc15;"></div>
-          <div class="color-opt" data-color="#22c55e" style="background:#22c55e;"></div>
-          <div class="color-opt" data-color="#a855f7" style="background:#a855f7;"></div>
-        </div>
-
-        <div id="difficulty-wrap">
-          <div style="font-size:13px;color:var(--muted);">سطح حریف (ربات):</div>
-          <div class="pill-group">
-            <button type="button" class="pill-btn diff-btn" data-diff="easy">آسان</button>
-            <button type="button" class="pill-btn diff-btn active" data-diff="medium">متوسط</button>
-            <button type="button" class="pill-btn diff-btn" data-diff="hard">سخت</button>
-          </div>
-        </div>
-
-        <div style="font-size:13px;color:var(--muted);">تعداد دست بازی:</div>
-        <div class="pill-group">
-          <button type="button" class="pill-btn round-btn active" data-rounds="3">۳ دست</button>
-          <button type="button" class="pill-btn round-btn" data-rounds="5">۵ دست</button>
-        </div>
-
-        <button id="btn-start-c4" type="button" class="primary-btn">شروع بازی</button>
-      </div>
-    </div>
-
-    <!-- نمای ۴: تاس نوبت شروع -->
-    <div id="view-dice" class="hidden">
-      <div class="card-box dice-box">
-        <strong style="font-size:16px;">🎲 تعیین نوبت شروع بازی</strong>
-        <p style="font-size:12px;color:var(--muted);">تاس را بینداز تا مشخص شود چه کسی حرکت اول را می‌زند</p>
-        <div id="dice-cube" class="dice-cube">?</div>
-        <div id="dice-result" style="font-size:13px;color:var(--gold);min-height:22px;margin-bottom:12px;"></div>
-        <button id="btn-roll-dice" type="button" class="primary-btn">پرتاب تاس</button>
-      </div>
-    </div>
-
-    <!-- نمای ۵: صفحه بازی دوز چهارتایی (۷×۶) -->
-    <div id="view-c4-game" class="hidden">
-      <div class="c4-hud">
-        <div><span id="hud-p1">شما</span>: <strong id="score-p1">0</strong></div>
-        <div style="color:var(--gold);font-weight:bold;">دست <span id="hud-round">1</span> از <span id="hud-total-rounds">3</span></div>
-        <div><span id="hud-p2">ربات</span>: <strong id="score-p2">0</strong></div>
-      </div>
-
-      <div id="turn-banner" style="text-align:center;font-size:13px;font-weight:bold;color:var(--accent);margin-bottom:10px;">
-        نوبت شماست — روی یکی از ستون‌ها بزن
-      </div>
-
-      <div id="c4-board" class="c4-board"></div>
-
-      <button id="btn-exit-match" type="button" class="icon-btn" style="width:100%;margin-top:12px;padding:10px;">
-        خروج از بازی
-      </button>
-    </div>
-
-    <!-- نمای ۶: پروفایل -->
-    <div id="view-profile" class="hidden">
+    <!-- نمای ۳: پروفایل -->
+    <div id="page-profile" style="display:none;">
       <div class="card-box">
         <div style="text-align:center;">
-          <div id="prof-avatar-big" style="font-size:46px;">🦁</div>
+          <div id="prof-avatar-big" style="font-size:48px;">🦁</div>
           <div id="prof-name-big" style="font-weight:bold;font-size:16px;margin-top:4px;">SavasH</div>
-          <div id="prof-handle" style="font-size:12px;color:var(--muted);">@bigsavash</div>
+          <div id="prof-user-big" style="font-size:12px;color:var(--muted);">@bigsavash</div>
         </div>
 
         <div class="stats-grid">
           <div class="stat-box">
             <div style="font-size:11px;color:var(--muted);">بازی‌ها</div>
-            <strong id="stat-games" style="font-size:17px;">0</strong>
+            <strong style="font-size:17px;">0</strong>
           </div>
           <div class="stat-box">
             <div style="font-size:11px;color:var(--muted);">بردها</div>
-            <strong id="stat-wins" style="font-size:17px;color:#22c55e;">0</strong>
+            <strong style="font-size:17px;color:#22c55e;">0</strong>
           </div>
           <div class="stat-box">
             <div style="font-size:11px;color:var(--muted);">باخت‌ها</div>
-            <strong id="stat-losses" style="font-size:17px;color:#ef4444;">0</strong>
+            <strong style="font-size:17px;color:#ef4444;">0</strong>
           </div>
         </div>
 
-        <div style="font-size:12px;color:var(--muted);">نام نمایشی:</div>
-        <input id="prof-name-input" class="input-box" type="text" placeholder="نام نمایشی خودت را بنویس" />
+        <div style="font-size:12px;color:var(--muted);">نام کاربری (Username):</div>
+        <input id="inp-username" class="input-box" type="text" placeholder="مثلاً bigsavash" />
+
+        <div style="font-size:12px;color:var(--muted);margin-top:10px;">نام نمایشی:</div>
+        <input id="inp-displayname" class="input-box" type="text" placeholder="نام نمایشی خودت را بنویس" />
 
         <div style="font-size:12px;color:var(--muted);margin-top:12px;">آواتار آماده:</div>
         <div id="avatar-grid" class="avatar-grid">
@@ -505,15 +329,174 @@
         </div>
 
         <button id="btn-save-profile" type="button" class="primary-btn">ذخیره پروفایل</button>
+        <div id="prof-msg" style="font-size:12px;color:#22c55e;text-align:center;margin-top:8px;"></div>
       </div>
     </div>
   </div>
 
+  <!-- منوی ناوبری پایین -->
   <div class="bottom-nav">
     <button id="nav-games" type="button" class="nav-btn active"><span>🎮</span><span>بازی‌ها</span></button>
+    <button id="nav-friends" type="button" class="nav-btn"><span>👥</span><span>دوستان</span></button>
     <button id="nav-profile" type="button" class="nav-btn"><span>👤</span><span>پروفایل</span></button>
   </div>
 
-  <script src="./app.js"></script>
+  <script>
+    (function () {
+      var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+      if (tg) {
+        try { tg.ready(); tg.expand(); } catch (e) {}
+      }
+
+      var tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
+      var saved = {};
+      try { saved = JSON.parse(localStorage.getItem("germ_lobby_v1") || "{}"); } catch (e) {}
+
+      var state = {
+        displayName: saved.displayName || (tgUser && tgUser.first_name) || "SavasH",
+        username: saved.username || (tgUser && tgUser.username ? "@" + tgUser.username : "@bigsavash"),
+        avatar: saved.avatar || "🦁",
+        theme: saved.theme || "dark",
+        sentRequests: Array.isArray(saved.sentRequests) ? saved.sentRequests : []
+      };
+
+      function saveState() {
+        try { localStorage.setItem("germ_lobby_v1", JSON.stringify(state)); } catch (e) {}
+      }
+
+      function $(id) { return document.getElementById(id); }
+
+      function applyTheme() {
+        var isLight = state.theme === "light";
+        document.body.classList.toggle("light", isLight);
+        $("btn-theme").textContent = isLight ? "☀️" : "🌙";
+      }
+
+      function renderProfile() {
+        $("top-avatar").textContent = state.avatar;
+        $("top-name").textContent = state.displayName;
+        $("top-username").textContent = state.username;
+        $("prof-avatar-big").textContent = state.avatar;
+        $("prof-name-big").textContent = state.displayName;
+        $("prof-user-big").textContent = state.username;
+        $("inp-username").value = state.username.replace(/^@/, "");
+        $("inp-displayname").value = state.displayName;
+
+        var items = document.querySelectorAll(".avatar-item");
+        for (var i = 0; i < items.length; i++) {
+          items[i].classList.toggle("active", items[i].getAttribute("data-av") === state.avatar);
+        }
+      }
+
+      function renderSentRequests() {
+        var box = $("sent-req-list");
+        if (!state.sentRequests.length) {
+          box.innerHTML = "درخواست ارسالی ندارید";
+          return;
+        }
+        box.innerHTML = "";
+        state.sentRequests.forEach(function (target, idx) {
+          var row = document.createElement("div");
+          row.className = "friend-row";
+          row.innerHTML = "<span>" + target + "</span>";
+          var cancelBtn = document.createElement("button");
+          cancelBtn.type = "button";
+          cancelBtn.className = "mini-btn";
+          cancelBtn.textContent = "لغو";
+          cancelBtn.onclick = function () {
+            state.sentRequests.splice(idx, 1);
+            saveState();
+            renderSentRequests();
+          };
+          row.appendChild(cancelBtn);
+          box.appendChild(row);
+        });
+      }
+
+      function switchPage(page) {
+        $("page-games").style.display = page === "games" ? "block" : "none";
+        $("page-friends").style.display = page === "friends" ? "block" : "none";
+        $("page-profile").style.display = page === "profile" ? "block" : "none";
+
+        $("nav-games").classList.toggle("active", page === "games");
+        $("nav-friends").classList.toggle("active", page === "friends");
+        $("nav-profile").classList.toggle("active", page === "profile");
+      }
+
+      $("btn-theme").onclick = function () {
+        state.theme = state.theme === "dark" ? "light" : "dark";
+        applyTheme();
+        saveState();
+      };
+
+      $("nav-games").onclick = function () { switchPage("games"); };
+      $("nav-friends").onclick = function () { switchPage("friends"); };
+      $("nav-profile").onclick = function () {
+        $("prof-msg").textContent = "";
+        renderProfile();
+        switchPage("profile");
+      };
+
+      $("tab-board").onclick = function () {
+        $("tab-board").classList.add("active");
+        $("tab-card").classList.remove("active");
+        $("box-board").style.display = "block";
+        $("box-card").style.display = "none";
+      };
+
+      $("tab-card").onclick = function () {
+        $("tab-card").classList.add("active");
+        $("tab-board").classList.remove("active");
+        $("box-card").style.display = "block";
+        $("box-board").style.display = "none";
+      };
+
+      function switchFriendTab(tab) {
+        $("ftab-list").classList.toggle("active", tab === "list");
+        $("ftab-req").classList.toggle("active", tab === "req");
+        $("ftab-add").classList.toggle("active", tab === "add");
+
+        $("fbox-list").style.display = tab === "list" ? "block" : "none";
+        $("fbox-req").style.display = tab === "req" ? "block" : "none";
+        $("fbox-add").style.display = tab === "add" ? "block" : "none";
+      }
+
+      $("ftab-list").onclick = function () { switchFriendTab("list"); };
+      $("ftab-req").onclick = function () { renderSentRequests(); switchFriendTab("req"); };
+      $("ftab-add").onclick = function () { $("friend-msg").textContent = ""; switchFriendTab("add"); };
+
+      $("btn-send-req").onclick = function () {
+        var val = ($("friend-search-input").value || "").trim();
+        if (!val) return;
+        state.sentRequests.push(val);
+        saveState();
+        $("friend-search-input").value = "";
+        $("friend-msg").textContent = "درخواست برای " + val + " ثبت شد";
+        renderSentRequests();
+      };
+
+      var avItems = document.querySelectorAll(".avatar-item");
+      for (var i = 0; i < avItems.length; i++) {
+        avItems[i].onclick = function () {
+          state.avatar = this.getAttribute("data-av") || "🦁";
+          renderProfile();
+        };
+      }
+
+      $("btn-save-profile").onclick = function () {
+        var rawUser = ($("inp-username").value || "").trim().replace(/^@+/, "");
+        var rawName = ($("inp-displayname").value || "").trim();
+        if (rawUser) state.username = "@" + rawUser;
+        if (rawName) state.displayName = rawName;
+        saveState();
+        renderProfile();
+        $("prof-msg").textContent = "تغییرات پروفایل ذخیره شد";
+      };
+
+      applyTheme();
+      renderProfile();
+      renderSentRequests();
+    })();
+  </script>
 </body>
 </html>
