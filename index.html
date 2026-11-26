@@ -3,53 +3,209 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>دبرنا آنلاین | StarsGame</title>
+  <title>دبرنا SVH | GermGame</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * { box-sizing: border-box; font-family: Tahoma, sans-serif; user-select: none; }
-    body { margin: 0; background: #0f172a; color: #f8fafc; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 16px; }
-    .card { background: #1e293b; border-radius: 16px; padding: 20px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); border: 1px solid #334155; text-align: center; }
-    h1 { font-size: 22px; margin: 0 0 8px; color: #38bdf8; }
-    p.sub { font-size: 13px; color: #94a3b8; margin: 0 0 20px; }
-    .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; margin-bottom: 12px; transition: 0.2s; }
-    .btn-4 { background: linear-gradient(135deg, #2563eb, #3b82f6); color: white; }
-    .btn-6 { background: linear-gradient(135deg, #7c3aed, #8b5cf6); color: white; }
-    .btn-share { background: #10b981; color: #064e3b; margin-top: 12px; }
-    .btn-leave { background: #ef4444; color: white; margin-top: 8px; font-size: 13px; padding: 10px; }
-    .btn:active { transform: scale(0.97); }
-    .status-box { background: #0f172a; border-radius: 12px; padding: 16px; margin: 16px 0; border: 1px dashed #475569; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 16px;
+      color: #f8fafc;
+      background: radial-gradient(circle at top, #1e293b 0%, #090d16 70%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .topbar {
+      width: 100%;
+      max-width: 430px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      backdrop-filter: blur(8px);
+    }
+    .svh-pill {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #111827;
+      font-weight: bold;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+    }
+    .card {
+      width: 100%;
+      max-width: 430px;
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(99, 102, 241, 0.28);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      background: linear-gradient(90deg, #38bdf8, #a78bfa, #fbbf24);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .sub {
+      margin: 0 0 18px;
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: transform 0.14s ease, filter 0.14s ease;
+    }
+    .btn:active { transform: scale(0.97); filter: brightness(1.08); }
+    .btn-4 {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+    }
+    .btn-6 {
+      background: linear-gradient(135deg, #7c3aed, #db2777);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35);
+    }
+    .btn-shop {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      font-size: 14px;
+    }
+    .btn-share {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #ecfdf5;
+    }
+    .btn-leave {
+      background: rgba(239, 68, 68, 0.18);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      font-size: 13px;
+      padding: 10px;
+    }
+    .shop-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .pack {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 10px 6px;
+      cursor: pointer;
+    }
+    .pack:active { transform: scale(0.96); border-color: #fbbf24; }
+    .pack-svh { color: #fbbf24; font-weight: bold; font-size: 14px; }
+    .pack-price { color: #94a3b8; font-size: 11px; margin-top: 4px; }
+    .status-box {
+      background: rgba(2, 6, 23, 0.75);
+      border: 1px dashed rgba(148, 163, 184, 0.35);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 14px 0;
+    }
     .count-big { font-size: 28px; font-weight: bold; color: #fbbf24; margin: 6px 0; }
     .player-list { list-style: none; padding: 0; margin: 12px 0 0; text-align: right; }
-    .player-list li { background: #1e293b; padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
-    .badge { background: #0284c7; padding: 2px 8px; border-radius: 6px; font-size: 11px; }
+    .player-list li {
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      padding: 9px 12px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .badge { background: #0284c7; color: #fff; padding: 2px 8px; border-radius: 999px; font-size: 11px; }
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #38bdf8;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      z-index: 99;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
     .hidden { display: none; }
   </style>
 </head>
 <body>
 
-  <!-- بخش انتخاب میز -->
-  <div id="lobby-menu" class="card">
-    <h1>🎲 دبرنا چندنفره</h1>
-    <p class="sub">ظرفیت میز رو انتخاب کن و لینک رو برای دوستات بفرست</p>
-    <button class="btn btn-4" onclick="createRoom(4)">ساخت میز ۴ نفره</button>
-    <button class="btn btn-6" onclick="createRoom(6)">ساخت میز ۶ نفره</button>
+  <div class="topbar">
+    <span id="user-label" style="font-size: 13px; color: #cbd5e1;">بازیکن</span>
+    <span class="svh-pill">🪙 <span id="svh-balance">0</span> SVH</span>
   </div>
 
-  <!-- بخش اتاق انتظار و شمارش لحظه‌ای -->
+  <!-- منوی اصلی دبرنا -->
+  <div id="lobby-menu" class="card">
+    <h1>🎲 دبرنا چندنفره</h1>
+    <p class="sub">میز دلخواهت رو بساز، لینک رو برای دوستات بفرست و با کوین <b>SVH</b> بازی کن</p>
+
+    <button id="btn-create-4" type="button" class="btn btn-4">ساخت میز ۴ نفره • ورود ۲۰ SVH</button>
+    <button id="btn-create-6" type="button" class="btn btn-6">ساخت میز ۶ نفره • ورود ۳۰ SVH</button>
+    <button id="btn-toggle-shop" type="button" class="btn btn-shop">🛒 فروشگاه کوین SVH</button>
+
+    <div id="shop-box" class="hidden">
+      <div style="font-size: 13px; color: #fbbf24; margin-top: 8px;">خرید سریع کوین SVH از ربات:</div>
+      <div class="shop-grid">
+        <div class="pack" data-svh="100" data-stars="25">
+          <div class="pack-svh">+100 SVH</div>
+          <div class="pack-price">25 ⭐ / تستی</div>
+        </div>
+        <div class="pack" data-svh="300" data-stars="65">
+          <div class="pack-svh">+300 SVH</div>
+          <div class="pack-price">65 ⭐ / تستی</div>
+        </div>
+        <div class="pack" data-svh="700" data-stars="140">
+          <div class="pack-svh">+700 SVH</div>
+          <div class="pack-price">140 ⭐ / تستی</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- اتاق انتظار و شمارش زنده -->
   <div id="waiting-room" class="card hidden">
     <h1 id="room-title">اتاق انتظار دبرنا</h1>
     <div class="status-box">
-      <div style="font-size: 13px; color: #94a3b8;">وضعیت اتصال بازیکنان:</div>
+      <div style="font-size: 12px; color: #94a3b8;">تعداد بازیکنان متصل به میز:</div>
       <div class="count-big"><span id="joined-count">0</span> / <span id="max-count">4</span> نفر</div>
-      <div id="remaining-text" style="font-size: 14px; color: #38bdf8; font-weight: bold;">در حال اتصال...</div>
+      <div id="remaining-text" style="font-size: 13px; color: #38bdf8; font-weight: bold;">در حال بررسی وضعیت میز...</div>
     </div>
 
     <ul id="players-ul" class="player-list"></ul>
 
-    <button class="btn btn-share" onclick="shareRoomLink()">📤 ارسال لینک دعوت به دوستان</button>
-    <button class="btn btn-leave" onclick="leaveRoom()">خروج از میز</button>
+    <button id="btn-share" type="button" class="btn btn-share">📤 ارسال لینک دعوت به دوستان</button>
+    <button id="btn-leave" type="button" class="btn btn-leave">خروج از میز</button>
   </div>
 
-  <script type="module" src="./app.js"></script>
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="./app.js"></script>
 </body>
 </html>
