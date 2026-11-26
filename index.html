@@ -59,9 +59,10 @@
           <div class="g-sub">برای انتخاب شرط و دعوت دوست کلیک کن</div>
 
         </div>
-<div id="card-dooz4" onclick="selectGameMode('dooz4')" style="margin-top:12px;padding:14px;border-radius:16px;background:rgba(30,41,59,0.75);border:1px solid rgba(99,102,241,0.45);cursor:pointer;">
-  <div style="font-weight:bold;font-size:17px;color:#a5b4fc;">دوز چهار تایی</div>
-  <div style="font-size:12px;opacity:0.85;margin-top:4px;">بازی جداگانه • اتصال ۴ مهره در یک ردیف</div>
+<div id="card-dooz4" onclick="selectGameMode('dooz4')" style="margin-top:12px;padding:16px 14px;border-radius:18px;background:rgba(24,20,48,0.82);border:1px solid rgba(239,68,68,0.35);cursor:pointer;text-align:center;">
+  <div style="font-size:26px;font-weight:900;letter-spacing:2px;color:#ff4d5a;text-shadow:0 0 14px rgba(255,77,90,0.45);line-height:1.1;">4×4</div>
+  <div style="font-weight:bold;font-size:17px;color:#ffffff;margin-top:6px;">دوز چهارتایی</div>
+  <div style="font-size:12px;color:rgba(255,255,255,0.72);margin-top:4px;">برای انتخاب شرط و دعوت دوست کلیک کن</div>
 </div>
       </div>
 
@@ -242,10 +243,22 @@
 window.selectedGameMode = window.selectedGameMode || 'dooz';
 window.selectGameMode = function(mode) {
   window.selectedGameMode = mode;
+  const c1 = document.querySelector('[onclick*="dooz4"]');
+  if (c1) {
+    c1.style.borderColor = mode === 'dooz4' ? 'rgba(255,77,90,0.9)' : 'rgba(239,68,68,0.35)';
+    c1.style.boxShadow = mode === 'dooz4' ? '0 0 18px rgba(255,77,90,0.28)' : 'none';
+  }
+  const betBox = document.querySelector('[class*="bet"], [id*="bet"]') ||
+                 Array.from(document.querySelectorAll('div,section')).find(el => (el.textContent || '').includes('SAV 100'));
+  if (betBox) {
+    betBox.style.display = '';
+    betBox.classList.remove('hidden', 'hide', 'd-none');
+    betBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
   const statusEl = document.querySelector('[style*="بازی دوز انتخاب شد"]') || document.getElementById('statusText');
   if (statusEl) {
     statusEl.textContent = mode === 'dooz4'
-      ? 'بازی دوز چهار تایی انتخاب شد — شرط را انتخاب کن و دوستت را دعوت کن.'
+      ? 'بازی دوز چهارتایی انتخاب شد — شرط را انتخاب کن و دوستت را دعوت کن.'
       : 'بازی دوز انتخاب شد — شرط را انتخاب کن و دوستت را دعوت کن.';
   }
 };
