@@ -1,56 +1,55 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GermGame - منوی اصلی</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>دبرنا آنلاین | StarsGame</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    * { box-sizing: border-box; user-select: none; }
-    body { margin: 0; font-family: Tahoma, sans-serif; background: #0d0914; color: #fff; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
-    .header { width: 100%; max-width: 400px; background: #181429; border: 1px solid #312450; border-radius: 16px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    .user-info { display: flex; align-items: center; gap: 10px; }
-    .avatar { width: 40px; height: 40px; border-radius: 50%; background: #ff4d5a; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-    .balance { background: #261b40; padding: 6px 12px; border-radius: 20px; color: #facc15; font-weight: bold; border: 1px solid #4a337a; }
-    .section-title { width: 100%; max-width: 400px; font-size: 14px; color: #a5b4fc; margin-bottom: 10px; padding-right: 5px; }
-    .game-card { width: 100%; max-width: 400px; background: #181429; border: 2px solid #312450; border-radius: 20px; padding: 25px; text-align: center; cursor: pointer; transition: all 0.3s ease; margin-bottom: 20px; }
-    .game-card:hover { transform: translateY(-3px); border-color: #ff4d5a; }
-    .icon-ox { font-size: 40px; font-weight: 900; color: #ff4d5a; text-shadow: 0 0 20px rgba(255, 77, 90, 0.6); margin-bottom: 10px; }
-    .icon-4x4 { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; }
-    .dot { width: 16px; height: 16px; border-radius: 50%; background: #ff4d5a; box-shadow: 0 0 15px #ff4d5a; }
-    .game-title { font-size: 22px; font-weight: bold; margin-bottom: 8px; }
-    .game-desc { font-size: 13px; color: #94a3b8; }
+    * { box-sizing: border-box; font-family: Tahoma, sans-serif; user-select: none; }
+    body { margin: 0; background: #0f172a; color: #f8fafc; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 16px; }
+    .card { background: #1e293b; border-radius: 16px; padding: 20px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); border: 1px solid #334155; text-align: center; }
+    h1 { font-size: 22px; margin: 0 0 8px; color: #38bdf8; }
+    p.sub { font-size: 13px; color: #94a3b8; margin: 0 0 20px; }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; margin-bottom: 12px; transition: 0.2s; }
+    .btn-4 { background: linear-gradient(135deg, #2563eb, #3b82f6); color: white; }
+    .btn-6 { background: linear-gradient(135deg, #7c3aed, #8b5cf6); color: white; }
+    .btn-share { background: #10b981; color: #064e3b; margin-top: 12px; }
+    .btn-leave { background: #ef4444; color: white; margin-top: 8px; font-size: 13px; padding: 10px; }
+    .btn:active { transform: scale(0.97); }
+    .status-box { background: #0f172a; border-radius: 12px; padding: 16px; margin: 16px 0; border: 1px dashed #475569; }
+    .count-big { font-size: 28px; font-weight: bold; color: #fbbf24; margin: 6px 0; }
+    .player-list { list-style: none; padding: 0; margin: 12px 0 0; text-align: right; }
+    .player-list li { background: #1e293b; padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+    .badge { background: #0284c7; padding: 2px 8px; border-radius: 6px; font-size: 11px; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="user-info">
-      <div class="avatar" id="userInitial">س</div>
-      <div style="font-weight: bold;" id="userName">ساواش</div>
+
+  <!-- بخش انتخاب میز -->
+  <div id="lobby-menu" class="card">
+    <h1>🎲 دبرنا چندنفره</h1>
+    <p class="sub">ظرفیت میز رو انتخاب کن و لینک رو برای دوستات بفرست</p>
+    <button class="btn btn-4" onclick="createRoom(4)">ساخت میز ۴ نفره</button>
+    <button class="btn btn-6" onclick="createRoom(6)">ساخت میز ۶ نفره</button>
+  </div>
+
+  <!-- بخش اتاق انتظار و شمارش لحظه‌ای -->
+  <div id="waiting-room" class="card hidden">
+    <h1 id="room-title">اتاق انتظار دبرنا</h1>
+    <div class="status-box">
+      <div style="font-size: 13px; color: #94a3b8;">وضعیت اتصال بازیکنان:</div>
+      <div class="count-big"><span id="joined-count">0</span> / <span id="max-count">4</span> نفر</div>
+      <div id="remaining-text" style="font-size: 14px; color: #38bdf8; font-weight: bold;">در حال اتصال...</div>
     </div>
-    <div class="balance">SAV <span id="userBalance">4,480</span></div>
+
+    <ul id="players-ul" class="player-list"></ul>
+
+    <button class="btn btn-share" onclick="shareRoomLink()">📤 ارسال لینک دعوت به دوستان</button>
+    <button class="btn btn-leave" onclick="leaveRoom()">خروج از میز</button>
   </div>
-  <div class="section-title">انتخاب بازی</div>
-  <div class="game-card" onclick="openGame('dooz3')">
-    <div class="icon-ox">OX</div>
-    <div class="game-title">دوز کلاسیک (3x3)</div>
-    <div class="game-desc">کلاسیک و نوستالژیک • شرط‌بندی سریع</div>
-  </div>
-  <div class="game-card" onclick="openGame('dooz4')">
-    <div class="icon-4x4">
-      <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-    </div>
-    <div class="game-title">دوز چهار تایی (Connect 4)</div>
-    <div class="game-desc">اتصال ۴ مهره در یک ستون یا ردیف • هیجان بالا</div>
-  </div>
-  <script>
-    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-    if (tg) { tg.ready(); tg.expand(); }
-    function openGame(type) {
-      if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-      const baseUrl = window.location.href.replace(/[^/]*$/, '');
-      window.location.href = baseUrl + (type === 'dooz3' ? 'dooz3.html' : 'dooz4.html');
-    }
-  </script>
+
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
