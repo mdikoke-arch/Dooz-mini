@@ -59,6 +59,15 @@
           <div class="g-sub">برای انتخاب شرط و دعوت دوست کلیک کن</div>
 
         </div>
+<div id="card-dooz4" data-mode="dooz4" style="margin-top:12px;padding:16px 14px;border-radius:18px;background:rgba(24,20,48,0.88);border:1px solid rgba(255,77,90,0.45);cursor:pointer;text-align:center;">
+  <div style="display:flex;justify-content:center;gap:6px;margin-bottom:8px;">
+    <span style="width:13px;height:13px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.85);"></span>
+    <span style="width:13px;height:13px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.85);"></span>
+    <span style="width:13px;height:13px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.85);"></span>
+    <span style="width:13px;height:13px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.85);"></span>
+  </div>
+  <div style="font-weight:900;font-size:18px;color:#ff4d5a;text-shadow:0 0 12px rgba(255,77,90,0.35);">دوز چهارتایی</div>
+</div>
       </div>
       <div class="sav-pill"><span class="sav-coin">S</span><span id="savBal">0 SAV</span></div>
     </header>
@@ -254,32 +263,65 @@
 
 
 
-<div id="card-dooz4" data-mode="dooz4" style="margin-top:12px;padding:16px 14px;border-radius:18px;background:rgba(24,20,48,0.85);border:1px solid rgba(255,77,90,0.4);cursor:pointer;text-align:center;">
-  <div style="display:flex;justify-content:center;gap:6px;margin-bottom:8px;">
-    <span style="width:14px;height:14px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.8);"></span>
-    <span style="width:14px;height:14px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.8);"></span>
-    <span style="width:14px;height:14px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.8);"></span>
-    <span style="width:14px;height:14px;border-radius:50%;background:#ff4d5a;box-shadow:0 0 10px rgba(255,77,90,0.8);"></span>
-  </div>
-  <div style="font-weight:900;font-size:18px;color:#ff4d5a;text-shadow:0 0 12px rgba(255,77,90,0.35);">دوز چهارتایی</div>
-</div>
+
+
+
 
 <script>
 (function() {
   window.selectedGameMode = window.selectedGameMode || 'dooz';
-  document.addEventListener('click', function(e) {
-    const card4 = e.target.closest('#card-dooz4');
-    if (!card4) return;
-    window.selectedGameMode = 'dooz4';
-    card4.style.borderColor = '#ff4d5a';
-    card4.style.boxShadow = '0 0 18px rgba(255,77,90,0.35)';
-    const doozCard = Array.from(document.querySelectorAll('div')).find(
-      el => el.children.length > 0 && (el.textContent || '').includes('OX') && (el.textContent || '').includes('دوز') && !(el.textContent || '').includes('چهارتایی')
-    );
-    if (doozCard) doozCard.click();
+
+  function openBetAndInviteForMode(mode) {
+    window.selectedGameMode = mode;
+    const c4 = document.getElementById('card-dooz4');
+    if (c4) {
+      c4.style.borderColor = mode === 'dooz4' ? '#ff4d5a' : 'rgba(255,77,90,0.45)';
+      c4.style.boxShadow = mode === 'dooz4' ? '0 0 20px rgba(255,77,90,0.45)' : 'none';
+    }
+
+    // اگر تابع داخلی برای انتخاب بازی در صفحه وجود داشته باشد صدا زده می‌شود
+    for (const fnName of ['selectGame', 'chooseGame', 'setGame', 'openBetSection', 'showBetBox']) {
+      if (typeof window[fnName] === 'function') {
+        try { window[fnName](mode); } catch (_) {}
+      }
+    }
+
+    // نمایش بخش‌های شرط‌بندی یا دعوت دوست در صورت مخفی بودن
+    const allEls = Array.from(document.querySelectorAll('div,section,form'));
+    const targets = allEls.filter(el => {
+      if (el.id === 'card-dooz4' || el.closest('#card-dooz4')) return false;
+      const txt = el.textContent || '';
+      return txt.includes('SAV 100') || txt.includes('دعوت');
+    }).sort((a, b) => a.innerHTML.length - b.innerHTML.length);
+
+    let scrollTarget = targets[0] || null;
+    for (const el of targets) {
+      let cur = el;
+      while (cur && cur !== document.body) {
+        const st = window.getComputedStyle(cur);
+        if (st.display === 'none' || st.visibility === 'hidden' || Number(st.opacity) === 0) {
+          cur.style.display = 'block';
+          cur.style.visibility = 'visible';
+          cur.style.opacity = '1';
+          cur.classList.remove('hidden', 'hide', 'd-none', 'invisible');
+        }
+        cur = cur.parentElement;
+      }
+    }
+
+    if (scrollTarget) {
+      scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
     if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
       window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
     }
+  }
+
+  document.addEventListener('click', function(e) {
+    const card4 = e.target.closest('#card-dooz4');
+    if (!card4) return;
+    openBetAndInviteForMode('dooz4');
   }, true);
 })();
 </script>
